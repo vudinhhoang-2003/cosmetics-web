@@ -36,7 +36,7 @@ export default function HomePage() {
       <section className="relative h-screen min-h-[640px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1800&q=80')" }}
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=85')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-obsidian/85 via-obsidian/50 to-transparent" />
 

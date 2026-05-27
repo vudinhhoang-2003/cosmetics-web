@@ -15,7 +15,8 @@
       "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\api\")",
       "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\hooks\")",
       "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\types\")",
-      "Bash(Write-Output \"Directories created\")"
+      "Bash(Write-Output \"Directories created\")",
+      "Bash(docker compose *)"
     ]
   }
 }

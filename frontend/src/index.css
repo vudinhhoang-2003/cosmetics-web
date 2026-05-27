@@ -28,40 +28,40 @@
 @layer components {
   /* ── Buttons ─────────────────────────────────────────── */
   .btn-gold {
-    @apply inline-block bg-gold text-white font-sans text-xs font-medium uppercase
+    @apply inline-block bg-gold text-white font-sans text-[11px] font-medium uppercase
            px-8 py-3.5 transition-all duration-500
            hover:bg-gold-dark;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.15em;
   }
 
   .btn-ghost {
-    @apply inline-block text-white font-sans text-xs font-medium uppercase
+    @apply inline-block text-white font-sans text-[11px] font-medium uppercase
            py-2 border-b border-gold
            transition-all duration-300
            hover:text-gold;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.15em;
   }
 
   .btn-ghost-dark {
-    @apply inline-block text-dark-text font-sans text-xs font-medium uppercase
+    @apply inline-block text-dark-text font-sans text-[11px] font-medium uppercase
            py-2 border-b border-gold
            transition-all duration-300
            hover:text-gold-dark;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.15em;
   }
 
   .btn-navy {
-    @apply inline-block bg-navy text-white font-sans text-xs font-medium uppercase
+    @apply inline-block bg-navy text-white font-sans text-[11px] font-medium uppercase
            px-8 py-3.5 transition-all duration-300
            hover:bg-obsidian;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.15em;
   }
 
   .btn-outline {
-    @apply inline-block border border-dark-text text-dark-text font-sans text-xs font-medium uppercase
+    @apply inline-block border border-dark-text text-dark-text font-sans text-[11px] font-medium uppercase
            px-8 py-3.5 transition-all duration-300
            hover:bg-dark-text hover:text-white;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.15em;
   }
 
   /* ── Product cards ────────────────────────────────────── */
@@ -84,28 +84,33 @@
     @apply font-display font-light leading-none;
   }
 
+  /* Short editorial labels — kept at wider spacing since they're 2-3 words max */
   .editorial-label {
     @apply font-sans text-[10px] uppercase text-gold;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.25em;
   }
 
   .price-gold {
     @apply text-gold font-bold font-sans;
   }
 
-  /* Animated underline for nav links */
+  /* Nav links — reduced spacing so text never wraps */
   .nav-link {
-    @apply relative font-sans text-xs uppercase text-dark-text
+    @apply relative font-sans text-[11px] uppercase text-dark-text whitespace-nowrap
            transition-colors duration-300 hover:text-gold;
-    letter-spacing: 0.35em;
+    letter-spacing: 0.1em;
   }
   .nav-link::after {
     content: '';
     @apply absolute -bottom-1 left-0 w-full h-px bg-gold
            origin-left transition-transform duration-300 scale-x-0;
   }
-  .nav-link:hover::after {
+  .nav-link:hover::after,
+  .nav-link.active::after {
     @apply scale-x-100;
+  }
+  .nav-link.active {
+    @apply text-gold;
   }
 
   /* Thin gold decorative rule */
