@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\nginx\")",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\backend\\\\app\\\\models\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\backend\\\\app\\\\schemas\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\backend\\\\app\\\\routers\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\backend\\\\app\\\\core\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\backend\\\\app\\\\crud\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\public\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\pages\\\\admin\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\components\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\store\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\api\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\hooks\")",
+      "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\types\")",
+      "Bash(Write-Output \"Directories created\")"
+    ]
+  }
+}
