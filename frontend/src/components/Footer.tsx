@@ -1,37 +1,90 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Instagram, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react'
+import { Instagram, Facebook, Youtube } from 'lucide-react'
 
 export default function Footer() {
+  const [email, setEmail] = useState('')
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmail('')
+  }
+
   return (
-    <footer className="bg-navy text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <h3 className="font-serif text-2xl font-bold tracking-widest mb-4">
-              LUXE<span className="text-gold"> BEAUTY</span>
+    <footer className="bg-obsidian text-white">
+      {/* Newsletter strip */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-14 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <p className="editorial-label mb-2">Bản Tin Độc Quyền</p>
+            <h3 className="font-display text-2xl md:text-3xl font-light text-white">
+              Nhận ưu đãi riêng dành cho thành viên
             </h3>
-            <p className="text-sm text-white/60 leading-relaxed mb-6">
-              Mỹ phẩm cao cấp chính hãng từ các thương hiệu danh tiếng thế giới.
-              Nơi vẻ đẹp đẳng cấp hội tụ.
-            </p>
+          </div>
+          <form onSubmit={handleNewsletter} className="flex gap-0 w-full md:w-auto md:min-w-[380px]">
+            <input
+              type="email"
+              placeholder="Địa chỉ email của bạn"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1 bg-transparent border border-white/20 border-r-0 px-5 py-3.5
+                         text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold/60 transition-colors"
+            />
+            <button
+              type="submit"
+              className="btn-gold shrink-0 px-6 py-3.5 text-[10px]"
+            >
+              Đăng Ký
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Main footer */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-14 pb-10">
+        {/* Logo + tagline */}
+        <div className="mb-10">
+          <Link to="/" className="inline-block mb-4">
+            <span className="font-display text-3xl font-light tracking-ultra select-none">
+              LUXE<span className="text-gold"> BEAUTY</span>
+            </span>
+          </Link>
+          <p className="text-xs text-white/40 tracking-wider max-w-xs leading-relaxed">
+            Mỹ phẩm cao cấp chính hãng. Nơi vẻ đẹp đẳng cấp hội tụ.
+          </p>
+        </div>
+
+        {/* Gold rule */}
+        <span className="luxury-rule mb-10 block opacity-30" />
+
+        {/* Links grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+          {/* Brand / Social */}
+          <div>
+            <p className="editorial-label mb-6">Kết Nối</p>
             <div className="flex gap-3">
-              <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
-                <Instagram size={16} />
-              </a>
-              <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
-                <Facebook size={16} />
-              </a>
-              <a href="#" className="w-9 h-9 border border-white/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
-                <Youtube size={16} />
-              </a>
+              {[
+                { icon: Instagram, href: '#' },
+                { icon: Facebook, href: '#' },
+                { icon: Youtube, href: '#' },
+              ].map(({ icon: Icon, href }, i) => (
+                <a
+                  key={i}
+                  href={href}
+                  className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center
+                             text-white/50 hover:border-gold hover:text-gold transition-all duration-300"
+                >
+                  <Icon size={13} />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Categories */}
           <div>
-            <h4 className="text-xs font-sans font-medium tracking-widest uppercase text-gold mb-5">Danh Mục</h4>
-            <ul className="space-y-2.5">
+            <p className="editorial-label mb-6">Danh Mục</p>
+            <ul className="space-y-3">
               {[
                 { label: 'Son Môi', to: '/products?category=son-moi' },
                 { label: 'Kem Dưỡng Da', to: '/products?category=kem-duong-da' },
@@ -40,7 +93,10 @@ export default function Footer() {
                 { label: 'Chăm Sóc Da', to: '/products?category=cham-soc-da' },
               ].map((item) => (
                 <li key={item.label}>
-                  <Link to={item.to} className="text-sm text-white/60 hover:text-gold transition-colors">
+                  <Link
+                    to={item.to}
+                    className="text-xs text-white/45 hover:text-gold transition-colors duration-300 tracking-wider"
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -48,10 +104,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Customer */}
+          {/* Support */}
           <div>
-            <h4 className="text-xs font-sans font-medium tracking-widest uppercase text-gold mb-5">Hỗ Trợ</h4>
-            <ul className="space-y-2.5">
+            <p className="editorial-label mb-6">Hỗ Trợ</p>
+            <ul className="space-y-3">
               {[
                 { label: 'Tài khoản của tôi', to: '/account' },
                 { label: 'Lịch sử đơn hàng', to: '/account' },
@@ -60,7 +116,10 @@ export default function Footer() {
                 { label: 'Câu hỏi thường gặp', to: '#' },
               ].map((item) => (
                 <li key={item.label}>
-                  <Link to={item.to} className="text-sm text-white/60 hover:text-gold transition-colors">
+                  <Link
+                    to={item.to}
+                    className="text-xs text-white/45 hover:text-gold transition-colors duration-300 tracking-wider"
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -70,29 +129,22 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-xs font-sans font-medium tracking-widest uppercase text-gold mb-5">Liên Hệ</h4>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3 text-sm text-white/60">
-                <MapPin size={15} className="mt-0.5 flex-shrink-0 text-gold" />
-                123 Đường Nguyễn Huệ, Quận 1, TP.HCM
-              </li>
-              <li className="flex items-center gap-3 text-sm text-white/60">
-                <Phone size={15} className="flex-shrink-0 text-gold" />
-                1800 6789 (Miễn phí)
-              </li>
-              <li className="flex items-center gap-3 text-sm text-white/60">
-                <Mail size={15} className="flex-shrink-0 text-gold" />
-                hello@luxebeauty.vn
-              </li>
+            <p className="editorial-label mb-6">Liên Hệ</p>
+            <ul className="space-y-3 text-xs text-white/45 tracking-wider leading-relaxed">
+              <li>123 Đường Nguyễn Huệ<br />Quận 1, TP.HCM</li>
+              <li>1800 6789 (Miễn phí)</li>
+              <li>hello@luxebeauty.vn</li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-xs text-white/40">
+        {/* Bottom bar */}
+        <span className="luxury-rule mt-12 mb-6 block opacity-20" />
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-[10px] text-white/25 tracking-wider">
             © 2026 Luxe Beauty. Tất cả quyền được bảo lưu.
           </p>
-          <p className="text-xs text-white/40">
+          <p className="text-[10px] text-white/25 tracking-wider">
             Được xây dựng với ♥ tại Việt Nam
           </p>
         </div>

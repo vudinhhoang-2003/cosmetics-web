@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,61 +18,109 @@
   h1, h2, h3, h4 {
     @apply font-serif;
   }
+
+  ::selection {
+    background: #C9A96E;
+    color: #fff;
+  }
 }
 
 @layer components {
+  /* ── Buttons ─────────────────────────────────────────── */
   .btn-gold {
-    @apply px-6 py-2.5 border border-gold text-navy font-sans text-sm font-medium tracking-wider uppercase
-           transition-all duration-300 hover:bg-gold hover:text-white;
+    @apply inline-block bg-gold text-white font-sans text-xs font-medium uppercase
+           px-8 py-3.5 transition-all duration-500
+           hover:bg-gold-dark;
+    letter-spacing: 0.35em;
+  }
+
+  .btn-ghost {
+    @apply inline-block text-white font-sans text-xs font-medium uppercase
+           py-2 border-b border-gold
+           transition-all duration-300
+           hover:text-gold;
+    letter-spacing: 0.35em;
+  }
+
+  .btn-ghost-dark {
+    @apply inline-block text-dark-text font-sans text-xs font-medium uppercase
+           py-2 border-b border-gold
+           transition-all duration-300
+           hover:text-gold-dark;
+    letter-spacing: 0.35em;
   }
 
   .btn-navy {
-    @apply px-6 py-2.5 bg-navy text-white font-sans text-sm font-medium tracking-wider uppercase
-           transition-all duration-300 hover:bg-opacity-90;
+    @apply inline-block bg-navy text-white font-sans text-xs font-medium uppercase
+           px-8 py-3.5 transition-all duration-300
+           hover:bg-obsidian;
+    letter-spacing: 0.35em;
   }
 
   .btn-outline {
-    @apply px-6 py-2.5 border border-navy text-navy font-sans text-sm font-medium tracking-wider uppercase
-           transition-all duration-300 hover:bg-navy hover:text-white;
+    @apply inline-block border border-dark-text text-dark-text font-sans text-xs font-medium uppercase
+           px-8 py-3.5 transition-all duration-300
+           hover:bg-dark-text hover:text-white;
+    letter-spacing: 0.35em;
   }
 
+  /* ── Product cards ────────────────────────────────────── */
   .product-card {
-    @apply bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300;
+    @apply bg-white overflow-hidden transition-all duration-500;
   }
 
+  /* ── Form inputs ──────────────────────────────────────── */
   .input-field {
-    @apply w-full px-4 py-3 border border-soft-gray bg-beige text-dark-text text-sm
+    @apply w-full px-4 py-3 border border-soft-gray bg-pearl text-dark-text text-sm
            focus:outline-none focus:border-gold transition-colors duration-200;
   }
 
+  /* ── Typography helpers ───────────────────────────────── */
   .section-title {
-    @apply font-serif text-2xl md:text-3xl text-navy font-semibold;
+    @apply font-serif text-3xl md:text-4xl text-navy font-semibold;
+  }
+
+  .display-title {
+    @apply font-display font-light leading-none;
+  }
+
+  .editorial-label {
+    @apply font-sans text-[10px] uppercase text-gold;
+    letter-spacing: 0.35em;
   }
 
   .price-gold {
     @apply text-gold font-bold font-sans;
   }
+
+  /* Animated underline for nav links */
+  .nav-link {
+    @apply relative font-sans text-xs uppercase text-dark-text
+           transition-colors duration-300 hover:text-gold;
+    letter-spacing: 0.35em;
+  }
+  .nav-link::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 w-full h-px bg-gold
+           origin-left transition-transform duration-300 scale-x-0;
+  }
+  .nav-link:hover::after {
+    @apply scale-x-100;
+  }
+
+  /* Thin gold decorative rule */
+  .luxury-rule {
+    @apply block h-px bg-gold;
+  }
 }
 
-/* Custom scrollbar */
+/* ── Custom scrollbar ─────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 3px;
 }
 ::-webkit-scrollbar-track {
   background: #FAFAF8;
 }
 ::-webkit-scrollbar-thumb {
   background: #C9A96E;
-  border-radius: 3px;
-}
-
-/* Page transition */
-.page-enter {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms, transform 300ms;
 }
