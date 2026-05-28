@@ -21,9 +21,24 @@ def list_products(
     max_price: Optional[float] = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
+    brand: Optional[str] = None,
+    in_stock: Optional[bool] = None,
+    sale_only: Optional[bool] = None,
     db: Session = Depends(get_db),
 ):
-    return crud_product.get_multi(db, skip, limit, category, min_price, max_price, search, sort)
+    return crud_product.get_multi(
+        db,
+        skip,
+        limit,
+        category,
+        min_price,
+        max_price,
+        search,
+        sort,
+        brand,
+        in_stock,
+        sale_only,
+    )
 
 
 @router.get("/{slug}", response_model=ProductOut)

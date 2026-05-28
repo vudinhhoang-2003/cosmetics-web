@@ -16,6 +16,9 @@ def get_multi(
     max_price: Optional[float] = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
+    brand: Optional[str] = None,
+    in_stock: Optional[bool] = None,
+    sale_only: Optional[bool] = None,
 ) -> ProductList:
     q = db.query(Product).filter(Product.is_active == True)
 
@@ -32,8 +35,22 @@ def get_multi(
             Product.brand.ilike(f"%{search}%"),
             Product.description.ilike(f"%{search}%"),
         ))
+    if brand:
+        brands = [b.strip() for b in brand.split(",") if b.strip()]
+        if brands:
+            q = q.filter(Product.brand.in_(brands))
+    if in_stock:
+        q = q.filter(Product.stock > 0)
+    if sale_only:
+        q = q.filter(Product.sale_price.isnot(None))
 
-    if sort == "price_asc":
+    if sort == "popular":
+        q = (
+            q.outerjoin(Review, Review.product_id == Product.id)
+            .group_by(Product.id)
+            .order_by(func.count(Review.id).desc(), Product.created_at.desc())
+        )
+    elif sort == "price_asc":
         q = q.order_by(Product.price.asc())
     elif sort == "price_desc":
         q = q.order_by(Product.price.desc())

@@ -19,6 +19,7 @@ export const productApi = {
   list: (params?: {
     skip?: number; limit?: number; category?: string
     min_price?: number; max_price?: number; search?: string; sort?: string
+    brand?: string; in_stock?: boolean; sale_only?: boolean
   }) => api.get<ProductList>('/products', { params }),
   get: (slug: string) => api.get<Product>(`/products/${slug}`),
   create: (data: Partial<Product>) => api.post<Product>('/products', data),
