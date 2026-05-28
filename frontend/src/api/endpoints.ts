@@ -20,9 +20,9 @@ export const productApi = {
     skip?: number; limit?: number; category?: string
     min_price?: number; max_price?: number; search?: string; sort?: string
     brand?: string; in_stock?: boolean; sale_only?: boolean
-  }) => api.get<ProductList>('/products', { params }),
+  }) => api.get<ProductList>('/products/', { params }),
   get: (slug: string) => api.get<Product>(`/products/${slug}`),
-  create: (data: Partial<Product>) => api.post<Product>('/products', data),
+  create: (data: Partial<Product>) => api.post<Product>('/products/', data),
   update: (id: string, data: Partial<Product>) => api.put<Product>(`/products/${id}`, data),
   delete: (id: string) => api.delete(`/products/${id}`),
   getReviews: (id: string) => api.get<Review[]>(`/products/${id}/reviews`),
@@ -32,9 +32,9 @@ export const productApi = {
 
 // Categories
 export const categoryApi = {
-  list: () => api.get<Category[]>('/categories'),
+  list: () => api.get<Category[]>('/categories/'),
   create: (data: { name: string; slug: string; image_url?: string }) =>
-    api.post<Category>('/categories', data),
+    api.post<Category>('/categories/', data),
   update: (id: string, data: Partial<Category>) => api.put<Category>(`/categories/${id}`, data),
   delete: (id: string) => api.delete(`/categories/${id}`),
 }
