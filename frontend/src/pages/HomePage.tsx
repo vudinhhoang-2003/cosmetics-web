@@ -56,14 +56,14 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.2 }}
-              className="font-display font-light text-white leading-[0.9] mb-8"
-              style={{ fontSize: 'clamp(3.5rem, 8vw, 7.5rem)' }}
+              className="font-display font-light text-white leading-tight mb-8"
+              style={{ fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 1.15 }}
             >
-              L'Art de
+              Vẻ Đẹp
               <br />
-              <em className="text-gold">la Beauté</em>
+              <em className="text-gold">Hoàn Mỹ</em>
               <br />
-              Parfaite
+              Đẳng Cấp
             </motion.h1>
 
             <motion.p

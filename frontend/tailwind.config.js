@@ -20,7 +20,7 @@ export default {
         'muted-gray': '#8B8B8B',
       },
       fontFamily: {
-        display: ['Playfair Display', 'Georgia', 'serif'],
+        display: ['Be Vietnam Pro', 'system-ui', 'sans-serif'],
         serif: ['Playfair Display', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },

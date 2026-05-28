@@ -15,17 +15,8 @@ const FREE_SHIP_THRESHOLD = 500000
 export default function CartPage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
-  const { items, setItems, updateItem, removeItem, clearCart, total, count } = useCartStore()
+  const { items, setItems, updateItem, removeItem, total, count } = useCartStore()
   const queryClient = useQueryClient()
-
-  // Nếu chưa đăng nhập, xóa giỏ hàng cục bộ cũ và điều hướng sang trang đăng nhập
-  useEffect(() => {
-    if (!isAuthenticated) {
-      clearCart()
-      toast.error('Vui lòng đăng nhập để xem giỏ hàng')
-      navigate('/login', { replace: true })
-    }
-  }, [isAuthenticated])
 
   // Sync cart with server when authenticated
   const { data: serverCart } = useQuery({

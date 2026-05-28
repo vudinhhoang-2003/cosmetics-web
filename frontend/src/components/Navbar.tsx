@@ -110,7 +110,7 @@ export default function Navbar() {
 
               <Link to="/cart" className="relative text-dark-text hover:text-gold transition-colors duration-300 p-0.5">
                 <ShoppingBag size={16} />
-                {count() > 0 && (
+                {isAuthenticated && count() > 0 && (
                   <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-gold text-white text-[8px] rounded-full flex items-center justify-center font-bold leading-none">
                     {count()}
                   </span>
@@ -158,7 +158,7 @@ export default function Navbar() {
             </button>
             <Link to="/cart" className="relative text-dark-text hover:text-gold transition-colors p-1">
               <ShoppingBag size={17} />
-              {count() > 0 && (
+              {isAuthenticated && count() > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-gold text-white text-[8px] rounded-full flex items-center justify-center font-bold">
                   {count()}
                 </span>
