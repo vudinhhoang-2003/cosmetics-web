@@ -25,6 +25,27 @@ interface ProductForm {
   is_active: boolean
 }
 
+function ProductRowImage({ src, name }: { src?: string; name: string }) {
+  const [error, setError] = useState(false)
+
+  if (!src || error) {
+    return (
+      <div className="w-12 h-12 bg-beige border border-soft-gray/30 flex items-center justify-center rounded-sm shrink-0" title={name}>
+        <Package size={16} className="text-gold/50" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setError(true)}
+      className="w-12 h-12 object-cover bg-beige rounded-sm shrink-0"
+    />
+  )
+}
+
 const PAGE_SIZE = 20
 const LOW_STOCK_LIMIT = 10
 
@@ -461,10 +482,9 @@ export default function AdminProducts() {
                 products.map((product) => (
                   <tr key={product.id} className="hover:bg-beige/30 transition-colors">
                     <td className="px-4 py-3">
-                      <img
+                      <ProductRowImage
                         src={product.images?.[0] || 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=80'}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover bg-beige rounded-sm"
+                        name={product.name}
                       />
                     </td>
                     <td className="px-4 py-3">

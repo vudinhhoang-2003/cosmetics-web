@@ -12,6 +12,48 @@ import { formatPrice } from '../../utils/format'
 import Select from '../../components/Select'
 import { useSearchParams } from 'react-router-dom'
 
+function OrderRowImage({ src, name }: { src?: string; name: string }) {
+  const [error, setError] = useState(false)
+
+  if (!src || error) {
+    return (
+      <div className="w-16 h-16 bg-beige border border-soft-gray/50 flex items-center justify-center rounded-sm shrink-0" title={name}>
+        <Package size={20} className="text-gold/50" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setError(true)}
+      className="w-16 h-16 object-cover bg-beige border border-soft-gray/50 rounded-sm shrink-0"
+    />
+  )
+}
+
+function getPaymentStatus(order: Order) {
+  if (order.status === 'cancelled') {
+    return { label: 'Giao dịch hủy', color: 'bg-red-50 text-red-600 border border-red-200/50' }
+  }
+
+  if (order.payment_method === 'online') {
+    if (order.status === 'pending') {
+      return { label: 'Chưa thanh toán', color: 'bg-red-50 text-red-600 border border-red-200/50' }
+    } else {
+      return { label: 'Đã thanh toán', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
+    }
+  } else {
+    // COD
+    if (order.status === 'delivered') {
+      return { label: 'Đã thanh toán', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
+    } else {
+      return { label: 'Thanh toán COD', color: 'bg-amber-50 text-amber-700 border border-amber-200/50' }
+    }
+  }
+}
+
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
   { value: 'pending', label: 'Chờ xác nhận' },
@@ -246,6 +288,9 @@ export default function AdminOrders() {
                   Tổng tiền
                 </th>
                 <th className="px-6 py-3.5 text-center text-xs text-muted-gray uppercase tracking-wider font-semibold">
+                  Thanh toán
+                </th>
+                <th className="px-6 py-3.5 text-center text-xs text-muted-gray uppercase tracking-wider font-semibold">
                   Trạng thái
                 </th>
                 <th className="px-6 py-3.5 text-center text-xs text-muted-gray uppercase tracking-wider font-semibold">
@@ -257,7 +302,7 @@ export default function AdminOrders() {
               {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
+                      {Array.from({ length: 7 }).map((_, j) => (
                         <td key={j} className="px-6 py-4">
                           <div className="h-4 bg-soft-gray animate-pulse rounded" />
                         </td>
@@ -267,7 +312,7 @@ export default function AdminOrders() {
                 : orders.length === 0
                 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-16 text-center">
+                    <td colSpan={7} className="px-6 py-16 text-center">
                       <Package size={40} className="text-soft-gray mx-auto mb-3" />
                       <p className="font-serif text-lg text-dark-text">Không tìm thấy đơn hàng nào</p>
                       <p className="font-sans text-xs text-muted-gray mt-1">Vui lòng kiểm tra lại từ khóa tìm kiếm hoặc bộ lọc.</p>
@@ -304,6 +349,16 @@ export default function AdminOrders() {
                           <span className="text-gold font-bold text-sm">
                             {formatPrice(order.total_price)}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          {(() => {
+                            const payStatus = getPaymentStatus(order)
+                            return (
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${payStatus.color}`}>
+                                {payStatus.label}
+                              </span>
+                            )
+                          })()}
                         </td>
                         <td className="px-6 py-4 text-center">
                           {isUpdating ? (
@@ -533,22 +588,21 @@ export default function AdminOrders() {
                           <span className="font-semibold text-dark-text">
                             {selectedOrder.payment_method === 'COD'
                               ? 'Thanh toán COD khi nhận hàng'
-                              : selectedOrder.payment_method === 'VIETQR'
-                                ? 'Chuyển khoản online VietQR'
-                                : 'Ví điện tử'}
+                              : selectedOrder.payment_method === 'online'
+                                ? 'Chuyển khoản VietQR (PayOS)'
+                                : 'Chuyển khoản / Ví điện tử'}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-1 border-t border-soft-gray/50">
                           <span className="text-muted-gray">Trạng thái thanh toán:</span>
-                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            selectedOrder.status === 'delivered'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : selectedOrder.status === 'cancelled'
-                                ? 'bg-red-50 text-red-600'
-                                : 'bg-amber-50 text-amber-600'
-                          }`}>
-                            {selectedOrder.status === 'delivered' ? 'Đã hoàn tất' : selectedOrder.status === 'cancelled' ? 'Giao dịch lỗi/Hủy' : 'Chờ xử lý'}
-                          </span>
+                          {(() => {
+                            const payStatus = getPaymentStatus(selectedOrder)
+                            return (
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${payStatus.color}`}>
+                                {payStatus.label}
+                              </span>
+                            )
+                          })()}
                         </div>
                         <div className="flex justify-between items-center py-1 border-t border-soft-gray/50">
                           <span className="text-muted-gray">Thời gian tạo đơn:</span>
@@ -570,10 +624,9 @@ export default function AdminOrders() {
                         key={item.id}
                         className="flex gap-4 items-center bg-white border border-soft-gray p-4 shadow-sm transition-all hover:border-gold/30"
                       >
-                        <img
+                        <OrderRowImage
                           src={item.image_url || 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=150'}
-                          alt={item.product_name || 'Sản phẩm'}
-                          className="w-16 h-16 object-cover bg-beige border border-soft-gray/50 rounded-sm shrink-0"
+                          name={item.product_name || 'Sản phẩm'}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="font-sans text-sm font-semibold text-dark-text leading-snug line-clamp-1">

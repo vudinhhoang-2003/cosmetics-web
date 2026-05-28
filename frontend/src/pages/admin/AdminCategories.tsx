@@ -13,6 +13,29 @@ interface CategoryForm {
   image_url: string
 }
 
+function CategoryRowImage({ src, name }: { src?: string; name: string }) {
+  const [error, setError] = useState(false)
+
+  if (!src || error) {
+    return (
+      <div className="w-12 h-12 bg-beige border border-soft-gray/30 flex items-center justify-center rounded-none shrink-0" title={name}>
+        <Tag size={16} className="text-gold/55" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-12 h-12 border border-soft-gray/60 p-0.5 bg-white shadow-sm shrink-0">
+      <img
+        src={src}
+        alt={name}
+        onError={() => setError(true)}
+        className="w-full h-full object-cover rounded-none"
+      />
+    </div>
+  )
+}
+
 export default function AdminCategories() {
   const queryClient = useQueryClient()
   const [modalOpen, setModalOpen] = useState(false)
@@ -200,21 +223,9 @@ export default function AdminCategories() {
                     key={cat.id}
                     className="hover:bg-beige/25 transition-colors"
                   >
-                    <td className="px-6 py-4">
-                      {cat.image_url ? (
-                        <div className="w-12 h-12 border border-soft-gray/60 p-0.5 bg-white shadow-sm shrink-0">
-                          <img
-                            src={cat.image_url}
-                            alt={cat.name}
-                            className="w-full h-full object-cover rounded-none"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 bg-beige border border-soft-gray/30 flex items-center justify-center rounded-none shrink-0">
-                          <Tag size={16} className="text-gold/55" />
-                        </div>
-                      )}
-                    </td>
+                     <td className="px-6 py-4">
+                       <CategoryRowImage src={cat.image_url} name={cat.name} />
+                     </td>
                     <td className="px-6 py-4">
                       <p className="font-semibold text-dark-text">{cat.name}</p>
                     </td>
