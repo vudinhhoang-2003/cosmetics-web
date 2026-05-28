@@ -55,7 +55,7 @@ export default function ProductsPage() {
     queryKey: ['categories'],
     queryFn: () => categoryApi.list().then((r) => r.data),
   })
-  const categories: Category[] = categoriesData || []
+  const categories: Category[] = Array.isArray(categoriesData) ? categoriesData : []
 
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', { search, sort, selectedCategory, selectedBrands, minPrice, maxPrice, skip }],

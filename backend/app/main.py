@@ -4,11 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from app.core.config import settings
-from app.core.database import engine, Base
 from app.routers import auth, products, categories, orders, users, admin, upload
-
-# Create tables on startup (alembic handles migrations in production)
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Luxe Beauty API",

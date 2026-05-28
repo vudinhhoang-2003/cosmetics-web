@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
     enabled: !!product?.category?.slug,
   })
 
-  const relatedProducts = relatedData?.items.filter((p) => p.id !== product?.id).slice(0, 4) || []
+  const relatedProducts = relatedData?.items?.filter((p) => p.id !== product?.id).slice(0, 4) ?? []
 
   const addToCartMutation = useMutation({
     mutationFn: () => cartApi.add(product!.id, quantity),

@@ -26,7 +26,7 @@ export default function HomePage() {
     queryFn: () => productApi.list({ limit: 8 }).then((r) => r.data),
   })
 
-  const categories: Category[] = categoriesData || []
+  const categories: Category[] = Array.isArray(categoriesData) ? categoriesData : []
   const products: Product[] = productsData?.items || []
 
   return (

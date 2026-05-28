@@ -39,12 +39,13 @@ def update_cart_item(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    from fastapi import Response
     item = crud_cart.get_item(db, item_id, current_user.id)
     if not item:
         raise HTTPException(status_code=404, detail="Cart item not found")
     if data.quantity <= 0:
         crud_cart.remove_item(db, item)
-        return {"message": "Item removed"}
+        return Response(status_code=204)
     return CartItemOut.model_validate(crud_cart.update_quantity(db, item, data.quantity))
 
 

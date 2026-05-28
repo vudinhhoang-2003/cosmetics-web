@@ -1,6 +1,7 @@
 """Seed sample data into the database."""
 import os
 import sys
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -9,6 +10,7 @@ from app.core.security import hash_password
 from app.models.user import User
 from app.models.category import Category
 from app.models.product import Product
+from app.models.order import Order, OrderItem
 from app.models.review import Review
 
 
@@ -38,16 +40,25 @@ def seed():
             role="customer",
         )
         db.add(customer)
+
+        customer2 = User(
+            email="minh@example.com",
+            password_hash=hash_password("Customer@2026"),
+            full_name="Trần Văn Minh",
+            phone="0912345678",
+            role="customer",
+        )
+        db.add(customer2)
         db.flush()
 
         # ── Categories ────────────────────────────────────────────────────────
         categories_data = [
-            {"name": "Son Môi",        "slug": "son-moi",         "image_url": "https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=600"},
-            {"name": "Kem Dưỡng Da",   "slug": "kem-duong-da",    "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600"},
-            {"name": "Nước Hoa",       "slug": "nuoc-hoa",        "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600"},
-            {"name": "Phấn Trang Điểm","slug": "phan-trang-diem", "image_url": "https://images.unsplash.com/photo-1583241475880-083f84372725?w=600"},
-            {"name": "Mascara & Mắt",  "slug": "mascara-mat",     "image_url": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600"},
-            {"name": "Chăm Sóc Da",    "slug": "cham-soc-da",     "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600"},
+            {"name": "Son Môi",         "slug": "son-moi",         "image_url": "https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=600"},
+            {"name": "Kem Dưỡng Da",    "slug": "kem-duong-da",    "image_url": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600"},
+            {"name": "Nước Hoa",        "slug": "nuoc-hoa",        "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600"},
+            {"name": "Phấn Trang Điểm", "slug": "phan-trang-diem", "image_url": "https://images.unsplash.com/photo-1583241475880-083f84372725?w=600"},
+            {"name": "Mascara & Mắt",   "slug": "mascara-mat",     "image_url": "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600"},
+            {"name": "Chăm Sóc Da",     "slug": "cham-soc-da",     "image_url": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600"},
         ]
 
         cats = {}
@@ -59,7 +70,7 @@ def seed():
 
         # ── Products ──────────────────────────────────────────────────────────
         products_data = [
-            # Son Môi (8 sản phẩm)
+            # Son Môi — 8 sản phẩm (index 0-7)
             {
                 "name": "Son Dior Rouge 999 Matte",
                 "slug": "son-dior-rouge-999-matte",
@@ -127,7 +138,7 @@ def seed():
                 "brand": "Guerlain", "category_slug": "son-moi",
             },
 
-            # Kem Dưỡng Da (6 sản phẩm)
+            # Kem Dưỡng Da — 6 sản phẩm (index 8-13)
             {
                 "name": "Kem Dưỡng Ẩm La Mer Crème",
                 "slug": "kem-duong-am-la-mer-creme",
@@ -177,7 +188,7 @@ def seed():
                 "brand": "Clé de Peau Beauté", "category_slug": "kem-duong-da",
             },
 
-            # Nước Hoa (6 sản phẩm)
+            # Nước Hoa — 6 sản phẩm (index 14-19)
             {
                 "name": "Nước Hoa Chanel N°5 EDP",
                 "slug": "nuoc-hoa-chanel-n5-edp",
@@ -227,7 +238,7 @@ def seed():
                 "brand": "YSL", "category_slug": "nuoc-hoa",
             },
 
-            # Phấn Trang Điểm (5 sản phẩm)
+            # Phấn Trang Điểm — 5 sản phẩm (index 20-24)
             {
                 "name": "Phấn Phủ Dior Forever Cushion",
                 "slug": "phan-phu-dior-forever-cushion",
@@ -269,7 +280,7 @@ def seed():
                 "brand": "Urban Decay", "category_slug": "phan-trang-diem",
             },
 
-            # Mascara & Mắt (3 sản phẩm)
+            # Mascara & Mắt — 3 sản phẩm (index 25-27)
             {
                 "name": "Mascara Lancôme Hypnôse",
                 "slug": "mascara-lancome-hypnose",
@@ -295,7 +306,7 @@ def seed():
                 "brand": "Talika", "category_slug": "mascara-mat",
             },
 
-            # Chăm Sóc Da (4 sản phẩm)
+            # Chăm Sóc Da — 4 sản phẩm (index 28-31)
             {
                 "name": "Tẩy Trang Bioderma Sensibio H2O",
                 "slug": "tay-trang-bioderma-sensibio-h2o",
@@ -338,36 +349,252 @@ def seed():
             db.flush()
             products.append(p)
 
-        # ── Reviews (một số đánh giá mẫu) ────────────────────────────────────
-        reviews_data = [
-            (0, 5, "Sản phẩm tuyệt vời! Son mịn, bền màu và không khô môi. Rất xứng đáng với giá tiền."),
-            (0, 5, "Đóng gói sang trọng, mùi hương dễ chịu. Son lên màu chuẩn, bền cả ngày."),
-            (1, 4, "Son đẹp, màu chuẩn nhưng hơi chảy khi trời nóng. Vẫn rất recommend!"),
-            (2, 5, "MAC Ruby Woo là huyền thoại! Màu đỏ đẹp nhất tôi từng dùng."),
-            (8, 5, "La Mer xứng đáng với danh tiếng. Da mình thay đổi hẳn sau 2 tuần dùng."),
-            (9, 4, "Kem mắt rất tốt, giảm quầng thâm rõ rệt. Hơi đắt nhưng chất lượng tương xứng."),
-            (10, 5, "Serum SK-II làm da sáng lên trông thấy. Sẽ mua lại lần 3!"),
-            (14, 5, "Chanel N5 là mùi hương định nghĩa sự sang trọng. Vĩnh cửu và không bao giờ lỗi thời."),
-            (15, 5, "Dior Sauvage mạnh mẽ và cuốn hút. Bạn bè cứ hỏi xài nước hoa gì!"),
-            (20, 4, "Phấn nước Dior che phủ tốt, bền màu. Hơi nặng một chút so với da dầu."),
-            (24, 5, "Naked Palette là đầu tư xứng đáng. Dùng được cả ngày lẫn tối, nhiều tone màu đẹp."),
+        # ── Orders ────────────────────────────────────────────────────────────
+        # Địa chỉ giao hàng mẫu
+        addr_lan = {
+            "full_name": "Nguyễn Thị Lan",
+            "phone": "0901234567",
+            "address": "123 Nguyễn Huệ",
+            "district": "Quận 1",
+            "city": "TP. Hồ Chí Minh",
+        }
+        addr_minh = {
+            "full_name": "Trần Văn Minh",
+            "phone": "0912345678",
+            "address": "45 Lý Thường Kiệt",
+            "district": "Hoàn Kiếm",
+            "city": "Hà Nội",
+        }
+
+        now = datetime.utcnow()
+
+        orders_data = [
+            # customer — Lan
+            {
+                "user_id": customer.id,
+                "status": "delivered",
+                "shipping_address": addr_lan,
+                "payment_method": "cod",
+                "created_at": now - timedelta(days=30),
+                "items": [
+                    (0, 1),   # Son Dior, qty 1
+                    (8, 1),   # Kem La Mer, qty 1
+                ],
+            },
+            {
+                "user_id": customer.id,
+                "status": "delivered",
+                "shipping_address": addr_lan,
+                "payment_method": "bank_transfer",
+                "created_at": now - timedelta(days=20),
+                "items": [
+                    (14, 1),  # Chanel N5, qty 1
+                    (2,  2),  # Son MAC, qty 2
+                ],
+            },
+            {
+                "user_id": customer.id,
+                "status": "delivered",
+                "shipping_address": addr_lan,
+                "payment_method": "cod",
+                "created_at": now - timedelta(days=14),
+                "items": [
+                    (20, 1),  # Phấn Dior Cushion, qty 1
+                    (25, 1),  # Mascara Lancôme, qty 1
+                ],
+            },
+            {
+                "user_id": customer.id,
+                "status": "shipping",
+                "shipping_address": addr_lan,
+                "payment_method": "bank_transfer",
+                "created_at": now - timedelta(days=3),
+                "items": [
+                    (10, 1),  # Serum SK-II, qty 1
+                ],
+            },
+            {
+                "user_id": customer.id,
+                "status": "confirmed",
+                "shipping_address": addr_lan,
+                "payment_method": "cod",
+                "created_at": now - timedelta(days=1),
+                "items": [
+                    (4,  1),  # Son Charlotte Tilbury, qty 1
+                    (28, 2),  # Tẩy trang Bioderma, qty 2
+                ],
+            },
+            {
+                "user_id": customer.id,
+                "status": "pending",
+                "shipping_address": addr_lan,
+                "payment_method": "cod",
+                "created_at": now - timedelta(hours=6),
+                "items": [
+                    (31, 1),  # Toner Klairs, qty 1
+                ],
+            },
+            {
+                "user_id": customer.id,
+                "status": "cancelled",
+                "shipping_address": addr_lan,
+                "payment_method": "bank_transfer",
+                "created_at": now - timedelta(days=10),
+                "items": [
+                    (3, 1),   # Son YSL, qty 1
+                ],
+            },
+
+            # customer2 — Minh
+            {
+                "user_id": customer2.id,
+                "status": "delivered",
+                "shipping_address": addr_minh,
+                "payment_method": "bank_transfer",
+                "created_at": now - timedelta(days=25),
+                "items": [
+                    (16, 1),  # Nước hoa Tom Ford, qty 1
+                    (11, 1),  # Sulwhasoo, qty 1
+                ],
+            },
+            {
+                "user_id": customer2.id,
+                "status": "delivered",
+                "shipping_address": addr_minh,
+                "payment_method": "cod",
+                "created_at": now - timedelta(days=15),
+                "items": [
+                    (15, 1),  # Dior Sauvage, qty 1
+                    (29, 2),  # Kem chống nắng Shiseido, qty 2
+                ],
+            },
+            {
+                "user_id": customer2.id,
+                "status": "shipping",
+                "shipping_address": addr_minh,
+                "payment_method": "bank_transfer",
+                "created_at": now - timedelta(days=2),
+                "items": [
+                    (22, 1),  # NARS blush, qty 1
+                    (26, 1),  # Kẻ mắt Chanel, qty 1
+                ],
+            },
+            {
+                "user_id": customer2.id,
+                "status": "pending",
+                "shipping_address": addr_minh,
+                "payment_method": "cod",
+                "created_at": now - timedelta(hours=2),
+                "items": [
+                    (19, 1),  # YSL Libre, qty 1
+                ],
+            },
         ]
 
-        for idx, (prod_idx, rating, comment) in enumerate(reviews_data):
-            if prod_idx < len(products):
-                r = Review(
-                    product_id=products[prod_idx].id,
-                    user_id=customer.id,
-                    rating=rating,
-                    comment=comment,
-                )
-                db.add(r)
+        for od in orders_data:
+            items_spec = od.pop("items")
+            total = sum(
+                int(products[idx].sale_price or products[idx].price) * qty
+                for idx, qty in items_spec
+            )
+            order = Order(total_price=total, **od)
+            db.add(order)
+            db.flush()
+
+            for prod_idx, qty in items_spec:
+                p = products[prod_idx]
+                db.add(OrderItem(
+                    order_id=order.id,
+                    product_id=p.id,
+                    quantity=qty,
+                    price_at_purchase=p.sale_price or p.price,
+                ))
+
+        db.flush()
+
+        # ── Reviews ───────────────────────────────────────────────────────────
+        # (prod_idx, user, rating, comment)
+        reviews_data = [
+            # Son Môi
+            (0,  customer,  5, "Sản phẩm tuyệt vời! Son mịn, bền màu và không khô môi. Rất xứng đáng với giá tiền."),
+            (0,  customer2, 5, "Đóng gói sang trọng, mùi hương dễ chịu. Son lên màu chuẩn, bền cả ngày."),
+            (1,  customer,  4, "Son đẹp, màu chuẩn nhưng hơi chảy khi trời nóng. Vẫn rất recommend!"),
+            (2,  customer,  5, "MAC Ruby Woo là huyền thoại! Màu đỏ đẹp nhất tôi từng dùng."),
+            (2,  customer2, 5, "Mua lần thứ 3 rồi, không bao giờ thất vọng. Màu đỏ chuẩn không cần chỉnh."),
+            (3,  customer2, 4, "Son YSL đẹp, màu lên chuẩn. Bao bì sang trọng, thích hợp làm quà tặng."),
+            (4,  customer,  5, "Pillow Talk là màu son phải có trong bộ sưu tập. Hợp mọi tông da!"),
+            (5,  customer2, 4, "Givenchy chất lượng tốt, màu đẹp. Hơi đắt nhưng xứng đáng."),
+            (6,  customer,  4, "Lancôme son đẹp, dưỡng ẩm tốt. Màu berry rất sang."),
+            (7,  customer2, 5, "Guerlain hộp đẹp như vật trang trí. Son lên màu cực kỳ sang chảnh."),
+
+            # Kem Dưỡng Da
+            (8,  customer,  5, "La Mer xứng đáng với danh tiếng. Da mình thay đổi hẳn sau 2 tuần dùng."),
+            (9,  customer,  4, "Kem mắt rất tốt, giảm quầng thâm rõ rệt. Hơi đắt nhưng chất lượng tương xứng."),
+            (10, customer,  5, "Serum SK-II làm da sáng lên trông thấy. Sẽ mua lại lần 3!"),
+            (10, customer2, 5, "Dùng 1 tháng thấy da đều màu và sáng hơn rõ ràng. Rất ấn tượng."),
+            (11, customer2, 4, "Sulwhasoo mùi thơm rất dễ chịu, chất kem mịn. Da căng và ẩm sau khi dùng."),
+            (12, customer,  5, "Sisley đắt nhưng hiệu quả thật sự, nếp nhăn mờ hẳn sau 1 tháng."),
+            (13, customer2, 5, "Clé de Peau xứng danh kem dưỡng cao cấp nhất. Da sáng và mịn khác hẳn."),
+
+            # Nước Hoa
+            (14, customer,  5, "Chanel N5 là mùi hương định nghĩa sự sang trọng. Vĩnh cửu và không bao giờ lỗi thời."),
+            (15, customer2, 5, "Dior Sauvage mạnh mẽ và cuốn hút. Bạn bè cứ hỏi xài nước hoa gì!"),
+            (15, customer,  4, "Mùi rất đàn ông, lưu hương lâu. Thích hợp cho buổi tối và sự kiện quan trọng."),
+            (16, customer2, 5, "Tom Ford Black Orchid huyền bí và quyến rũ. Không đụng hàng, mùi rất riêng."),
+            (17, customer,  4, "Mon Guerlain ngọt nhẹ, thơm lâu. Phù hợp đi làm hàng ngày."),
+            (18, customer2, 5, "La Vie Est Belle mùi hương hạnh phúc thật sự. Rất nữ tính và tươi sáng."),
+            (19, customer,  4, "YSL Libre Intense mạnh hơn bản thường, lưu hương cả ngày. Rất ưng!"),
+
+            # Phấn Trang Điểm
+            (20, customer,  4, "Phấn nước Dior che phủ tốt, bền màu. Hơi nặng một chút so với da dầu."),
+            (20, customer2, 5, "Cushion Dior đỉnh nhất tôi từng dùng. SPF35 rất tiện khi ra đường."),
+            (21, customer,  4, "Chanel foundation tự nhiên, mỏng nhẹ. Phù hợp da khô hơn da dầu."),
+            (22, customer2, 5, "NARS Orgasm là phấn má định nghĩa gương mặt rạng rỡ. Màu rất đẹp!"),
+            (23, customer,  5, "Charlotte Tilbury highlight lung linh, không bị quá lố. Tán rất dễ."),
+            (24, customer,  5, "Naked Palette là đầu tư xứng đáng. Dùng được cả ngày lẫn tối, nhiều tone màu đẹp."),
+            (24, customer2, 4, "12 màu dùng được hết, không có màu thừa. Rất đáng mua."),
+
+            # Mascara & Mắt
+            (25, customer,  5, "Mascara Lancôme mi dài và cong, không lem. Dùng cả ngày không cần touch up."),
+            (25, customer2, 4, "Mi dài và dày hơn rõ rệt. Tẩy trang dễ, không gây hại mi."),
+            (26, customer,  5, "Kẻ mắt Chanel nét và đen sâu. Không bị nhoè dù trời nóng hay mồ hôi."),
+            (27, customer2, 4, "Talika dùng 3 tuần thấy mi mọc dày hơn. Sẽ dùng hết lọ để xem full effect."),
+
+            # Chăm Sóc Da
+            (28, customer,  5, "Bioderma tẩy trang sạch hoàn toàn, kể cả mascara không thấm nước. Da không bị khô."),
+            (28, customer2, 5, "Bình dân nhưng hiệu quả tuyệt vời. Mình dùng 5 năm nay không đổi sang brand khác."),
+            (29, customer2, 5, "Shiseido Anessa không nhờn, không trắng da. Bảo vệ tốt cả ngày dưới trời nắng."),
+            (30, customer,  4, "Innisfree mặt nạ làm sạch lỗ chân lông hiệu quả, giá lại rẻ. Rất recommend!"),
+            (31, customer,  5, "Klairs toner nhẹ, thấm nhanh và không mùi. Da căng ẩm ngay sau khi dùng."),
+            (31, customer2, 4, "Toner da nhạy cảm tốt nhất tôi từng dùng. Không kích ứng, cấp ẩm tốt."),
+        ]
+
+        for prod_idx, user, rating, comment in reviews_data:
+            db.add(Review(
+                product_id=products[prod_idx].id,
+                user_id=user.id,
+                rating=rating,
+                comment=comment,
+            ))
 
         db.commit()
+
+        # Thống kê
+        total_revenue = sum(
+            int(products[idx].sale_price or products[idx].price) * qty
+            for od in orders_data
+            for idx, qty in od.get("items", [])
+            if od.get("status") in ("delivered", "confirmed", "shipping")
+        ) if False else "N/A"
+
         print("✓ Database seeded successfully!")
-        print(f"  Created {len(products_data)} products across {len(categories_data)} categories")
-        print("  Admin:    admin@luxebeauty.vn  / Admin@2026")
-        print("  Customer: customer@example.com / Customer@2026")
+        print(f"  {len(products_data)} products  |  {len(categories_data)} categories")
+        print(f"  {len(orders_data)} orders  |  {len(reviews_data)} reviews  |  3 users")
+        print()
+        print("  Accounts:")
+        print("    Admin:     admin@luxebeauty.vn     / Admin@2026")
+        print("    Customer:  customer@example.com    / Customer@2026")
+        print("    Customer2: minh@example.com        / Customer@2026")
 
     except Exception as e:
         db.rollback()
