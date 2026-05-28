@@ -11,9 +11,18 @@ class TestAdminStats:
         assert r.status_code == 200
         data = r.json()
         assert "total_revenue" in data
+        assert "in_progress_revenue" in data
+        assert "today_revenue" in data
+        assert "month_revenue" in data
         assert "total_orders" in data
         assert "total_products" in data
         assert "total_users" in data
+        assert "pending_orders" in data
+        assert "delivered_orders" in data
+        assert "cancelled_orders" in data
+        assert "low_stock_products" in data
+        assert "top_products" in data
+        assert "low_stock_items" in data
 
     def test_stats_as_user_forbidden(self, client, auth_user):
         r = client.get(f"{ADMIN_URL}/stats", headers=auth_user)

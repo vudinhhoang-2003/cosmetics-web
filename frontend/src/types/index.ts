@@ -101,9 +101,19 @@ export interface Review {
 
 export interface AdminStats {
   total_revenue: number
+  in_progress_revenue: number
+  today_revenue: number
+  month_revenue: number
   total_orders: number
   total_products: number
   total_users: number
   pending_orders: number
+  confirmed_orders: number
+  shipping_orders: number
+  delivered_orders: number
+  cancelled_orders: number
+  today_orders: number
+  low_stock_products: number
   top_products: { name: string; total_sold: number }[]
+  low_stock_items: { name: string; stock: number }[]
 }

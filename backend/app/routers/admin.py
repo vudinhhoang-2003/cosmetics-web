@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
+from datetime import datetime, time
 from app.core.database import get_db
 from app.core.deps import require_admin
 from app.models.user import User
@@ -17,8 +18,31 @@ router = APIRouter(tags=["admin"])
 
 @router.get("/stats")
 def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
+    now = datetime.utcnow()
+    today_start = datetime.combine(now.date(), time.min)
+    today_end = datetime.combine(now.date(), time.max)
+    month_start = datetime(now.year, now.month, 1)
+    revenue_statuses = ["delivered"]
+    active_order_statuses = ["confirmed", "shipping"]
+    fulfilled_statuses = revenue_statuses + active_order_statuses
+
     total_revenue = db.query(func.sum(Order.total_price)).filter(
-        Order.status.in_(["delivered", "confirmed", "shipping"])
+        Order.status.in_(revenue_statuses)
+    ).scalar() or 0
+
+    in_progress_revenue = db.query(func.sum(Order.total_price)).filter(
+        Order.status.in_(active_order_statuses)
+    ).scalar() or 0
+
+    today_revenue = db.query(func.sum(Order.total_price)).filter(
+        Order.status.in_(revenue_statuses),
+        Order.created_at >= today_start,
+        Order.created_at <= today_end,
+    ).scalar() or 0
+
+    month_revenue = db.query(func.sum(Order.total_price)).filter(
+        Order.status.in_(revenue_statuses),
+        Order.created_at >= month_start,
     ).scalar() or 0
 
     total_orders = db.query(func.count(Order.id)).scalar()
@@ -26,23 +50,55 @@ def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     total_users = db.query(func.count(User.id)).filter(User.role == "customer").scalar()
 
     pending_orders = db.query(func.count(Order.id)).filter(Order.status == "pending").scalar()
+    confirmed_orders = db.query(func.count(Order.id)).filter(Order.status == "confirmed").scalar()
+    shipping_orders = db.query(func.count(Order.id)).filter(Order.status == "shipping").scalar()
+    delivered_orders = db.query(func.count(Order.id)).filter(Order.status == "delivered").scalar()
+    cancelled_orders = db.query(func.count(Order.id)).filter(Order.status == "cancelled").scalar()
+    today_orders = db.query(func.count(Order.id)).filter(
+        Order.created_at >= today_start,
+        Order.created_at <= today_end,
+    ).scalar()
+    low_stock_products = db.query(func.count(Product.id)).filter(
+        Product.is_active == True,
+        Product.stock <= 10,
+    ).scalar()
 
     top_products = (
         db.query(Product.name, func.sum(OrderItem.quantity).label("total_sold"))
         .join(OrderItem, OrderItem.product_id == Product.id)
+        .join(Order, Order.id == OrderItem.order_id)
+        .filter(Order.status.in_(fulfilled_statuses))
         .group_by(Product.id)
         .order_by(func.sum(OrderItem.quantity).desc())
         .limit(5)
         .all()
     )
 
+    low_stock_items = (
+        db.query(Product.name, Product.stock)
+        .filter(Product.is_active == True, Product.stock <= 10)
+        .order_by(Product.stock.asc(), Product.name.asc())
+        .limit(5)
+        .all()
+    )
+
     return {
         "total_revenue": float(total_revenue),
+        "in_progress_revenue": float(in_progress_revenue),
+        "today_revenue": float(today_revenue),
+        "month_revenue": float(month_revenue),
         "total_orders": total_orders,
         "total_products": total_products,
         "total_users": total_users,
         "pending_orders": pending_orders,
+        "confirmed_orders": confirmed_orders,
+        "shipping_orders": shipping_orders,
+        "delivered_orders": delivered_orders,
+        "cancelled_orders": cancelled_orders,
+        "today_orders": today_orders,
+        "low_stock_products": low_stock_products,
         "top_products": [{"name": p.name, "total_sold": int(p.total_sold)} for p in top_products],
+        "low_stock_items": [{"name": p.name, "stock": p.stock} for p in low_stock_items],
     }
 
 
