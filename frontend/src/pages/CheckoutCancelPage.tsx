@@ -1,10 +1,32 @@
+import { useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { XCircle, ShoppingBag, ArrowLeft, ShieldAlert } from 'lucide-react'
+import { orderApi } from '../api/endpoints'
 
 export default function CheckoutCancelPage() {
   const [searchParams] = useSearchParams()
-  const orderCode = searchParams.get('order_code')
+  const orderId = searchParams.get('order_id')
+  const orderCode = searchParams.get('order_code') || searchParams.get('orderCode')
+
+  useEffect(() => {
+    const cancelOrder = async () => {
+      try {
+        const params: { order_id?: string; order_code?: number } = {}
+        if (orderId) params.order_id = orderId
+        if (orderCode) params.order_code = Number(orderCode)
+        
+        if (params.order_id || params.order_code) {
+          await orderApi.cancelPayment(params)
+        }
+      } catch (err) {
+        console.error('Failed to cancel order:', err)
+      }
+    }
+    cancelOrder()
+  }, [orderId, orderCode])
+
+  const displayCode = orderCode || (orderId ? orderId.slice(0, 8).toUpperCase() : null)
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-6 py-20">
@@ -38,7 +60,7 @@ export default function CheckoutCancelPage() {
         </motion.div>
 
         {/* Order specs */}
-        {orderCode && (
+        {displayCode && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -49,7 +71,7 @@ export default function CheckoutCancelPage() {
               Mã giao dịch bị hủy
             </p>
             <p className="font-serif text-lg text-dark-text font-semibold tracking-wide">
-              #{orderCode}
+              #{displayCode}
             </p>
             <p className="font-sans text-xs text-muted-gray mt-1 flex items-center justify-center gap-1">
               <ShieldAlert size={12} className="text-rose-600" />

@@ -70,6 +70,10 @@ def get_by_id(db: Session, order_id, user_id=None) -> Optional[Order]:
 
 
 def update_status(db: Session, order: Order, status: str) -> Order:
+    if status == "cancelled" and order.status != "cancelled":
+        for item in order.items:
+            if item.product:
+                item.product.stock += item.quantity
     order.status = status
     db.commit()
     db.refresh(order)
@@ -90,3 +94,11 @@ def get_all(db: Session, skip: int = 0, limit: int = 50, status: Optional[str] =
             Order.shipping_address['phone'].astext.ilike(search_filter)
         )
     return q.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+
+
+def delete(db: Session, order: Order) -> None:
+    for item in order.items:
+        if item.product:
+            item.product.stock += item.quantity
+    db.delete(order)
+    db.commit()

@@ -8,7 +8,7 @@ import {
 import toast from 'react-hot-toast'
 import { adminApi, orderApi } from '../../api/endpoints'
 import type { Order } from '../../types'
-import { formatPrice } from '../../utils/format'
+import { formatPrice, formatDateTime } from '../../utils/format'
 import Select from '../../components/Select'
 import { useSearchParams } from 'react-router-dom'
 
@@ -339,11 +339,7 @@ export default function AdminOrders() {
                           </p>
                         </td>
                         <td className="px-6 py-4 text-muted-gray text-xs hidden sm:table-cell">
-                          {new Date(order.created_at).toLocaleDateString('vi-VN', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })}
+                          {formatDateTime(order.created_at)}
                         </td>
                         <td className="px-6 py-4 text-right font-medium text-dark-text">
                           <span className="text-gold font-bold text-sm">
@@ -365,6 +361,10 @@ export default function AdminOrders() {
                             <div className="flex justify-center">
                               <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
                             </div>
+                          ) : order.status === 'cancelled' ? (
+                            <span className={`inline-block text-xs font-semibold px-3.5 py-1.5 rounded-full border shadow-sm ${statusInfo.color}`}>
+                              {statusInfo.label}
+                            </span>
                           ) : (
                             <div className="relative inline-block text-left">
                               <button
@@ -607,7 +607,7 @@ export default function AdminOrders() {
                         <div className="flex justify-between items-center py-1 border-t border-soft-gray/50">
                           <span className="text-muted-gray">Thời gian tạo đơn:</span>
                           <span className="font-mono text-xs text-dark-text font-medium">
-                            {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
+                            {formatDateTime(selectedOrder.created_at)}
                           </span>
                         </div>
                       </div>
@@ -651,27 +651,35 @@ export default function AdminOrders() {
                 </div>
 
                 {/* Quick Status Update Buttons */}
-                <div className="border-t border-gold/10 pt-6">
-                  <p className="font-sans text-[10px] text-muted-gray uppercase tracking-luxury font-bold mb-3">Cập nhật nhanh trạng thái đơn hàng</p>
-                  <div className="flex gap-2 flex-wrap">
-                    {STATUS_OPTIONS.slice(1).map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => {
-                          handleStatusChange(selectedOrder.id, opt.value)
-                          setSelectedOrder({ ...selectedOrder, status: opt.value as Order['status'] })
-                        }}
-                        className={`px-4 py-2 text-xs font-sans border transition-all duration-200 ${
-                          selectedOrder.status === opt.value
-                            ? 'bg-gold text-white border-gold font-semibold shadow-sm'
-                            : 'border-soft-gray bg-white text-muted-gray hover:border-gold hover:text-gold'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
+                {selectedOrder.status !== 'cancelled' ? (
+                  <div className="border-t border-gold/10 pt-6">
+                    <p className="font-sans text-[10px] text-muted-gray uppercase tracking-luxury font-bold mb-3">Cập nhật nhanh trạng thái đơn hàng</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {STATUS_OPTIONS.slice(1).map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => {
+                            handleStatusChange(selectedOrder.id, opt.value)
+                            setSelectedOrder({ ...selectedOrder, status: opt.value as Order['status'] })
+                          }}
+                          className={`px-4 py-2 text-xs font-sans border transition-all duration-200 ${
+                            selectedOrder.status === opt.value
+                              ? 'bg-gold text-white border-gold font-semibold shadow-sm'
+                              : 'border-soft-gray bg-white text-muted-gray hover:border-gold hover:text-gold'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="border-t border-gold/10 pt-6">
+                    <p className="font-sans text-xs text-rose-600 font-semibold bg-rose-50 border border-rose-100 p-3 text-center">
+                      Đơn hàng đã hủy không thể thay đổi sang trạng thái khác.
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>

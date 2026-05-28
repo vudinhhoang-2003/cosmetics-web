@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_admin
 from app.schemas.order import OrderCreate, OrderOut, OrderStatusUpdate
@@ -76,7 +76,52 @@ def update_status(
     order = crud_order.get_by_id(db, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    
+    if order.status == "cancelled" and data.status != "cancelled":
+        raise HTTPException(status_code=400, detail="Cannot change status of a cancelled order")
+        
     valid_statuses = ["pending", "confirmed", "shipping", "delivered", "cancelled"]
     if data.status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"Invalid status. Use: {valid_statuses}")
     return crud_order.update_status(db, order, data.status)
+
+
+@router.post("/cancel-payment")
+def cancel_payment(
+    order_id: Optional[str] = None,
+    order_code: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not order_id and not order_code:
+        raise HTTPException(status_code=400, detail="Either order_id or order_code must be provided")
+    
+    if order_id:
+        order = crud_order.get_by_id(db, order_id, current_user.id)
+    else:
+        # Find by order_code and user_id
+        from app.models.order import Order
+        order = db.query(Order).filter(Order.order_code == order_code, Order.user_id == current_user.id).first()
+        
+    if not order:
+        return {"status": "ok", "message": "Order not found or already deleted"}
+        
+    if order.status not in ["pending"]:
+        raise HTTPException(status_code=400, detail="Only pending orders can be deleted")
+        
+    crud_order.delete(db, order)
+    return {"status": "ok", "message": "Order deleted and stock restored"}
+
+
+@router.post("/{order_id}/cancel", response_model=OrderOut)
+def cancel_order(
+    order_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    order = crud_order.get_by_id(db, order_id, current_user.id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.status not in ["pending"]:
+        raise HTTPException(status_code=400, detail="Only pending orders can be cancelled")
+    return crud_order.update_status(db, order, "cancelled")

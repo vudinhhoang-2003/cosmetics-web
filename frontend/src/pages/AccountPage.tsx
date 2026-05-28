@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import { userApi, orderApi } from '../api/endpoints'
 import { useAuthStore } from '../store/authStore'
 import type { Order } from '../types'
-import { formatPrice } from '../utils/format'
+import { formatPrice, formatDateTime } from '../utils/format'
 
 type Tab = 'profile' | 'orders'
 
@@ -87,6 +87,25 @@ export default function AccountPage() {
 
   const onSaveProfile = (data: ProfileForm) => profileMutation.mutate(data)
   const onChangePassword = (data: PasswordForm) => passwordMutation.mutate(data)
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: (id: string) => orderApi.cancel(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      toast.success('Hủy đơn hàng thành công')
+      setSelectedOrder(null)
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.detail || 'Không thể hủy đơn hàng'
+      toast.error(msg)
+    },
+  })
+
+  const handleCancelOrder = (id: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
+      cancelOrderMutation.mutate(id)
+    }
+  }
 
   const tabs = [
     { key: 'profile' as Tab, label: 'Thông tin cá nhân', icon: User },
@@ -312,7 +331,7 @@ export default function AccountPage() {
                               </span>
                             </td>
                             <td className="px-5 py-4 text-muted-gray">
-                              {new Date(order.created_at).toLocaleDateString('vi-VN')}
+                              {formatDateTime(order.created_at)}
                             </td>
                             <td className="px-5 py-4">
                               <span
@@ -388,7 +407,7 @@ export default function AccountPage() {
                   <div>
                     <p className="font-sans text-xs text-muted-gray mb-1 uppercase tracking-wider">Ngày đặt hàng</p>
                     <span className="font-sans text-sm text-dark-text">
-                      {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
+                      {formatDateTime(selectedOrder.created_at)}
                     </span>
                   </div>
                 </div>
@@ -449,10 +468,21 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              {/* Footer Total */}
-              <div className="px-6 py-4 border-t border-soft-gray bg-beige flex justify-between items-center font-sans">
-                <span className="text-sm font-medium text-dark-text uppercase tracking-wider">Tổng giá trị:</span>
-                <span className="price-gold text-lg font-bold">{formatPrice(selectedOrder.total_price)}</span>
+              {/* Footer Total & Actions */}
+              <div className="px-6 py-4 border-t border-soft-gray bg-beige flex flex-col sm:flex-row justify-between items-center gap-4 font-sans w-full">
+                <div className="flex justify-between w-full sm:w-auto items-center gap-2">
+                  <span className="text-sm font-medium text-dark-text uppercase tracking-wider">Tổng giá trị:</span>
+                  <span className="price-gold text-lg font-bold">{formatPrice(selectedOrder.total_price)}</span>
+                </div>
+                {selectedOrder.status === 'pending' && (
+                  <button
+                    onClick={() => handleCancelOrder(selectedOrder.id)}
+                    disabled={cancelOrderMutation.isPending}
+                    className="w-full sm:w-auto px-5 py-2 border border-rose-200 hover:border-rose-300 text-rose-600 hover:bg-rose-50 text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50"
+                  >
+                    {cancelOrderMutation.isPending ? 'Đang hủy...' : 'Hủy đơn hàng'}
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>

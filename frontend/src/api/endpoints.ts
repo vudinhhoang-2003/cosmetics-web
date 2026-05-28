@@ -57,6 +57,10 @@ export const orderApi = {
   get: (id: string) => api.get<Order>(`/orders/${id}`),
   updateStatus: (id: string, status: string) =>
     api.put<Order>(`/orders/${id}/status`, { status }),
+  cancelPayment: (params: { order_id?: string; order_code?: number }) =>
+    api.post<Order>('/orders/cancel-payment', null, { params }),
+  cancel: (id: string) =>
+    api.post<Order>(`/orders/${id}/cancel`),
 }
 
 // Users
