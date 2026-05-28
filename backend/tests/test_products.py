@@ -109,12 +109,21 @@ class TestCreateProduct:
         r = client.post(PRODUCTS_URL, json={"name": "only name"}, headers=auth_admin)
         assert r.status_code == 422
 
+    def test_create_negative_stock_rejected(self, client, auth_admin, category):
+        payload = {**PRODUCT_PAYLOAD, "category_id": category["id"], "stock": -1}
+        r = client.post(PRODUCTS_URL, json=payload, headers=auth_admin)
+        assert r.status_code == 422
+
 
 class TestUpdateProduct:
     def test_update_as_admin(self, client, auth_admin, product):
         r = client.put(f"{PRODUCTS_URL}/{product['id']}", json={"stock": 99}, headers=auth_admin)
         assert r.status_code == 200
         assert r.json()["stock"] == 99
+
+    def test_update_negative_stock_rejected(self, client, auth_admin, product):
+        r = client.put(f"{PRODUCTS_URL}/{product['id']}", json={"stock": -1}, headers=auth_admin)
+        assert r.status_code == 422
 
     def test_update_not_found(self, client, auth_admin):
         r = client.put(

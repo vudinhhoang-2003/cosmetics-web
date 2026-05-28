@@ -13,6 +13,13 @@ def get_item(db: Session, item_id, user_id) -> Optional[CartItem]:
     return db.query(CartItem).filter(CartItem.id == item_id, CartItem.user_id == user_id).first()
 
 
+def get_product_item(db: Session, user_id, product_id) -> Optional[CartItem]:
+    return db.query(CartItem).filter(
+        CartItem.user_id == user_id,
+        CartItem.product_id == product_id,
+    ).first()
+
+
 def add_item(db: Session, user_id, product_id, quantity: int) -> CartItem:
     existing = db.query(CartItem).filter(
         CartItem.user_id == user_id,

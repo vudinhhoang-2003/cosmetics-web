@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from uuid import UUID
 from app.schemas.product import ProductOut
@@ -6,11 +6,11 @@ from app.schemas.product import ProductOut
 
 class CartItemCreate(BaseModel):
     product_id: UUID
-    quantity: int = 1
+    quantity: int = Field(default=1, ge=1)
 
 
 class CartItemUpdate(BaseModel):
-    quantity: int
+    quantity: int = Field(..., ge=0)
 
 
 class CartItemOut(BaseModel):

@@ -26,7 +26,9 @@ def add_to_cart(
     p = crud_product.get_by_id(db, data.product_id)
     if not p or not p.is_active:
         raise HTTPException(status_code=404, detail="Product not found")
-    if p.stock < data.quantity:
+    existing = crud_cart.get_product_item(db, current_user.id, data.product_id)
+    requested_quantity = data.quantity + (existing.quantity if existing else 0)
+    if p.stock < requested_quantity:
         raise HTTPException(status_code=400, detail="Insufficient stock")
     item = crud_cart.add_item(db, current_user.id, data.product_id, data.quantity)
     return CartItemOut.model_validate(item)
@@ -46,6 +48,10 @@ def update_cart_item(
     if data.quantity <= 0:
         crud_cart.remove_item(db, item)
         return Response(status_code=204)
+    if not item.product or not item.product.is_active:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if item.product.stock < data.quantity:
+        raise HTTPException(status_code=400, detail="Insufficient stock")
     return CartItemOut.model_validate(crud_cart.update_quantity(db, item, data.quantity))
 
 

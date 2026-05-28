@@ -13,6 +13,10 @@ def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
 
     total = 0.0
     for item in cart_items:
+        if not item.product or not item.product.is_active:
+            raise ValueError("Product not available")
+        if item.product.stock < item.quantity:
+            raise ValueError("Insufficient stock")
         price = float(item.product.sale_price or item.product.price)
         total += price * item.quantity
 
@@ -38,8 +42,7 @@ def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
             price_at_purchase=price,
         )
         db.add(oi)
-        # Decrease stock
-        ci.product.stock = max(0, ci.product.stock - ci.quantity)
+        ci.product.stock -= ci.quantity
 
     db.query(CartItem).filter(CartItem.user_id == user_id).delete()
     db.commit()
@@ -78,4 +81,3 @@ def get_all(db: Session, skip: int = 0, limit: int = 50, status: Optional[str] =
     if status:
         q = q.filter(Order.status == status)
     return q.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
-

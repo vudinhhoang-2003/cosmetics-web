@@ -603,6 +603,7 @@ export default function AdminProducts() {
                         </label>
                         <input
                           type="number"
+                          min="0"
                           {...register('price', { required: 'Bắt buộc', min: { value: 0, message: 'Phải >= 0' } })}
                           className="input-field w-full"
                         />
@@ -614,10 +615,17 @@ export default function AdminProducts() {
                         </label>
                         <input
                           type="number"
-                          {...register('sale_price')}
+                          min="0"
+                          {...register('sale_price', {
+                            validate: (val) => {
+                              if (!val) return true
+                              return Number(val) >= 0 || 'Phải >= 0'
+                            }
+                          })}
                           className="input-field w-full"
                           placeholder="Để trống nếu không có"
                         />
+                        {errors.sale_price && <p className="text-red-500 text-xs mt-1">{errors.sale_price.message}</p>}
                       </div>
                       <div>
                         <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
@@ -625,7 +633,13 @@ export default function AdminProducts() {
                         </label>
                         <input
                           type="number"
-                          {...register('stock', { required: 'Bắt buộc', min: { value: 0, message: 'Phải >= 0' } })}
+                          min="0"
+                          step="1"
+                          {...register('stock', {
+                            required: 'Bắt buộc',
+                            min: { value: 0, message: 'Phải >= 0' },
+                            validate: (val) => Number.isInteger(Number(val)) || 'Phải là số nguyên'
+                          })}
                           className="input-field w-full"
                         />
                         {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock.message}</p>}

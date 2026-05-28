@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from uuid import UUID
 from decimal import Decimal
@@ -10,9 +10,9 @@ class ProductCreate(BaseModel):
     name: str
     slug: str
     description: Optional[str] = None
-    price: Decimal
-    sale_price: Optional[Decimal] = None
-    stock: int = 0
+    price: Decimal = Field(..., ge=0)
+    sale_price: Optional[Decimal] = Field(default=None, ge=0)
+    stock: int = Field(default=0, ge=0)
     images: List[str] = []
     category_id: Optional[UUID] = None
     brand: Optional[str] = None
@@ -22,9 +22,9 @@ class ProductCreate(BaseModel):
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[Decimal] = None
-    sale_price: Optional[Decimal] = None
-    stock: Optional[int] = None
+    price: Optional[Decimal] = Field(default=None, ge=0)
+    sale_price: Optional[Decimal] = Field(default=None, ge=0)
+    stock: Optional[int] = Field(default=None, ge=0)
     images: Optional[List[str]] = None
     category_id: Optional[UUID] = None
     brand: Optional[str] = None
