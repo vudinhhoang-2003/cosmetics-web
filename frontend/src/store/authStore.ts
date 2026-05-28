@@ -24,6 +24,10 @@ export const useAuthStore = create<AuthStore>()(
       },
       logout: () => {
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false })
+        // Xóa giỏ hàng khi đăng xuất để giỏ hàng đi theo tài khoản
+        import('./cartStore').then(({ useCartStore }) => {
+          useCartStore.getState().clearCart()
+        })
       },
       isAdmin: () => get().user?.role === 'admin',
     }),

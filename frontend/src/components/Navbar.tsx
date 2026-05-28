@@ -39,6 +39,12 @@ export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const handleLogout = () => {
+    logout()
+    setMenuOpen(false)
+    navigate('/')
+  }
+
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', handler)
@@ -131,7 +137,7 @@ export default function Navbar() {
                       </Link>
                     )}
                     <button
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] text-dark-text hover:text-gold hover:bg-pearl transition-colors border-t border-soft-gray"
                       style={{ letterSpacing: '0.08em' }}
                     >
@@ -216,7 +222,7 @@ export default function Navbar() {
                 ) : (
                   <div className="space-y-3">
                     <Link to="/account" className="block nav-link">Tài khoản</Link>
-                    <button onClick={logout} className="block text-[11px] uppercase text-muted-gray hover:text-gold transition-colors" style={{ letterSpacing: '0.1em' }}>
+                    <button onClick={handleLogout} className="block text-[11px] uppercase text-muted-gray hover:text-gold transition-colors" style={{ letterSpacing: '0.1em' }}>
                       Đăng xuất
                     </button>
                   </div>
