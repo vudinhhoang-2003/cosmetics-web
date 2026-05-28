@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from app.core.config import settings
-from app.routers import auth, products, categories, orders, users, admin, upload, cart
+from app.routers import auth, products, categories, orders, users, admin, upload, cart, payment
 
 app = FastAPI(
     title="Luxe Beauty API",
@@ -35,6 +35,7 @@ app.include_router(orders.router,     prefix="/api/orders")
 app.include_router(users.router,      prefix="/api/users")
 app.include_router(admin.router,      prefix="/api/admin")
 app.include_router(upload.router,     prefix="/api/upload")
+app.include_router(payment.router,    prefix="/api/payment")
 
 
 @app.get("/api/health")

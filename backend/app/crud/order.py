@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.order import Order, OrderItem
 from app.models.cart import CartItem
 from app.schemas.order import OrderCreate
@@ -16,11 +16,15 @@ def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
         price = float(item.product.sale_price or item.product.price)
         total += price * item.quantity
 
+    import time
+    order_code = int(time.time() * 1000) % 1000000000
+
     order = Order(
         user_id=user_id,
         total_price=total,
         shipping_address=data.shipping_address,
         payment_method=data.payment_method,
+        order_code=order_code,
     )
     db.add(order)
     db.flush()
@@ -44,11 +48,19 @@ def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
 
 
 def get_user_orders(db: Session, user_id, skip: int = 0, limit: int = 20) -> List[Order]:
-    return db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return (
+        db.query(Order)
+        .options(joinedload(Order.items).joinedload(OrderItem.product))
+        .filter(Order.user_id == user_id)
+        .order_by(Order.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def get_by_id(db: Session, order_id, user_id=None) -> Optional[Order]:
-    q = db.query(Order).filter(Order.id == order_id)
+    q = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.product)).filter(Order.id == order_id)
     if user_id:
         q = q.filter(Order.user_id == user_id)
     return q.first()
@@ -62,7 +74,8 @@ def update_status(db: Session, order: Order, status: str) -> Order:
 
 
 def get_all(db: Session, skip: int = 0, limit: int = 50, status: Optional[str] = None) -> List[Order]:
-    q = db.query(Order)
+    q = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.product))
     if status:
         q = q.filter(Order.status == status)
     return q.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+

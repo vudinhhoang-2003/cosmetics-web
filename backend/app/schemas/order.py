@@ -31,6 +31,8 @@ class OrderOut(BaseModel):
     total_price: Decimal
     shipping_address: Optional[Dict[str, Any]]
     payment_method: Optional[str]
+    order_code: Optional[int] = None
+    payment_url: Optional[str] = None
     created_at: datetime
     items: List[OrderItemOut] = []
 

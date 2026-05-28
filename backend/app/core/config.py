@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     UPLOAD_DIR: str = "uploads"
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
+    PAYOS_CLIENT_ID: str = ""
+    PAYOS_API_KEY: str = ""
+    PAYOS_CHECKSUM_KEY: str = ""
 
     class Config:
         env_file = ".env"

@@ -11,7 +11,7 @@ router = APIRouter(tags=["orders"])
 
 
 @router.post("/", response_model=OrderOut, status_code=201)
-def create_order(
+async def create_order(
     data: OrderCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -19,7 +19,26 @@ def create_order(
     order = crud_order.create_from_cart(db, current_user.id, data)
     if not order:
         raise HTTPException(status_code=400, detail="Cart is empty")
-    return order
+    
+    out = OrderOut.model_validate(order)
+    
+    if order.payment_method == "online":
+        from app.core.payos import payos_client
+        from app.core.config import settings
+        
+        return_url = f"{settings.FRONTEND_URL}/checkout/success?order_id={order.id}"
+        cancel_url = f"{settings.FRONTEND_URL}/checkout/cancel?order_id={order.id}"
+        
+        payment_url = await payos_client.create_payment_link(
+            order_code=order.order_code,
+            amount=int(float(order.total_price)),
+            description=f"Luxe #{order.order_code}",
+            return_url=return_url,
+            cancel_url=cancel_url
+        )
+        out.payment_url = payment_url
+        
+    return out
 
 
 @router.get("/", response_model=List[OrderOut])

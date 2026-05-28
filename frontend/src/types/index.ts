@@ -74,6 +74,8 @@ export interface Order {
   total_price: number
   shipping_address: ShippingAddress
   payment_method: string
+  payment_url?: string
+  order_code?: number
   created_at: string
   items: OrderItem[]
 }

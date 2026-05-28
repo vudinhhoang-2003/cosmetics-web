@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { motion } from 'framer-motion'
-import { User, Package, ChevronRight, Lock, Phone, UserCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { User, Package, ChevronRight, Lock, Phone, UserCircle, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { userApi, orderApi } from '../api/endpoints'
@@ -32,6 +32,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 export default function AccountPage() {
   const [tab, setTab] = useState<Tab>('profile')
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const { user, setAuth, accessToken, refreshToken } = useAuthStore()
   const queryClient = useQueryClient()
 
@@ -326,12 +327,12 @@ export default function AccountPage() {
                               </span>
                             </td>
                             <td className="px-5 py-4">
-                              <Link
-                                to="/account"
+                              <button
+                                onClick={() => setSelectedOrder(order)}
                                 className="flex items-center gap-1 text-gold hover:underline text-xs whitespace-nowrap"
                               >
                                 Chi tiết <ChevronRight size={12} />
-                              </Link>
+                              </button>
                             </td>
                           </tr>
                         )
@@ -344,6 +345,119 @@ export default function AccountPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Order Details Modal */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white max-w-xl w-full max-h-[85vh] flex flex-col relative shadow-2xl border border-soft-gray overflow-hidden"
+            >
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-soft-gray flex justify-between items-center bg-beige">
+                <div>
+                  <h3 className="font-serif text-lg text-dark-text">Chi Tiết Đơn Hàng</h3>
+                  <p className="font-sans text-[10px] text-muted-gray uppercase tracking-wider mt-0.5">
+                    Mã đơn: #{selectedOrder.id.slice(0, 8).toUpperCase()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-muted-gray hover:text-dark-text transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 overflow-y-auto space-y-6 flex-1">
+                {/* Status & Date */}
+                <div className="grid grid-cols-2 gap-4 bg-pearl/50 p-4 border border-soft-gray">
+                  <div>
+                    <p className="font-sans text-xs text-muted-gray mb-1 uppercase tracking-wider">Trạng thái</p>
+                    <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-medium ${
+                      STATUS_MAP[selectedOrder.status]?.color || 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {STATUS_MAP[selectedOrder.status]?.label || selectedOrder.status}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-sans text-xs text-muted-gray mb-1 uppercase tracking-wider">Ngày đặt hàng</p>
+                    <span className="font-sans text-sm text-dark-text">
+                      {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Shipping Info */}
+                <div>
+                  <h4 className="font-serif text-sm text-dark-text mb-3 uppercase tracking-wider border-b border-soft-gray pb-1.5">
+                    Thông tin giao hàng
+                  </h4>
+                  <div className="space-y-1.5 font-sans text-xs text-muted-gray">
+                    <p><strong className="text-dark-text">Người nhận:</strong> {selectedOrder.shipping_address.full_name}</p>
+                    <p><strong className="text-dark-text">Số điện thoại:</strong> {selectedOrder.shipping_address.phone}</p>
+                    <p>
+                      <strong className="text-dark-text">Địa chỉ:</strong>{' '}
+                      {selectedOrder.shipping_address.address}, {selectedOrder.shipping_address.district},{' '}
+                      {selectedOrder.shipping_address.city}
+                    </p>
+                    {selectedOrder.shipping_address.note && (
+                      <p><strong className="text-dark-text">Ghi chú:</strong> "{selectedOrder.shipping_address.note}"</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div>
+                  <h4 className="font-serif text-sm text-dark-text mb-3 uppercase tracking-wider border-b border-soft-gray pb-1.5">
+                    Phương thức thanh toán
+                  </h4>
+                  <p className="font-sans text-xs text-muted-gray">
+                    {selectedOrder.payment_method === 'online' ? (
+                      <span className="flex items-center gap-1.5 text-emerald-700 font-medium font-sans">
+                        Chuyển khoản VietQR (PayOS)
+                      </span>
+                    ) : (
+                      <span>Thanh toán tiền mặt khi nhận hàng (COD)</span>
+                    )}
+                  </p>
+                </div>
+
+                {/* Order Items */}
+                <div>
+                  <h4 className="font-serif text-sm text-dark-text mb-3 uppercase tracking-wider border-b border-soft-gray pb-1.5">
+                    Danh sách sản phẩm
+                  </h4>
+                  <div className="space-y-3">
+                    {selectedOrder.items?.map((item) => (
+                      <div key={item.id} className="flex justify-between items-center gap-4 text-xs font-sans">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-dark-text font-medium truncate">{item.product_name || 'Sản phẩm'}</p>
+                          <p className="text-muted-gray mt-0.5">SL: {item.quantity} x {formatPrice(Number(item.price_at_purchase))}</p>
+                        </div>
+                        <span className="text-dark-text font-semibold shrink-0">
+                          {formatPrice(Number(item.price_at_purchase) * item.quantity)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Total */}
+              <div className="px-6 py-4 border-t border-soft-gray bg-beige flex justify-between items-center font-sans">
+                <span className="text-sm font-medium text-dark-text uppercase tracking-wider">Tổng giá trị:</span>
+                <span className="price-gold text-lg font-bold">{formatPrice(selectedOrder.total_price)}</span>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

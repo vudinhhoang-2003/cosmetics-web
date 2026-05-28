@@ -19,7 +19,7 @@ const CITIES = [
 
 interface CheckoutForm extends ShippingAddress {}
 
-type PaymentMethod = 'COD' | 'e-wallet'
+type PaymentMethod = 'COD' | 'online'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
@@ -53,11 +53,16 @@ export default function CheckoutPage() {
           city: data.city,
           note: data.note || undefined,
         },
-        payment_method: paymentMethod,
+        payment_method: paymentMethod.toLowerCase(),
       })
       clearCart()
       toast.success('Đặt hàng thành công!')
-      navigate(`/order/success?id=${res.data.id}`)
+      
+      if (res.data.payment_url) {
+        window.location.href = res.data.payment_url
+      } else {
+        navigate(`/order/success?id=${res.data.id}`)
+      }
     } catch (err: any) {
       const msg = err?.response?.data?.detail || 'Đặt hàng thất bại. Vui lòng thử lại.'
       toast.error(msg)
@@ -260,39 +265,39 @@ export default function CheckoutPage() {
                     </div>
                   </button>
 
-                  {/* E-wallet */}
+                  {/* Online payment */}
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('e-wallet')}
+                    onClick={() => setPaymentMethod('online')}
                     className={`flex items-center gap-4 p-5 border-2 transition-all text-left ${
-                      paymentMethod === 'e-wallet'
+                      paymentMethod === 'online'
                         ? 'border-gold bg-gold/5'
                         : 'border-soft-gray hover:border-gold/50'
                     }`}
                   >
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        paymentMethod === 'e-wallet' ? 'border-gold' : 'border-muted-gray'
+                        paymentMethod === 'online' ? 'border-gold' : 'border-muted-gray'
                       }`}
                     >
-                      {paymentMethod === 'e-wallet' && (
+                      {paymentMethod === 'online' && (
                         <div className="w-2.5 h-2.5 rounded-full bg-gold" />
                       )}
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Wallet size={16} className="text-gold" />
-                        <p className="font-sans text-sm font-semibold text-dark-text">Ví điện tử</p>
+                        <p className="font-sans text-sm font-semibold text-dark-text">Chuyển khoản VietQR</p>
                       </div>
-                      <p className="font-sans text-xs text-muted-gray">MoMo, ZaloPay, VNPay</p>
+                      <p className="font-sans text-xs text-muted-gray">Quét mã nhanh qua cổng PayOS</p>
                     </div>
                   </button>
                 </div>
 
-                {paymentMethod === 'e-wallet' && (
+                {paymentMethod === 'online' && (
                   <div className="mt-4 bg-amber-50 border border-amber-200 p-3 rounded-sm">
                     <p className="font-sans text-xs text-amber-700">
-                      Bạn sẽ được chuyển hướng đến cổng thanh toán sau khi đặt hàng.
+                      Bạn sẽ được chuyển hướng đến cổng thanh toán PayOS để quét mã VietQR.
                     </p>
                   </div>
                 )}

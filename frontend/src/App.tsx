@@ -13,6 +13,9 @@ import OrderSuccessPage from './pages/OrderSuccessPage'
 import AccountPage from './pages/AccountPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import CheckoutSuccessPage from './pages/CheckoutSuccessPage'
+import CheckoutCancelPage from './pages/CheckoutCancelPage'
+import CheckoutMockPaymentPage from './pages/CheckoutMockPaymentPage'
 
 // Admin pages
 import AdminLoginPage from './pages/admin/AdminLoginPage'
@@ -52,6 +55,18 @@ export default function App() {
         <Route
           path="/order/success"
           element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/checkout/success"
+          element={<ProtectedRoute><CheckoutSuccessPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/checkout/cancel"
+          element={<ProtectedRoute><CheckoutCancelPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/checkout/mock-payment"
+          element={<ProtectedRoute><CheckoutMockPaymentPage /></ProtectedRoute>}
         />
         <Route
           path="/account"

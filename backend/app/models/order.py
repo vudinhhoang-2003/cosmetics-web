@@ -14,6 +14,7 @@ class Order(Base):
     total_price = Column(Numeric(12, 2), nullable=False)
     shipping_address = Column(JSONB)
     payment_method = Column(String(30))
+    order_code = Column(Integer, unique=True, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     user = relationship("User", back_populates="orders")
@@ -31,3 +32,7 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items")
     product = relationship("Product", back_populates="order_items")
+
+    @property
+    def product_name(self) -> str:
+        return self.product.name if self.product else "Sản phẩm"
