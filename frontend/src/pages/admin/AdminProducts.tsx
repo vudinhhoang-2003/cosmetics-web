@@ -75,6 +75,7 @@ export default function AdminProducts() {
   const [sort, setSort] = useState('newest')
   const [stockFilter, setStockFilter] = useState('all')
   const [saleFilter, setSaleFilter] = useState('all')
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -145,6 +146,10 @@ export default function AdminProducts() {
 
   const watchedImages = watch('images') || ''
   const watchedName = watch('name') || ''
+  const watchedCategoryId = watch('category_id') || ''
+  const selectedCategoryName = useMemo(() => {
+    return categories.find((c) => c.id === watchedCategoryId)?.name || 'Chọn danh mục'
+  }, [watchedCategoryId, categories])
 
   const resetFilters = () => {
     setSearch('')
@@ -170,6 +175,7 @@ export default function AdminProducts() {
       images: '',
     })
     setEditingProduct(null)
+    setCategoryDropdownOpen(false)
     setModalOpen(true)
   }
 
@@ -187,6 +193,7 @@ export default function AdminProducts() {
       images: product.images?.join('\n') || '',
       is_active: product.is_active,
     })
+    setCategoryDropdownOpen(false)
     setModalOpen(true)
   }
 
@@ -533,7 +540,7 @@ export default function AdminProducts() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50"
+              className="absolute inset-0 bg-obsidian/60 backdrop-blur-md"
               onClick={() => setModalOpen(false)}
             />
             <motion.div
@@ -541,27 +548,27 @@ export default function AdminProducts() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 18 }}
               transition={{ duration: 0.2 }}
-              className="relative bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-[#FAF6F0] w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gold/15 shadow-2xl"
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-soft-gray sticky top-0 bg-white z-10">
+              <div className="flex items-center justify-between px-8 py-5 border-b border-gold/10 sticky top-0 bg-[#FAF6F0]/90 backdrop-blur-md z-15">
                 <div>
-                  <h2 className="font-serif text-lg text-dark-text">
+                  <h2 className="font-serif text-2xl text-navy font-semibold tracking-wide">
                     {editingProduct ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}
                   </h2>
-                  <p className="font-sans text-xs text-muted-gray mt-0.5">
+                  <p className="font-sans text-[10px] text-muted-gray uppercase tracking-wider mt-1">
                     Cập nhật thông tin bán hàng, mô tả và hình ảnh.
                   </p>
                 </div>
-                <button type="button" onClick={() => setModalOpen(false)} className="p-2 -mr-2">
-                  <X size={20} className="text-muted-gray hover:text-dark-text" />
+                <button type="button" onClick={() => setModalOpen(false)} className="p-2 -mr-2 text-muted-gray hover:text-dark-text transition-colors">
+                  <X size={20} />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
-                  <div className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">
+                  <div className="space-y-5">
                     <div>
-                      <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                      <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                         Tên sản phẩm *
                       </label>
                       <input
@@ -577,13 +584,13 @@ export default function AdminProducts() {
 
                     <div>
                       <div className="flex items-center justify-between gap-3">
-                        <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                        <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Slug *
                         </label>
                         <button
                           type="button"
                           onClick={() => setValue('slug', slugify(watchedName))}
-                          className="font-sans text-xs text-gold hover:underline"
+                          className="font-sans text-xs text-gold hover:text-gold-dark hover:underline transition-colors mb-1.5"
                         >
                           Tạo từ tên
                         </button>
@@ -596,9 +603,9 @@ export default function AdminProducts() {
                       {errors.slug && <p className="text-red-500 text-xs mt-1">{errors.slug.message}</p>}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                        <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Giá gốc (VND) *
                         </label>
                         <input
@@ -610,7 +617,7 @@ export default function AdminProducts() {
                         {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                       </div>
                       <div>
-                        <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                        <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Giá ưu đãi
                         </label>
                         <input
@@ -628,7 +635,7 @@ export default function AdminProducts() {
                         {errors.sale_price && <p className="text-red-500 text-xs mt-1">{errors.sale_price.message}</p>}
                       </div>
                       <div>
-                        <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                        <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Tồn kho *
                         </label>
                         <input
@@ -645,7 +652,7 @@ export default function AdminProducts() {
                         {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock.message}</p>}
                       </div>
                       <div>
-                        <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                        <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Thương hiệu
                         </label>
                         <input {...register('brand')} className="input-field w-full" placeholder="Dior, Chanel..." />
@@ -653,25 +660,63 @@ export default function AdminProducts() {
                     </div>
 
                     <div>
-                      <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
-                        Danh mục
+                      <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
+                        Danh mục *
                       </label>
+                      <input type="hidden" {...register('category_id', { required: 'Bắt buộc' })} />
                       <div className="relative">
-                        <select
-                          {...register('category_id')}
-                          className="w-full appearance-none px-4 py-3 pr-10 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer"
+                        <button
+                          type="button"
+                          onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                          className="w-full text-left px-4 py-3 border border-soft-gray bg-white text-dark-text text-sm font-sans flex items-center justify-between focus:outline-none focus:border-gold transition-colors duration-200"
                         >
-                          <option value="">Chọn danh mục</option>
-                          {categories.map((category) => (
-                            <option key={category.id} value={category.id}>{category.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-gray" />
+                          <span className={watchedCategoryId ? 'text-dark-text' : 'text-muted-gray'}>
+                            {selectedCategoryName}
+                          </span>
+                          <ChevronDown size={14} className={`text-muted-gray transition-transform duration-300 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {categoryDropdownOpen && (
+                          <>
+                            <div className="fixed inset-0 z-20" onClick={() => setCategoryDropdownOpen(false)} />
+                            <div className="absolute z-30 w-full mt-1 bg-white border border-soft-gray shadow-xl max-h-60 overflow-y-auto animate-fadeIn rounded-none">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setValue('category_id', '')
+                                  setCategoryDropdownOpen(false)
+                                }}
+                                className="w-full text-left px-4 py-3 text-xs uppercase tracking-wider text-muted-gray hover:bg-beige hover:text-gold transition-colors font-medium border-b border-soft-gray/50"
+                              >
+                                Chọn danh mục
+                              </button>
+                              {categories.map((category) => (
+                                <button
+                                  key={category.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setValue('category_id', category.id)
+                                    setCategoryDropdownOpen(false)
+                                  }}
+                                  className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between ${
+                                    watchedCategoryId === category.id
+                                      ? 'bg-beige text-gold font-medium'
+                                      : 'text-dark-text hover:bg-beige hover:text-gold'
+                                  }`}
+                                >
+                                  <span>{category.name}</span>
+                                  {watchedCategoryId === category.id && <span className="w-1.5 h-1.5 rounded-full bg-gold" />}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </div>
+                      {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id.message}</p>}
                     </div>
 
                     <div>
-                      <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
+                      <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                         Mô tả sản phẩm
                       </label>
                       <textarea
@@ -684,24 +729,31 @@ export default function AdminProducts() {
                   </div>
 
                   <aside className="space-y-5">
-                    <div className="border border-soft-gray p-4">
-                      <label className="flex items-center justify-between gap-3 cursor-pointer">
-                        <span>
-                          <span className="block font-sans text-sm text-dark-text font-medium">Đang bán</span>
-                          <span className="block font-sans text-xs text-muted-gray mt-0.5">Tắt để dừng bán và ẩn khỏi trang khách hàng</span>
-                        </span>
-                        <input type="checkbox" {...register('is_active')} className="w-4 h-4 accent-[#C9A96E]" />
+                    <div className="border border-soft-gray p-4 bg-white">
+                      <label className="flex items-center justify-between gap-4 cursor-pointer">
+                        <div>
+                          <span className="block font-sans text-xs uppercase tracking-luxury text-dark-text font-medium">Đang bán</span>
+                          <span className="block font-sans text-[10px] text-muted-gray mt-1 leading-relaxed">Tắt để dừng bán và ẩn khỏi trang khách hàng</span>
+                        </div>
+                        <div className="relative shrink-0">
+                          <input
+                            type="checkbox"
+                            {...register('is_active')}
+                            className="sr-only peer"
+                          />
+                          <div className="w-10 h-6 bg-soft-gray rounded-full relative peer peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold transition-colors" />
+                        </div>
                       </label>
                     </div>
 
                     <div>
-                      <label className="font-sans text-xs text-muted-gray mb-2 block uppercase tracking-wider">
+                      <label className="font-sans text-[10px] text-muted-gray mb-2 block uppercase tracking-luxury font-medium">
                         Hình ảnh sản phẩm
                       </label>
                       <input type="hidden" {...register('images')} />
                       <div className="grid grid-cols-3 gap-3">
                         {imageUrls.map((url, index) => (
-                          <div key={`${url}-${index}`} className="relative aspect-square border border-soft-gray bg-beige group overflow-hidden">
+                          <div key={`${url}-${index}`} className="relative aspect-square border border-soft-gray bg-white group overflow-hidden">
                             <img
                               src={url}
                               alt={`Sản phẩm ${index + 1}`}
@@ -711,13 +763,13 @@ export default function AdminProducts() {
                             <button
                               type="button"
                               onClick={() => setValue('images', imageUrls.filter((_, itemIndex) => itemIndex !== index).join('\n'))}
-                              className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white flex items-center justify-center shadow hover:bg-red-600 transition-colors"
+                              className="absolute top-1.5 right-1.5 w-6 h-6 bg-obsidian/75 backdrop-blur text-white flex items-center justify-center shadow hover:bg-red-600 transition-colors"
                             >
                               <X size={12} />
                             </button>
                           </div>
                         ))}
-                        <label className={`aspect-square border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors bg-beige/50 ${
+                        <label className={`aspect-square border border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors bg-white ${
                           uploading ? 'border-gold/50 text-gold/50 cursor-not-allowed' : 'border-soft-gray text-muted-gray hover:border-gold hover:text-gold'
                         }`}>
                           <input
@@ -732,14 +784,14 @@ export default function AdminProducts() {
                           ) : (
                             <ImagePlus size={18} className="mb-1" />
                           )}
-                          <span className="text-[10px] uppercase font-sans tracking-wide">Thêm ảnh</span>
+                          <span className="text-[9px] uppercase font-sans tracking-wide">Thêm ảnh</span>
                         </label>
                       </div>
                     </div>
                   </aside>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-5 border-t border-soft-gray mt-6">
+                <div className="flex justify-end gap-3 pt-5 border-t border-gold/10 mt-8">
                   <button type="button" onClick={() => setModalOpen(false)} className="btn-outline px-6">
                     Hủy
                   </button>
