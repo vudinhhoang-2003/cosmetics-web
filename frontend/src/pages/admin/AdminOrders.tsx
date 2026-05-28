@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X, ChevronDown, Package, Search, ChevronLeft, ChevronRight,
-  ShoppingBag, Clock, CheckCircle, XCircle, ShieldAlert,
   CreditCard, User, Phone, MapPin, MessageSquare, RefreshCw
 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -159,30 +158,6 @@ export default function AdminOrders() {
         >
           <RefreshCw size={12} className={isFetching ? 'animate-spin' : ''} /> Làm mới
         </button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        {[
-          { label: 'Tổng đơn hàng', value: stats?.total_orders ?? 0, icon: ShoppingBag, color: 'text-gold bg-gold/10 border-gold/10' },
-          { label: 'Chờ xác nhận', value: stats?.pending_orders ?? 0, icon: Clock, color: 'text-amber-600 bg-amber-50 border-amber-200/30' },
-          { label: 'Đã xác nhận', value: stats?.confirmed_orders ?? 0, icon: ShieldAlert, color: 'text-sky-600 bg-sky-50 border-sky-200/30' },
-          { label: 'Đang giao', value: stats?.shipping_orders ?? 0, icon: Package, color: 'text-indigo-600 bg-indigo-50 border-indigo-200/30' },
-          { label: 'Đã giao', value: stats?.delivered_orders ?? 0, icon: CheckCircle, color: 'text-green-600 bg-emerald-50 border-emerald-200/30' },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div
-            key={label}
-            className={`bg-white border p-4 flex items-center justify-between shadow-sm transition-all hover:shadow-md ${color.split(' ')[2] || 'border-soft-gray'}`}
-          >
-            <div>
-              <p className="font-sans text-[10px] text-muted-gray uppercase tracking-wider">{label}</p>
-              <p className="font-sans text-2xl font-bold text-dark-text mt-1">{value}</p>
-            </div>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color.split(' ').slice(0, 2).join(' ')}`}>
-              <Icon size={18} />
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Search & Filters */}
