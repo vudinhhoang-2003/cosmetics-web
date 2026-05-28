@@ -8,10 +8,7 @@ import { cartApi } from '../api/endpoints'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import type { CartItem } from '../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../utils/format'
 
 const FREE_SHIP_THRESHOLD = 500000
 

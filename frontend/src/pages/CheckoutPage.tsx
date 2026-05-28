@@ -7,10 +7,7 @@ import toast from 'react-hot-toast'
 import { orderApi } from '../api/endpoints'
 import { useCartStore } from '../store/cartStore'
 import type { ShippingAddress } from '../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../utils/format'
 
 const FREE_SHIP_THRESHOLD = 500000
 

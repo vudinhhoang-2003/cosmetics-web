@@ -6,10 +6,7 @@ import { Plus, Edit2, Trash2, X, Search, ToggleLeft, ToggleRight } from 'lucide-
 import toast from 'react-hot-toast'
 import { productApi, categoryApi } from '../../api/endpoints'
 import type { Product, Category } from '../../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../../utils/format'
 
 interface ProductForm {
   name: string

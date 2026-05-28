@@ -83,12 +83,12 @@ export default function HomePage() {
               className="flex items-center gap-10"
             >
               <Link to="/products" className="btn-ghost">Khám phá ngay</Link>
-              <Link
-                to="/products"
-                className="flex items-center gap-2 text-white/50 text-[10px] tracking-luxury uppercase hover:text-gold transition-colors duration-300"
+              <button
+                onClick={() => document.getElementById('categories-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-center gap-2 text-white/50 text-[10px] tracking-luxury uppercase hover:text-gold transition-colors duration-300 bg-transparent border-none cursor-pointer outline-none"
               >
                 Xem bộ sưu tập <ArrowRight size={11} />
-              </Link>
+              </button>
             </motion.div>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function HomePage() {
 
       {/* ── Categories — editorial masonry ────────────────── */}
       {categories.length > 0 && (
-        <section className="py-24 px-8 bg-cream">
+        <section id="categories-section" className="py-24 px-8 bg-cream">
           <div className="max-w-7xl mx-auto">
             <motion.div
               variants={fadeInUp}
@@ -350,7 +350,7 @@ export default function HomePage() {
               { num: '03', title: 'Kiểm định quốc tế', desc: 'Tất cả sản phẩm đạt chứng nhận an toàn quốc tế, được kiểm tra nghiêm ngặt trước khi đến tay bạn.' },
             ].map(({ num, title, desc }) => (
               <motion.div key={num} variants={fadeInUp} className="px-10 py-12 first:pl-0 last:pr-0">
-                <p className="font-display text-5xl font-light text-gold/20 mb-6 leading-none">{num}</p>
+                <p className="font-display text-5xl font-light text-gold/70 mb-6 leading-none">{num}</p>
                 <h3 className="font-serif text-lg text-dark-text mb-4">{title}</h3>
                 <p className="font-sans text-muted-gray text-sm leading-relaxed">{desc}</p>
               </motion.div>

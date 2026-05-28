@@ -11,10 +11,7 @@ import { useCartStore } from '../store/cartStore'
 import { cartApi } from '../api/endpoints'
 import ProductCard from '../components/ProductCard'
 import type { Review } from '../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../utils/format'
 
 interface ReviewForm {
   rating: number

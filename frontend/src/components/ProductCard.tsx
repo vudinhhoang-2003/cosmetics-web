@@ -5,13 +5,10 @@ import { useCartStore } from '../store/cartStore'
 import { cartApi } from '../api/endpoints'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
+import { formatPrice } from '../utils/format'
 
 interface Props {
   product: Product
-}
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
 }
 
 export default function ProductCard({ product }: Props) {

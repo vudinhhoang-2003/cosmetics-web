@@ -5,10 +5,7 @@ import { X, ChevronDown, Package, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminApi, orderApi } from '../../api/endpoints'
 import type { Order } from '../../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../../utils/format'
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },

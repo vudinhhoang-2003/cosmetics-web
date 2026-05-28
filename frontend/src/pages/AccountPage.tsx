@@ -8,10 +8,7 @@ import toast from 'react-hot-toast'
 import { userApi, orderApi } from '../api/endpoints'
 import { useAuthStore } from '../store/authStore'
 import type { Order } from '../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../utils/format'
 
 type Tab = 'profile' | 'orders'
 

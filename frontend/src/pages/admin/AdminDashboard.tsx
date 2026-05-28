@@ -9,10 +9,7 @@ import {
 import { Link } from 'react-router-dom'
 import { adminApi } from '../../api/endpoints'
 import type { Order, AdminStats } from '../../types'
-
-function formatPrice(p: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
-}
+import { formatPrice } from '../../utils/format'
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending: { label: 'Chờ xác nhận', color: 'bg-amber-100 text-amber-700' },
@@ -141,7 +138,7 @@ export default function AdminDashboard() {
                   </span>
                 )}
               </div>
-              <p className="font-serif text-2xl text-dark-text font-bold mb-1">{card.value}</p>
+              <p className="font-sans text-2xl text-dark-text font-bold mb-1">{card.value}</p>
               <p className="font-sans text-xs text-muted-gray uppercase tracking-wider">{card.label}</p>
               <p className="font-sans text-xs text-muted-gray mt-1">{card.sub}</p>
             </motion.div>
@@ -216,7 +213,7 @@ export default function AdminDashboard() {
           >
             <div>
               <p className="font-sans text-xs text-white/50 tracking-widest uppercase mb-2">Tỷ lệ hoàn thành</p>
-              <p className="font-serif text-4xl text-white mb-1">
+              <p className="font-sans text-4xl text-white font-bold mb-1">
                 {stats.total_orders > 0
                   ? Math.round(((stats.total_orders - stats.pending_orders) / stats.total_orders) * 100)
                   : 0}%
