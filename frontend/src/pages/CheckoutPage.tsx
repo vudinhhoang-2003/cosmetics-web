@@ -158,11 +158,11 @@ export default function CheckoutPage() {
 
                   <div>
                     <label className="block font-sans text-sm text-muted-gray mb-1">
-                      Quận/Huyện <span className="text-red-500">*</span>
+                      Phường/Xã <span className="text-red-500">*</span>
                     </label>
                     <input
-                      {...register('district', { required: 'Vui lòng nhập quận/huyện' })}
-                      placeholder="Quận 1"
+                      {...register('district', { required: 'Vui lòng nhập phường/xã' })}
+                      placeholder="Phường Bến Nghé"
                       className="input-field w-full"
                     />
                     {errors.district && (
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       {...register('address', { required: 'Vui lòng nhập địa chỉ' })}
-                      placeholder="Số nhà, tên đường, phường/xã..."
+                      placeholder="Số nhà, tên đường..."
                       className="input-field w-full"
                     />
                     {errors.address && (
