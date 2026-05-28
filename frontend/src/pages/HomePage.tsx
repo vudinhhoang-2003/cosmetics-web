@@ -63,7 +63,7 @@ export default function HomePage() {
               <br />
               <em className="text-gold">Hoàn Mỹ</em>
               <br />
-              Đẳng Cấp
+              Tinh Tế
             </motion.h1>
 
             <motion.p
@@ -233,7 +233,7 @@ export default function HomePage() {
           >
             <span className="luxury-rule w-16 mx-auto mb-10 block" />
             <blockquote
-              className="font-display italic font-light text-white mb-8"
+              className="font-serif italic text-white mb-8"
               style={{ fontSize: 'clamp(1.8rem, 4.5vw, 3.8rem)', lineHeight: 1.3 }}
             >
               "Vẻ đẹp không phải là điều bạn sở hữu —<br />
