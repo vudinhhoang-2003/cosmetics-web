@@ -26,50 +26,80 @@ export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // Filter states synced with URL
-  const [search, setSearch] = useState(searchParams.get('search') || '')
-  const [sort, setSort] = useState(searchParams.get('sort') || 'newest')
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '')
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    searchParams.get('brand') ? searchParams.get('brand')!.split(',') : []
-  )
-  const [minPrice, setMinPrice] = useState(searchParams.get('min_price') || '')
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('max_price') || '')
-  const [page, setPage] = useState(Number(searchParams.get('page') || 1))
+  // Derived filter values directly from URL searchParams
+  const search = searchParams.get('search') || ''
+  const sort = searchParams.get('sort') || 'newest'
+  const selectedCategory = searchParams.get('category') || ''
+  const selectedBrands = searchParams.get('brand') ? searchParams.get('brand')!.split(',') : []
+  const minPrice = searchParams.get('min_price') || ''
+  const maxPrice = searchParams.get('max_price') || ''
+  const page = Number(searchParams.get('page') || 1)
+
+  // Local state for debounced inputs
+  const [searchInput, setSearchInput] = useState(search)
+  const [minPriceInput, setMinPriceInput] = useState(minPrice)
+  const [maxPriceInput, setMaxPriceInput] = useState(maxPrice)
+
+  // Sync inputs when URL parameters change from outside (e.g. Navbar or Footer)
+  useEffect(() => {
+    setSearchInput(search)
+  }, [search])
+
+  useEffect(() => {
+    setMinPriceInput(minPrice)
+  }, [minPrice])
+
+  useEffect(() => {
+    setMaxPriceInput(maxPrice)
+  }, [maxPrice])
 
   const skip = (page - 1) * PAGE_SIZE
 
-  // Sync filters to URL
-  useEffect(() => {
-    const params: Record<string, string> = {}
-    if (search) params.search = search
-    if (sort && sort !== 'newest') params.sort = sort
-    if (selectedCategory) params.category = selectedCategory
-    if (selectedBrands.length) params.brand = selectedBrands.join(',')
-    if (minPrice) params.min_price = minPrice
-    if (maxPrice) params.max_price = maxPrice
-    if (page > 1) params.page = String(page)
-    setSearchParams(params, { replace: true })
-  }, [search, sort, selectedCategory, selectedBrands, minPrice, maxPrice, page])
+  // Helper to update searchParams cleanly
+  const updateUrlParams = (newParams: Record<string, string | string[] | number | null>) => {
+    const nextParams = new URLSearchParams(searchParams)
+    Object.entries(newParams).forEach(([key, val]) => {
+      if (val === null || val === '') {
+        nextParams.delete(key)
+      } else if (Array.isArray(val)) {
+        if (val.length === 0) {
+          nextParams.delete(key)
+        } else {
+          nextParams.set(key, val.join(','))
+        }
+      } else {
+        nextParams.set(key, String(val))
+      }
+    })
+    // Reset page on filter changes unless page is explicitly updated
+    if (!newParams.hasOwnProperty('page')) {
+      nextParams.delete('page')
+    }
+    setSearchParams(nextParams, { replace: true })
+  }
 
-  // Sync URL search params back to state if they change (e.g. from footer or header links)
+  // Debounce search input to URL
   useEffect(() => {
-    const urlCategory = searchParams.get('category') || ''
-    const urlSearch = searchParams.get('search') || ''
-    const urlSort = searchParams.get('sort') || 'newest'
-    const urlBrand = searchParams.get('brand') ? searchParams.get('brand')!.split(',') : []
-    const urlMinPrice = searchParams.get('min_price') || ''
-    const urlMaxPrice = searchParams.get('max_price') || ''
-    const urlPage = Number(searchParams.get('page') || 1)
+    const timer = setTimeout(() => {
+      if (searchInput !== search) {
+        updateUrlParams({ search: searchInput || null })
+      }
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [searchInput, search])
 
-    if (urlCategory !== selectedCategory) setSelectedCategory(urlCategory)
-    if (urlSearch !== search) setSearch(urlSearch)
-    if (urlSort !== sort) setSort(urlSort)
-    if (urlBrand.join(',') !== selectedBrands.join(',')) setSelectedBrands(urlBrand)
-    if (urlMinPrice !== minPrice) setMinPrice(urlMinPrice)
-    if (urlMaxPrice !== maxPrice) setMaxPrice(urlMaxPrice)
-    if (urlPage !== page) setPage(urlPage)
-  }, [searchParams])
+  // Debounce price inputs to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (minPriceInput !== minPrice || maxPriceInput !== maxPrice) {
+        updateUrlParams({
+          min_price: minPriceInput || null,
+          max_price: maxPriceInput || null,
+        })
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [minPriceInput, maxPriceInput, minPrice, maxPrice])
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
@@ -99,25 +129,22 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   const handleCategoryToggle = (slug: string) => {
-    setSelectedCategory(prev => (prev === slug ? '' : slug))
-    setPage(1)
+    const nextCategory = selectedCategory === slug ? null : slug
+    updateUrlParams({ category: nextCategory })
   }
 
   const handleBrandToggle = (brand: string) => {
-    setSelectedBrands(prev =>
-      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
-    )
-    setPage(1)
+    const nextBrands = selectedBrands.includes(brand)
+      ? selectedBrands.filter(b => b !== brand)
+      : [...selectedBrands, brand]
+    updateUrlParams({ brand: nextBrands })
   }
 
   const clearFilters = () => {
-    setSearch('')
-    setSort('newest')
-    setSelectedCategory('')
-    setSelectedBrands([])
-    setMinPrice('')
-    setMaxPrice('')
-    setPage(1)
+    setSearchInput('')
+    setMinPriceInput('')
+    setMaxPriceInput('')
+    setSearchParams({}, { replace: true })
   }
 
   const hasActiveFilters =
@@ -158,15 +185,15 @@ export default function ProductsPage() {
           <input
             type="number"
             placeholder="Giá tối thiểu"
-            value={minPrice}
-            onChange={(e) => { setMinPrice(e.target.value); setPage(1) }}
+            value={minPriceInput}
+            onChange={(e) => setMinPriceInput(e.target.value)}
             className="input-field text-sm"
           />
           <input
             type="number"
             placeholder="Giá tối đa"
-            value={maxPrice}
-            onChange={(e) => { setMaxPrice(e.target.value); setPage(1) }}
+            value={maxPriceInput}
+            onChange={(e) => setMaxPriceInput(e.target.value)}
             className="input-field text-sm"
           />
         </div>
@@ -234,15 +261,15 @@ export default function ProductsPage() {
                 <input
                   type="text"
                   placeholder="Tìm kiếm sản phẩm..."
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="input-field pl-10 w-full"
                 />
               </div>
 
               <Select
                 value={sort}
-                onChange={(v) => { setSort(v); setPage(1) }}
+                onChange={(v) => updateUrlParams({ sort: v })}
                 options={SORT_OPTIONS}
                 className="w-full sm:w-52"
               />
@@ -258,25 +285,31 @@ export default function ProductsPage() {
             </div>
 
             {/* Result count */}
-            <p className="font-sans text-sm text-muted-gray mb-6">
-              {isLoading ? 'Đang tải...' : `Hiển thị ${products.length} / ${total} sản phẩm`}
-            </p>
+            <div className="mb-6">
+              <p className="font-sans text-xs text-muted-gray uppercase tracking-widest">
+                Tìm thấy {total} sản phẩm
+              </p>
+            </div>
 
             {/* Products grid */}
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                  <div key={i} className="aspect-square bg-soft-gray animate-pulse rounded-sm" />
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="animate-pulse bg-white border border-soft-gray p-4 h-[350px]">
+                    <div className="bg-pearl aspect-square mb-4" />
+                    <div className="h-4 bg-pearl w-2/3 mb-2" />
+                    <div className="h-4 bg-pearl w-1/2" />
+                  </div>
                 ))}
               </div>
             ) : products.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-24"
+                className="text-center py-20 bg-white border border-soft-gray"
               >
-                <p className="font-serif text-2xl text-dark-text mb-3">Không tìm thấy sản phẩm</p>
-                <p className="font-sans text-muted-gray mb-6">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+                <p className="font-serif text-lg text-dark-text mb-4">Không tìm thấy sản phẩm nào</p>
+                <p className="font-sans text-sm text-muted-gray mb-6">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
                 <button onClick={clearFilters} className="btn-gold px-8">
                   Xóa bộ lọc
                 </button>
@@ -299,7 +332,7 @@ export default function ProductsPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-12">
                 <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  onClick={() => updateUrlParams({ page: Math.max(1, page - 1) })}
                   disabled={page === 1}
                   className="p-2 border border-soft-gray text-dark-text hover:border-gold hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
@@ -319,7 +352,7 @@ export default function ProductsPage() {
                     ) : (
                       <button
                         key={p}
-                        onClick={() => setPage(p as number)}
+                        onClick={() => updateUrlParams({ page: p as number })}
                         className={`w-10 h-10 font-sans text-sm transition-colors border ${
                           page === p
                             ? 'bg-gold text-white border-gold'
@@ -332,7 +365,7 @@ export default function ProductsPage() {
                   )}
 
                 <button
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => updateUrlParams({ page: Math.min(totalPages, page + 1) })}
                   disabled={page === totalPages}
                   className="p-2 border border-soft-gray text-dark-text hover:border-gold hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >

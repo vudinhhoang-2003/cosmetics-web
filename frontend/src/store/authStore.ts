@@ -20,13 +20,9 @@ export const useAuthStore = create<AuthStore>()(
       refreshToken: null,
       isAuthenticated: false,
       setAuth: (user, access, refresh) => {
-        localStorage.setItem('access_token', access)
-        localStorage.setItem('refresh_token', refresh)
         set({ user, accessToken: access, refreshToken: refresh, isAuthenticated: true })
       },
       logout: () => {
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false })
       },
       isAdmin: () => get().user?.role === 'admin',
@@ -43,13 +39,9 @@ export const useAdminAuthStore = create<AuthStore>()(
       refreshToken: null,
       isAuthenticated: false,
       setAuth: (user, access, refresh) => {
-        localStorage.setItem('admin_access_token', access)
-        localStorage.setItem('admin_refresh_token', refresh)
         set({ user, accessToken: access, refreshToken: refresh, isAuthenticated: true })
       },
       logout: () => {
-        localStorage.removeItem('admin_access_token')
-        localStorage.removeItem('admin_refresh_token')
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false })
       },
       isAdmin: () => get().user?.role === 'admin',

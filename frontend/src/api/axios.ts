@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useAuthStore, useAdminAuthStore } from '../store/authStore'
 
 const api = axios.create({
   baseURL: '/api',
@@ -8,8 +9,8 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const isAdminRequest = config.url?.includes('/admin') || window.location.pathname.startsWith('/admin')
   const token = isAdminRequest
-    ? localStorage.getItem('admin_access_token')
-    : localStorage.getItem('access_token')
+    ? useAdminAuthStore.getState().accessToken
+    : useAuthStore.getState().accessToken
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -21,20 +22,19 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       const isAdminRequest = window.location.pathname.startsWith('/admin')
-      const refreshKey = isAdminRequest ? 'admin_refresh_token' : 'refresh_token'
-      const accessKey = isAdminRequest ? 'admin_access_token' : 'access_token'
-      const refresh = localStorage.getItem(refreshKey)
+      const authStore = isAdminRequest ? useAdminAuthStore : useAuthStore
+      const refresh = authStore.getState().refreshToken
       if (refresh) {
         try {
           const res = await axios.post('/api/auth/refresh', null, {
             params: { refresh_token: refresh },
           })
-          localStorage.setItem(accessKey, res.data.access_token)
-          error.config.headers.Authorization = `Bearer ${res.data.access_token}`
+          const newAccessToken = res.data.access_token
+          authStore.setState({ accessToken: newAccessToken })
+          error.config.headers.Authorization = `Bearer ${newAccessToken}`
           return api.request(error.config)
         } catch {
-          localStorage.removeItem(accessKey)
-          localStorage.removeItem(refreshKey)
+          authStore.getState().logout()
           window.location.href = isAdminRequest ? '/admin/login' : '/login'
         }
       }
