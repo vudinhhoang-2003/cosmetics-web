@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Package, ChevronRight, Lock, Phone, UserCircle, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { userApi, orderApi } from '../api/endpoints'
 import { useAuthStore } from '../store/authStore'
@@ -46,6 +46,30 @@ export default function AccountPage() {
     queryFn: () => orderApi.list(0, 50).then((r) => r.data),
     enabled: tab === 'orders',
   })
+
+  const [searchParams] = useSearchParams()
+  const queryOrderId = searchParams.get('order_id')
+  const queryOrderCode = searchParams.get('order_code')
+
+  useEffect(() => {
+    if (queryOrderId || queryOrderCode) {
+      setTab('orders')
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+    }
+  }, [queryOrderId, queryOrderCode, queryClient])
+
+  useEffect(() => {
+    if (orders && (queryOrderId || queryOrderCode)) {
+      const found = orders.find(
+        (o) =>
+          (queryOrderId && o.id === queryOrderId) ||
+          (queryOrderCode && String(o.order_code) === queryOrderCode)
+      )
+      if (found) {
+        setSelectedOrder(found)
+      }
+    }
+  }, [orders, queryOrderId, queryOrderCode])
 
   const {
     register: regProfile,

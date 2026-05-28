@@ -96,7 +96,7 @@ export default function OrderSuccessPage() {
           className="flex flex-col sm:flex-row gap-4"
         >
           <Link
-            to="/account"
+            to={orderId ? `/account?order_id=${orderId}` : '/account'}
             className="btn-navy flex items-center justify-center gap-2 py-3 flex-1"
           >
             <ClipboardList size={16} />

@@ -81,6 +81,7 @@ export default function CheckoutPage() {
         clearCart()
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
       
       toast.success('Đặt hàng thành công!')
       
