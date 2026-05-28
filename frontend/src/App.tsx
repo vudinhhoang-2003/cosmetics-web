@@ -15,6 +15,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
 // Admin pages
+import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminOrders from './pages/admin/AdminOrders'
@@ -28,8 +29,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isAdmin } = useAuthStore()
-  if (!isAuthenticated) return <Navigate to="/login" replace />
-  if (!isAdmin()) return <Navigate to="/" replace />
+  if (!isAuthenticated) return <Navigate to="/admin/login" replace />
+  if (!isAdmin()) return <Navigate to="/admin/login" replace />
   return <>{children}</>
 }
 
@@ -59,6 +60,7 @@ export default function App() {
       </Route>
 
       {/* Admin routes */}
+      <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="products" element={<AdminProducts />} />

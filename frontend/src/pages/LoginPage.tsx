@@ -41,9 +41,10 @@ export default function LoginPage() {
       toast.success(`Xin chào, ${user.full_name || user.email}!`)
       navigate(user.role === 'admin' ? '/admin' : from, { replace: true })
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.detail ||
-        'Email hoặc mật khẩu không đúng. Vui lòng thử lại.'
+      const status = err?.response?.status
+      let msg = 'Đã có lỗi xảy ra. Vui lòng thử lại.'
+      if (status === 401) msg = 'Email hoặc mật khẩu không đúng.'
+      else if (status === 403) msg = 'Tài khoản đã bị vô hiệu hóa.'
       toast.error(msg)
     } finally {
       setIsLoading(false)
