@@ -298,7 +298,7 @@ export default function AdminProducts() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Tổng kết quả', value: total, icon: Package, color: 'text-gold bg-gold/10' },
+          { label: 'Tổng sản phẩm', value: total, icon: Package, color: 'text-gold bg-gold/10' },
           { label: 'Đang bán', value: activeCount, icon: Eye, color: 'text-green-600 bg-green-50' },
           { label: 'Sắp hết hàng', value: lowStockCount, icon: AlertTriangle, color: 'text-amber-600 bg-amber-50' },
           { label: 'Hết hàng', value: outStockCount, icon: EyeOff, color: 'text-red-600 bg-red-50' },
@@ -366,18 +366,6 @@ export default function AdminProducts() {
                 Xóa bộ lọc
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => setSaleFilter(saleFilter === 'sale' ? 'all' : 'sale')}
-              className={`inline-flex items-center gap-2 border px-3 py-2 font-sans text-xs transition-colors ${
-                saleFilter === 'sale'
-                  ? 'bg-gold border-gold text-white'
-                  : 'bg-white border-soft-gray text-dark-text hover:border-gold'
-              }`}
-            >
-              <BadgePercent size={14} />
-              Ưu đãi
-            </button>
           </div>
         </div>
       </div>
