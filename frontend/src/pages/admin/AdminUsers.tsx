@@ -96,7 +96,7 @@ export default function AdminUsers() {
               <Icon size={18} />
             </div>
             <div>
-              <p className="font-serif text-xl text-dark-text font-bold">{value}</p>
+              <p className="font-sans text-xl text-dark-text font-bold">{value}</p>
               <p className="font-sans text-xs text-muted-gray">{label}</p>
             </div>
           </div>
