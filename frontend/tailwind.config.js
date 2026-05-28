@@ -20,9 +20,9 @@ export default {
         'muted-gray': '#8B8B8B',
       },
       fontFamily: {
-        display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        display: ['Playfair Display', 'Georgia', 'serif'],
         serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Lato', 'Inter', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         luxury: '0.35em',
