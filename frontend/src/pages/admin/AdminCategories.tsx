@@ -278,37 +278,54 @@ export default function AdminCategories() {
                   )}
                 </div>
 
-                {/* Image URL */}
+                {/* Image URL Visual Manager */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="font-sans text-xs text-muted-gray block uppercase tracking-wider">
-                      URL hình ảnh
-                    </label>
-                    <label className="text-xs text-gold hover:text-gold-dark cursor-pointer font-sans flex items-center gap-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        disabled={uploading}
-                        className="hidden"
-                      />
-                      <span>Tải ảnh lên</span>
-                    </label>
+                  <label className="font-sans text-xs text-muted-gray mb-2 block uppercase tracking-wider">
+                    Hình ảnh danh mục
+                  </label>
+
+                  {/* Hidden input to keep react-hook-form working */}
+                  <input type="hidden" {...register('image_url')} />
+
+                  <div className="flex items-center gap-4">
+                    {watch('image_url') ? (
+                      <div className="relative w-28 h-28 rounded border border-soft-gray bg-beige overflow-hidden shrink-0">
+                        <img
+                          src={watch('image_url')}
+                          alt="Category Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                        />
+                        {/* Delete button */}
+                        <button
+                          type="button"
+                          onClick={() => setValue('image_url', '')}
+                          className="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md hover:bg-red-600 transition-colors border border-white"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      /* Big Upload Area Card */
+                      <label className={`w-28 h-28 rounded border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors bg-beige/50 shrink-0 ${
+                        uploading ? 'border-gold/50 text-gold/50 cursor-not-allowed' : 'border-soft-gray text-muted-gray hover:border-gold hover:text-gold'
+                      }`}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                        {uploading ? (
+                          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin mb-1.5" />
+                        ) : (
+                          <Plus size={20} className="mb-1.5" />
+                        )}
+                        <span className="text-xs uppercase font-sans tracking-wide">Tải ảnh lên</span>
+                      </label>
+                    )}
                   </div>
-                  <input
-                    {...register('image_url')}
-                    className="input-field w-full"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  {/* Preview */}
-                  {watch('image_url') && (
-                    <img
-                      src={watch('image_url')}
-                      alt="Preview"
-                      className="mt-2 w-24 h-24 object-cover bg-beige rounded-sm border border-soft-gray"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                    />
-                  )}
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2 border-t border-soft-gray mt-2">

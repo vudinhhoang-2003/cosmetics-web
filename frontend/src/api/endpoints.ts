@@ -40,9 +40,9 @@ export const categoryApi = {
 
 // Cart
 export const cartApi = {
-  get: () => api.get<Cart>('/cart'),
+  get: () => api.get<Cart>('/cart/'),
   add: (product_id: string, quantity: number) =>
-    api.post<CartItem>('/cart', { product_id, quantity }),
+    api.post<CartItem>('/cart/', { product_id, quantity }),
   update: (item_id: string, quantity: number) =>
     api.put<CartItem>(`/cart/${item_id}`, { quantity }),
   remove: (item_id: string) => api.delete(`/cart/${item_id}`),
@@ -51,8 +51,8 @@ export const cartApi = {
 // Orders
 export const orderApi = {
   create: (data: { shipping_address: object; payment_method: string }) =>
-    api.post<Order>('/orders', data),
-  list: (skip = 0, limit = 20) => api.get<Order[]>('/orders', { params: { skip, limit } }),
+    api.post<Order>('/orders/', data),
+  list: (skip = 0, limit = 20) => api.get<Order[]>('/orders/', { params: { skip, limit } }),
   get: (id: string) => api.get<Order>(`/orders/${id}`),
   updateStatus: (id: string, status: string) =>
     api.put<Order>(`/orders/${id}/status`, { status }),

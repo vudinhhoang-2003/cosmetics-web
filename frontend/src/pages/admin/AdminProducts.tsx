@@ -511,13 +511,46 @@ export default function AdminProducts() {
                     />
                   </div>
 
-                  {/* Images */}
-                  <div className="sm:col-span-2">
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="font-sans text-xs text-muted-gray block uppercase tracking-wider">
-                        URL ảnh (mỗi dòng một URL)
-                      </label>
-                      <label className="text-xs text-gold hover:text-gold-dark cursor-pointer font-sans flex items-center gap-1">
+                  {/* Images Gallery Manager */}
+                  <div className="sm:col-span-2 space-y-2">
+                    <label className="font-sans text-xs text-muted-gray block uppercase tracking-wider">
+                      Hình ảnh sản phẩm
+                    </label>
+
+                    {/* Hidden input to keep react-hook-form working */}
+                    <input type="hidden" {...register('images')} />
+
+                    <div className="flex flex-wrap gap-3 items-center">
+                      {/* Render existing images */}
+                      {(() => {
+                        const urls = (watch('images') || '').split('\n').map(s => s.trim()).filter(Boolean)
+                        return urls.map((url, index) => (
+                          <div key={index} className="relative w-24 h-24 rounded border border-soft-gray bg-beige group overflow-hidden shrink-0">
+                            <img
+                              src={url}
+                              alt={`Product ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            />
+                            {/* Overlay with Delete button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = urls.filter((_, i) => i !== index).join('\n')
+                                setValue('images', updated)
+                              }}
+                              className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md hover:bg-red-600 transition-colors border border-white"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        ))
+                      })()}
+
+                      {/* Add Image Upload Card */}
+                      <label className={`w-24 h-24 rounded border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors bg-beige/50 shrink-0 ${
+                        uploading ? 'border-gold/50 text-gold/50 cursor-not-allowed' : 'border-soft-gray text-muted-gray hover:border-gold hover:text-gold'
+                      }`}>
                         <input
                           type="file"
                           accept="image/*"
@@ -525,33 +558,14 @@ export default function AdminProducts() {
                           disabled={uploading}
                           className="hidden"
                         />
-                        <span>Thêm ảnh mới</span>
+                        {uploading ? (
+                          <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin mb-1" />
+                        ) : (
+                          <Plus size={18} className="mb-1" />
+                        )}
+                        <span className="text-[10px] uppercase font-sans tracking-wide">Thêm ảnh</span>
                       </label>
                     </div>
-                    <textarea
-                      {...register('images')}
-                      rows={3}
-                      className="input-field w-full resize-none font-mono text-xs"
-                      placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                    />
-                    {/* Preview product images */}
-                    {watch('images') && (
-                      <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
-                        {watch('images').split('\n').map((url, index) => {
-                          const trimmed = url.trim()
-                          if (!trimmed) return null
-                          return (
-                            <img
-                              key={index}
-                              src={trimmed}
-                              alt={`Preview ${index + 1}`}
-                              className="w-16 h-16 object-cover bg-beige rounded-sm border border-soft-gray shrink-0"
-                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                            />
-                          )
-                        })}
-                      </div>
-                    )}
                   </div>
                 </div>
 
