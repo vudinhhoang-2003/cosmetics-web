@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { ShoppingBag, Star } from 'lucide-react'
 import type { Product } from '../types'
 import { useCartStore } from '../store/cartStore'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
+  const queryClient = useQueryClient()
   const { addItem } = useCartStore()
   const { isAuthenticated } = useAuthStore()
   const img = product.images?.[0] || 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=600'
@@ -26,6 +28,7 @@ export default function ProductCard({ product }: Props) {
     try {
       const res = await cartApi.add(product.id, 1)
       addItem(res.data)
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
       toast.success('Đã thêm vào giỏ hàng')
     } catch {
       toast.error('Không thể thêm vào giỏ hàng')

@@ -17,9 +17,23 @@ from app.models.review import Review
 def seed():
     db = SessionLocal()
     try:
-        if db.query(User).count() > 0:
-            print("Database already seeded. Skipping.")
+        force_clean = "--force" in sys.argv or "-f" in sys.argv
+        
+        if db.query(User).count() > 0 and not force_clean:
+            print("Database already seeded. Skipping. Use --force or -f to re-seed.")
             return
+
+        if force_clean:
+            print("Cleaning existing data...")
+            from app.models.cart import CartItem
+            db.query(Review).delete()
+            db.query(CartItem).delete()
+            db.query(OrderItem).delete()
+            db.query(Order).delete()
+            db.query(Product).delete()
+            db.query(Category).delete()
+            db.query(User).delete()
+            db.commit()
 
         print("Seeding database...")
 
@@ -491,13 +505,18 @@ def seed():
             },
         ]
 
-        for od in orders_data:
+        import random
+        base_code = 100000000
+        for i, od in enumerate(orders_data):
             items_spec = od.pop("items")
-            total = sum(
+            subtotal = sum(
                 int(products[idx].sale_price or products[idx].price) * qty
                 for idx, qty in items_spec
             )
-            order = Order(total_price=total, **od)
+            shipping_fee = 0 if subtotal >= 500000 else 30000
+            total = subtotal + shipping_fee
+            order_code = base_code + i + random.randint(1000, 9999)
+            order = Order(total_price=total, order_code=order_code, **od)
             db.add(order)
             db.flush()
 

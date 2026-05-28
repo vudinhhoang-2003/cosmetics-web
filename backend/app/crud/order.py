@@ -11,14 +11,18 @@ def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
     if not cart_items:
         return None
 
-    total = 0.0
+    subtotal = 0.0
     for item in cart_items:
         if not item.product or not item.product.is_active:
             raise ValueError("Product not available")
         if item.product.stock < item.quantity:
             raise ValueError("Insufficient stock")
         price = float(item.product.sale_price or item.product.price)
-        total += price * item.quantity
+        subtotal += price * item.quantity
+
+    # Add shipping fee: 30k if subtotal < 500k, else free ship
+    shipping_fee = 0.0 if subtotal >= 500000 else 30000
+    total = subtotal + shipping_fee
 
     import time
     order_code = int(time.time() * 1000) % 1000000000

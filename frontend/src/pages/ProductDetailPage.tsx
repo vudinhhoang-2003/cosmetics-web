@@ -58,6 +58,7 @@ export default function ProductDetailPage() {
     mutationFn: () => cartApi.add(product!.id, quantity),
     onSuccess: (res) => {
       addItem(res.data)
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
       toast.success('Đã thêm vào giỏ hàng')
     },
     onError: () => toast.error('Không thể thêm vào giỏ hàng'),
