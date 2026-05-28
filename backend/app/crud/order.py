@@ -7,7 +7,11 @@ import uuid
 
 
 def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
-    cart_items = db.query(CartItem).filter(CartItem.user_id == user_id).all()
+    query = db.query(CartItem).filter(CartItem.user_id == user_id)
+    if data.cart_item_ids:
+        query = query.filter(CartItem.id.in_(data.cart_item_ids))
+    cart_items = query.all()
+    
     if not cart_items:
         return None
 
@@ -48,7 +52,14 @@ def create_from_cart(db: Session, user_id, data: OrderCreate) -> Order:
         db.add(oi)
         ci.product.stock -= ci.quantity
 
-    db.query(CartItem).filter(CartItem.user_id == user_id).delete()
+    if data.cart_item_ids:
+        db.query(CartItem).filter(
+            CartItem.user_id == user_id,
+            CartItem.id.in_(data.cart_item_ids)
+        ).delete(synchronize_session=False)
+    else:
+        db.query(CartItem).filter(CartItem.user_id == user_id).delete()
+        
     db.commit()
     db.refresh(order)
     return order

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -17,6 +17,18 @@ export default function CartPage() {
   const { isAuthenticated } = useAuthStore()
   const { items, setItems, updateItem, removeItem, total, count } = useCartStore()
   const queryClient = useQueryClient()
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
+
+  useEffect(() => {
+    if (items.length > 0 && selectedItemIds.length === 0) {
+      setSelectedItemIds(items.map(item => item.id))
+    }
+  }, [items])
+
+  useEffect(() => {
+    // Keep selected ids in sync with available items
+    setSelectedItemIds(prev => prev.filter(id => items.some(item => item.id === id)))
+  }, [items])
 
   // Sync cart with server when authenticated
   const { data: serverCart } = useQuery({
@@ -71,8 +83,13 @@ export default function CartPage() {
     }
   }
 
-  const subtotal = total()
-  const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : 30000
+  const subtotal = items
+    .filter(item => selectedItemIds.includes(item.id))
+    .reduce((sum, item) => {
+      const price = item.product?.sale_price ?? item.product?.price ?? 0
+      return sum + price * item.quantity
+    }, 0)
+  const shipping = selectedItemIds.length > 0 && subtotal >= FREE_SHIP_THRESHOLD ? 0 : (selectedItemIds.length > 0 ? 30000 : 0)
   const grandTotal = subtotal + shipping
 
   if (items.length === 0) {
@@ -129,6 +146,28 @@ export default function CartPage() {
               </motion.div>
             )}
 
+            {/* Select all bar */}
+            <div className="flex items-center gap-3 bg-white p-4 border border-soft-gray mb-4 font-sans text-sm text-dark-text">
+              <input
+                type="checkbox"
+                checked={items.length > 0 && selectedItemIds.length === items.length}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedItemIds(items.map(item => item.id))
+                  } else {
+                    setSelectedItemIds([])
+                  }
+                }}
+                className="w-4 h-4 accent-gold cursor-pointer rounded-none border-soft-gray focus:ring-gold"
+              />
+              <span className="font-medium">Chọn tất cả ({items.length} sản phẩm)</span>
+              {selectedItemIds.length > 0 && (
+                <span className="text-muted-gray text-xs ml-auto">
+                  Đã chọn {selectedItemIds.length} sản phẩm
+                </span>
+              )}
+            </div>
+
             <div className="space-y-1">
               <AnimatePresence>
                 {items.map((item) => {
@@ -145,8 +184,23 @@ export default function CartPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20, height: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="flex gap-5 bg-white p-5 border border-soft-gray"
+                      className="flex gap-5 bg-white p-5 border border-soft-gray items-center"
                     >
+                      {/* Selection Checkbox */}
+                      <div className="flex items-center shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={selectedItemIds.includes(item.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedItemIds(prev => [...prev, item.id])
+                            } else {
+                              setSelectedItemIds(prev => prev.filter(id => id !== item.id))
+                            }
+                          }}
+                          className="w-4 h-4 accent-gold cursor-pointer rounded-none border-soft-gray focus:ring-gold"
+                        />
+                      </div>
                       {/* Product image */}
                       <Link to={`/products/${item.product?.slug}`} className="shrink-0">
                         <img
@@ -270,7 +324,11 @@ export default function CartPage() {
                     navigate('/login')
                     return
                   }
-                  navigate('/checkout')
+                  if (selectedItemIds.length === 0) {
+                    toast.error('Vui lòng chọn ít nhất một sản phẩm để thanh toán')
+                    return
+                  }
+                  navigate('/checkout', { state: { selectedItemIds } })
                 }}
                 className="btn-gold w-full py-4 flex items-center justify-center gap-2"
               >

@@ -19,6 +19,7 @@ class OrderItemOut(BaseModel):
 class OrderCreate(BaseModel):
     shipping_address: Dict[str, Any]
     payment_method: str = "cod"
+    cart_item_ids: Optional[List[UUID]] = None
 
 
 class OrderStatusUpdate(BaseModel):

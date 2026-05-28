@@ -51,7 +51,7 @@ export const cartApi = {
 
 // Orders
 export const orderApi = {
-  create: (data: { shipping_address: object; payment_method: string }) =>
+  create: (data: { shipping_address: object; payment_method: string; cart_item_ids?: string[] }) =>
     api.post<Order>('/orders/', data),
   list: (skip = 0, limit = 20) => api.get<Order[]>('/orders/', { params: { skip, limit } }),
   get: (id: string) => api.get<Order>(`/orders/${id}`),

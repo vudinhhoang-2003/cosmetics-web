@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { motion } from 'framer-motion'
+import { useQueryClient } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
 import { CreditCard, Wallet, MapPin, ChevronRight, Truck, ChevronDown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { orderApi } from '../api/endpoints'
@@ -23,23 +24,39 @@ type PaymentMethod = 'COD' | 'online'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
-  const { items, total, clearCart } = useCartStore()
+  const location = useLocation()
+  const queryClient = useQueryClient()
+  const { items, clearCart, setItems } = useCartStore()
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
+    trigger,
     formState: { errors },
   } = useForm<CheckoutForm>()
 
-  const subtotal = total()
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
+  const selectedCity = watch('city')
+
+  const selectedItemIds = location.state?.selectedItemIds as string[] | undefined
+  const checkoutItems = selectedItemIds
+    ? items.filter((item) => selectedItemIds.includes(item.id))
+    : items
+
+  const subtotal = checkoutItems.reduce((sum, item) => {
+    const price = item.product?.sale_price ?? item.product?.price ?? 0
+    return sum + price * item.quantity
+  }, 0)
   const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : 30000
   const grandTotal = subtotal + shipping
 
   const onSubmit = async (data: CheckoutForm) => {
-    if (items.length === 0) {
-      toast.error('Giỏ hàng của bạn đang trống')
+    if (checkoutItems.length === 0) {
+      toast.error('Không có sản phẩm nào được chọn để thanh toán')
       return
     }
     setIsSubmitting(true)
@@ -54,8 +71,17 @@ export default function CheckoutPage() {
           note: data.note || undefined,
         },
         payment_method: paymentMethod.toLowerCase(),
+        cart_item_ids: selectedItemIds,
       })
-      clearCart()
+      
+      // Remove only purchased items from local store
+      if (selectedItemIds) {
+        setItems(items.filter((item) => !selectedItemIds.includes(item.id)))
+      } else {
+        clearCart()
+      }
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
+      
       toast.success('Đặt hàng thành công!')
       
       if (res.data.payment_url) {
@@ -71,7 +97,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (items.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="text-center">
@@ -184,21 +210,74 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  <div>
+                   <div>
                     <label className="block font-sans text-sm text-muted-gray mb-1">
                       Tỉnh/Thành phố <span className="text-red-500">*</span>
                     </label>
+                    <input type="hidden" {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })} />
+                    
                     <div className="relative">
-                      <select
-                        {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
-                        className="w-full appearance-none px-4 py-3 pr-10 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer"
+                      <button
+                        type="button"
+                        onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                        className="w-full flex items-center justify-between px-4 py-3 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer text-left"
                       >
-                        <option value="">-- Chọn tỉnh/thành phố --</option>
-                        {CITIES.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-gray" />
+                        <span className={selectedCity ? 'text-dark-text' : 'text-muted-gray'}>
+                          {selectedCity || '-- Chọn tỉnh/thành phố --'}
+                        </span>
+                        <ChevronDown size={14} className="text-muted-gray" />
+                      </button>
+
+                      <AnimatePresence>
+                        {isCityDropdownOpen && (
+                          <>
+                            {/* Backdrop click to close */}
+                            <div 
+                              className="fixed inset-0 z-10" 
+                              onClick={() => setIsCityDropdownOpen(false)}
+                            />
+                            
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute left-0 right-0 mt-1 bg-[#FAF6F0] border border-gold/15 shadow-xl z-20 max-h-60 overflow-y-auto rounded-none py-1"
+                            >
+                              <div
+                                onClick={() => {
+                                  setValue('city', '')
+                                  trigger('city')
+                                  setIsCityDropdownOpen(false)
+                                }}
+                                className="px-4 py-2.5 text-sm font-sans text-muted-gray hover:bg-gold/5 hover:text-gold cursor-pointer transition-colors"
+                              >
+                                -- Chọn tỉnh/thành phố --
+                              </div>
+                              {CITIES.map((c) => (
+                                <div
+                                  key={c}
+                                  onClick={() => {
+                                    setValue('city', c)
+                                    trigger('city')
+                                    setIsCityDropdownOpen(false)
+                                  }}
+                                  className={`px-4 py-2.5 text-sm font-sans cursor-pointer transition-colors flex items-center justify-between ${
+                                    selectedCity === c
+                                      ? 'bg-gold/10 text-gold font-medium'
+                                      : 'text-dark-text hover:bg-gold/5 hover:text-gold'
+                                  }`}
+                                >
+                                  <span>{c}</span>
+                                  {selectedCity === c && (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gold" />
+                                  )}
+                                </div>
+                              ))}
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
                     </div>
                     {errors.city && (
                       <p className="text-red-500 text-xs mt-1 font-sans">{errors.city.message}</p>
@@ -316,7 +395,7 @@ export default function CheckoutPage() {
 
                 {/* Items list */}
                 <div className="space-y-4 mb-6 max-h-72 overflow-y-auto pr-1">
-                  {items.map((item) => {
+                  {checkoutItems.map((item) => {
                     const price = item.product?.sale_price ?? item.product?.price ?? 0
                     return (
                       <div key={item.id} className="flex gap-3">
