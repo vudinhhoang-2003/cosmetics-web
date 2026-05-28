@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Instagram, Facebook, Youtube } from 'lucide-react'
+import { Instagram, Facebook } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -28,13 +28,14 @@ export default function Footer() {
             <p className="editorial-label mb-6">Kết Nối</p>
             <div className="flex gap-3">
               {[
-                { icon: Instagram, href: '#' },
-                { icon: Facebook, href: '#' },
-                { icon: Youtube, href: '#' },
+                { icon: Instagram, href: 'https://www.instagram.com' },
+                { icon: Facebook, href: 'https://www.facebook.com' },
               ].map(({ icon: Icon, href }, i) => (
                 <a
                   key={i}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center
                              text-white/50 hover:border-gold hover:text-gold transition-all duration-300"
                 >
