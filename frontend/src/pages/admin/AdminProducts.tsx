@@ -76,6 +76,7 @@ export default function AdminProducts() {
   const [stockFilter, setStockFilter] = useState('all')
   const [saleFilter, setSaleFilter] = useState('all')
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
+  const [discountPercent, setDiscountPercent] = useState<number | ''>('')
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -151,6 +152,46 @@ export default function AdminProducts() {
     return categories.find((c) => c.id === watchedCategoryId)?.name || 'Chọn danh mục'
   }, [watchedCategoryId, categories])
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPrice = Number(e.target.value) || 0
+    if (discountPercent !== '' && discountPercent > 0) {
+      const calculatedSalePrice = Math.round(newPrice * (1 - discountPercent / 100))
+      setValue('sale_price', String(calculatedSalePrice))
+    }
+  }
+
+  const handleDiscountPercentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const percentVal = e.target.value
+    if (percentVal === '') {
+      setDiscountPercent('')
+      setValue('sale_price', '')
+      return
+    }
+    const percent = Math.min(100, Math.max(0, Number(percentVal)))
+    setDiscountPercent(percent)
+    const currentPrice = Number(watch('price')) || 0
+    if (currentPrice > 0) {
+      const calculatedSalePrice = Math.round(currentPrice * (1 - percent / 100))
+      setValue('sale_price', String(calculatedSalePrice))
+    }
+  }
+
+  const handleSalePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const saleVal = e.target.value
+    if (saleVal === '') {
+      setDiscountPercent('')
+      return
+    }
+    const salePrice = Number(saleVal) || 0
+    const currentPrice = Number(watch('price')) || 0
+    if (currentPrice > 0 && salePrice <= currentPrice && salePrice >= 0) {
+      const calculatedPercent = Math.round(((currentPrice - salePrice) / currentPrice) * 100)
+      setDiscountPercent(calculatedPercent)
+    } else if (salePrice > currentPrice) {
+      setDiscountPercent(0)
+    }
+  }
+
   const resetFilters = () => {
     setSearch('')
     setDebouncedSearch('')
@@ -175,6 +216,7 @@ export default function AdminProducts() {
       images: '',
     })
     setEditingProduct(null)
+    setDiscountPercent('')
     setCategoryDropdownOpen(false)
     setModalOpen(true)
   }
@@ -193,6 +235,11 @@ export default function AdminProducts() {
       images: product.images?.join('\n') || '',
       is_active: product.is_active,
     })
+    if (product.sale_price && product.price) {
+      setDiscountPercent(Math.round(((Number(product.price) - Number(product.sale_price)) / Number(product.price)) * 100))
+    } else {
+      setDiscountPercent('')
+    }
     setCategoryDropdownOpen(false)
     setModalOpen(true)
   }
@@ -591,7 +638,7 @@ export default function AdminProducts() {
                       {errors.slug && <p className="text-red-500 text-xs mt-1">{errors.slug.message}</p>}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                       <div>
                         <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Giá gốc (VND) *
@@ -599,22 +646,45 @@ export default function AdminProducts() {
                         <input
                           type="number"
                           min="0"
-                          {...register('price', { required: 'Bắt buộc', min: { value: 0, message: 'Phải >= 0' } })}
+                          {...register('price', { 
+                            required: 'Bắt buộc', 
+                            min: { value: 0, message: 'Phải >= 0' },
+                            onChange: handlePriceChange
+                          })}
                           className="input-field w-full"
                         />
                         {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                       </div>
                       <div>
                         <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
-                          Giá ưu đãi
+                          Giảm giá (%)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={discountPercent}
+                          onChange={handleDiscountPercentChange}
+                          className="input-field w-full"
+                          placeholder="Nhập % ưu đãi"
+                        />
+                      </div>
+                      <div>
+                        <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
+                          Giá ưu đãi (VND)
                         </label>
                         <input
                           type="number"
                           min="0"
                           {...register('sale_price', {
+                            onChange: handleSalePriceChange,
                             validate: (val) => {
                               if (!val) return true
-                              return Number(val) >= 0 || 'Phải >= 0'
+                              const valNum = Number(val)
+                              const originalPrice = Number(watch('price')) || 0
+                              if (valNum < 0) return 'Phải >= 0'
+                              if (valNum > originalPrice) return 'Phải <= Giá gốc'
+                              return true
                             }
                           })}
                           className="input-field w-full"
@@ -622,6 +692,9 @@ export default function AdminProducts() {
                         />
                         {errors.sale_price && <p className="text-red-500 text-xs mt-1">{errors.sale_price.message}</p>}
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
                         <label className="font-sans text-[10px] text-muted-gray mb-1.5 block uppercase tracking-luxury font-medium">
                           Tồn kho *
