@@ -10,8 +10,10 @@ from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.schemas.user import UserOut
 from app.schemas.order import OrderOut
+from app.schemas.product import ProductList
 from app.crud import user as crud_user
 from app.crud import order as crud_order
+from app.crud import product as crud_product
 
 router = APIRouter(tags=["admin"])
 
@@ -100,6 +102,36 @@ def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
         "top_products": [{"name": p.name, "total_sold": int(p.total_sold)} for p in top_products],
         "low_stock_items": [{"name": p.name, "stock": p.stock} for p in low_stock_items],
     }
+
+
+@router.get("/products", response_model=ProductList)
+def admin_products(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    search: Optional[str] = None,
+    sort: Optional[str] = None,
+    brand: Optional[str] = None,
+    in_stock: Optional[bool] = None,
+    sale_only: Optional[bool] = None,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+):
+    return crud_product.get_multi_admin(
+        db,
+        skip,
+        limit,
+        category,
+        min_price,
+        max_price,
+        search,
+        sort,
+        brand,
+        in_stock,
+        sale_only,
+    )
 
 
 @router.get("/orders", response_model=List[OrderOut])
