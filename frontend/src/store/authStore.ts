@@ -34,3 +34,26 @@ export const useAuthStore = create<AuthStore>()(
     { name: 'auth-storage', partialize: (s) => ({ user: s.user, accessToken: s.accessToken, refreshToken: s.refreshToken, isAuthenticated: s.isAuthenticated }) }
   )
 )
+
+export const useAdminAuthStore = create<AuthStore>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      setAuth: (user, access, refresh) => {
+        localStorage.setItem('admin_access_token', access)
+        localStorage.setItem('admin_refresh_token', refresh)
+        set({ user, accessToken: access, refreshToken: refresh, isAuthenticated: true })
+      },
+      logout: () => {
+        localStorage.removeItem('admin_access_token')
+        localStorage.removeItem('admin_refresh_token')
+        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false })
+      },
+      isAdmin: () => get().user?.role === 'admin',
+    }),
+    { name: 'admin-auth-storage', partialize: (s) => ({ user: s.user, accessToken: s.accessToken, refreshToken: s.refreshToken, isAuthenticated: s.isAuthenticated }) }
+  )
+)

@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthStore } from './store/authStore'
+import { useAuthStore, useAdminAuthStore } from './store/authStore'
 import Layout from './components/Layout'
 import AdminLayout from './components/AdminLayout'
 
@@ -28,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isAdmin } = useAuthStore()
+  const { isAuthenticated, isAdmin } = useAdminAuthStore()
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />
   if (!isAdmin()) return <Navigate to="/admin/login" replace />
   return <>{children}</>

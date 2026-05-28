@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 from app.core.config import settings
-from app.routers import auth, products, categories, orders, users, admin, upload
+from app.routers import auth, products, categories, orders, users, admin, upload, cart
 
 app = FastAPI(
     title="Luxe Beauty API",
@@ -30,6 +30,7 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 app.include_router(auth.router,       prefix="/api/auth")
 app.include_router(products.router,   prefix="/api/products")
 app.include_router(categories.router, prefix="/api/categories")
+app.include_router(cart.router,       prefix="/api/cart")
 app.include_router(orders.router,     prefix="/api/orders")
 app.include_router(users.router,      prefix="/api/users")
 app.include_router(admin.router,      prefix="/api/admin")

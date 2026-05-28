@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { motion } from 'framer-motion'
-import { CreditCard, Wallet, MapPin, ChevronRight, Truck } from 'lucide-react'
+import { CreditCard, Wallet, MapPin, ChevronRight, Truck, ChevronDown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { orderApi } from '../api/endpoints'
 import { useCartStore } from '../store/cartStore'
@@ -183,15 +183,18 @@ export default function CheckoutPage() {
                     <label className="block font-sans text-sm text-muted-gray mb-1">
                       Tỉnh/Thành phố <span className="text-red-500">*</span>
                     </label>
-                    <select
-                      {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
-                      className="input-field w-full bg-white cursor-pointer"
-                    >
-                      <option value="">-- Chọn tỉnh/thành phố --</option>
-                      {CITIES.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
+                        className="w-full appearance-none px-4 py-3 pr-10 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer"
+                      >
+                        <option value="">-- Chọn tỉnh/thành phố --</option>
+                        {CITIES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-gray" />
+                    </div>
                     {errors.city && (
                       <p className="text-red-500 text-xs mt-1 font-sans">{errors.city.message}</p>
                     )}

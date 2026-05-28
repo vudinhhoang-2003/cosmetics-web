@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Edit2, Trash2, X, Tag } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { categoryApi } from '../../api/endpoints'
+import { categoryApi, uploadApi } from '../../api/endpoints'
 import type { Category } from '../../types'
 
 interface CategoryForm {
@@ -18,6 +18,26 @@ export default function AdminCategories() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    const toastId = toast.loading('Đang tải ảnh lên...')
+    try {
+      const response = await uploadApi.image(file)
+      setValue('image_url', response.data.url)
+      toast.success('Tải ảnh lên thành công', { id: toastId })
+    } catch (err: any) {
+      const errMsg = err.response?.data?.detail || 'Không thể tải ảnh lên'
+      toast.error(errMsg, { id: toastId })
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
 
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ['categories'],
@@ -260,9 +280,21 @@ export default function AdminCategories() {
 
                 {/* Image URL */}
                 <div>
-                  <label className="font-sans text-xs text-muted-gray mb-1.5 block uppercase tracking-wider">
-                    URL hình ảnh
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="font-sans text-xs text-muted-gray block uppercase tracking-wider">
+                      URL hình ảnh
+                    </label>
+                    <label className="text-xs text-gold hover:text-gold-dark cursor-pointer font-sans flex items-center gap-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                      <span>Tải ảnh lên</span>
+                    </label>
+                  </div>
                   <input
                     {...register('image_url')}
                     className="input-field w-full"

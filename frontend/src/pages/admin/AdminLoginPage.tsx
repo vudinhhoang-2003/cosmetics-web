@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { authApi } from '../../api/endpoints'
-import { useAuthStore } from '../../store/authStore'
+import { useAdminAuthStore } from '../../store/authStore'
 
 interface LoginForm {
   email: string
@@ -13,7 +13,7 @@ interface LoginForm {
 
 export default function AdminLoginPage() {
   const navigate = useNavigate()
-  const { setAuth, isAuthenticated, isAdmin } = useAuthStore()
+  const { setAuth, isAuthenticated, isAdmin } = useAdminAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')

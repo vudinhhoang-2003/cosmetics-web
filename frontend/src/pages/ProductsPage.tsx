@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { productApi, categoryApi } from '../api/endpoints'
 import ProductCard from '../components/ProductCard'
+import Select from '../components/Select'
 import type { Category } from '../types'
 
 const SORT_OPTIONS = [
@@ -50,6 +51,25 @@ export default function ProductsPage() {
     if (page > 1) params.page = String(page)
     setSearchParams(params, { replace: true })
   }, [search, sort, selectedCategory, selectedBrands, minPrice, maxPrice, page])
+
+  // Sync URL search params back to state if they change (e.g. from footer or header links)
+  useEffect(() => {
+    const urlCategory = searchParams.get('category') || ''
+    const urlSearch = searchParams.get('search') || ''
+    const urlSort = searchParams.get('sort') || 'newest'
+    const urlBrand = searchParams.get('brand') ? searchParams.get('brand')!.split(',') : []
+    const urlMinPrice = searchParams.get('min_price') || ''
+    const urlMaxPrice = searchParams.get('max_price') || ''
+    const urlPage = Number(searchParams.get('page') || 1)
+
+    if (urlCategory !== selectedCategory) setSelectedCategory(urlCategory)
+    if (urlSearch !== search) setSearch(urlSearch)
+    if (urlSort !== sort) setSort(urlSort)
+    if (urlBrand.join(',') !== selectedBrands.join(',')) setSelectedBrands(urlBrand)
+    if (urlMinPrice !== minPrice) setMinPrice(urlMinPrice)
+    if (urlMaxPrice !== maxPrice) setMaxPrice(urlMaxPrice)
+    if (urlPage !== page) setPage(urlPage)
+  }, [searchParams])
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
@@ -220,15 +240,12 @@ export default function ProductsPage() {
                 />
               </div>
 
-              <select
+              <Select
                 value={sort}
-                onChange={(e) => { setSort(e.target.value); setPage(1) }}
-                className="input-field w-full sm:w-52 bg-white cursor-pointer"
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
+                onChange={(v) => { setSort(v); setPage(1) }}
+                options={SORT_OPTIONS}
+                className="w-full sm:w-52"
+              />
 
               {/* Mobile filter toggle */}
               <button

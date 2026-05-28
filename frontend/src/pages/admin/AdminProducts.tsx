@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, Search, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, Search, ToggleLeft, ToggleRight, ChevronDown } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { productApi, categoryApi } from '../../api/endpoints'
+import { productApi, categoryApi, uploadApi } from '../../api/endpoints'
 import type { Product, Category } from '../../types'
 import { formatPrice } from '../../utils/format'
 
@@ -26,6 +26,30 @@ export default function AdminProducts() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    const toastId = toast.loading('Đang tải ảnh lên...')
+    try {
+      const response = await uploadApi.image(file)
+      const currentImages = watch('images') || ''
+      const newImages = currentImages.trim()
+        ? `${currentImages.trim()}\n${response.data.url}`
+        : response.data.url
+      setValue('images', newImages)
+      toast.success('Tải ảnh lên thành công', { id: toastId })
+    } catch (err: any) {
+      const errMsg = err.response?.data?.detail || 'Không thể tải ảnh lên'
+      toast.error(errMsg, { id: toastId })
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 20
@@ -447,12 +471,18 @@ export default function AdminProducts() {
                     <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
                       Danh mục
                     </label>
-                    <select {...register('category_id')} className="input-field w-full bg-white cursor-pointer">
-                      <option value="">-- Chọn danh mục --</option>
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        {...register('category_id')}
+                        className="w-full appearance-none px-4 py-3 pr-10 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer"
+                      >
+                        <option value="">-- Chọn danh mục --</option>
+                        {categories?.map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-gray" />
+                    </div>
                   </div>
 
                   {/* Is active */}
@@ -483,15 +513,45 @@ export default function AdminProducts() {
 
                   {/* Images */}
                   <div className="sm:col-span-2">
-                    <label className="font-sans text-xs text-muted-gray mb-1 block uppercase tracking-wider">
-                      URL ảnh (mỗi dòng một URL)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="font-sans text-xs text-muted-gray block uppercase tracking-wider">
+                        URL ảnh (mỗi dòng một URL)
+                      </label>
+                      <label className="text-xs text-gold hover:text-gold-dark cursor-pointer font-sans flex items-center gap-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProductImageUpload}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                        <span>Thêm ảnh mới</span>
+                      </label>
+                    </div>
                     <textarea
                       {...register('images')}
                       rows={3}
                       className="input-field w-full resize-none font-mono text-xs"
                       placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
                     />
+                    {/* Preview product images */}
+                    {watch('images') && (
+                      <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+                        {watch('images').split('\n').map((url, index) => {
+                          const trimmed = url.trim()
+                          if (!trimmed) return null
+                          return (
+                            <img
+                              key={index}
+                              src={trimmed}
+                              alt={`Preview ${index + 1}`}
+                              className="w-16 h-16 object-cover bg-beige rounded-sm border border-soft-gray shrink-0"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            />
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
 

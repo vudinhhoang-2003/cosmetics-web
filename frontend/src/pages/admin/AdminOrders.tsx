@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { adminApi, orderApi } from '../../api/endpoints'
 import type { Order } from '../../types'
 import { formatPrice } from '../../utils/format'
+import Select from '../../components/Select'
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
@@ -75,15 +76,12 @@ export default function AdminOrders() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
-        <select
+        <Select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
-          className="input-field bg-white cursor-pointer text-sm pr-8 min-w-[180px]"
-        >
-          {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+          onChange={(v) => { setStatusFilter(v); setPage(1) }}
+          options={STATUS_OPTIONS}
+          className="min-w-[180px] text-sm"
+        />
 
         <div className="flex gap-2 flex-wrap">
           {STATUS_OPTIONS.slice(1).map((opt) => (

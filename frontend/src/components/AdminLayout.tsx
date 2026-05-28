@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Package, ShoppingCart, Tag, Users, LogOut, ExternalLink } from 'lucide-react'
-import { useAuthStore } from '../store/authStore'
+import { useAdminAuthStore } from '../store/authStore'
 
 const navItems = [
   { label: 'Dashboard', to: '/admin', icon: LayoutDashboard },
@@ -12,12 +12,12 @@ const navItems = [
 
 export default function AdminLayout() {
   const { pathname } = useLocation()
-  const { user, logout } = useAuthStore()
+  const { user, logout } = useAdminAuthStore()
   const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
-    navigate('/login')
+    navigate('/admin/login')
   }
 
   return (
