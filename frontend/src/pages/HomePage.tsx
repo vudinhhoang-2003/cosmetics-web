@@ -241,7 +241,12 @@ export default function HomePage() {
             </blockquote>
             <span className="luxury-rule w-16 mx-auto mb-10 block" />
             <p className="editorial-label !text-white/30 mb-10">Luxe Beauty — Philosophy</p>
-            <Link to="/products" className="btn-ghost">Khám phá triết lý làm đẹp</Link>
+            <button
+              onClick={() => document.getElementById('philosophy-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="btn-ghost bg-transparent border-none cursor-pointer outline-none"
+            >
+              Khám phá triết lý làm đẹp
+            </button>
           </motion.div>
         </div>
       </section>
@@ -311,20 +316,14 @@ export default function HomePage() {
           <p className="font-sans text-white/60 text-sm mb-10 leading-relaxed max-w-sm">
             Đăng ký thành viên để nhận ưu đãi độc quyền và quyền tiếp cận sớm các bộ sưu tập mới nhất.
           </p>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center">
             <Link to="/register" className="btn-ghost">Đăng ký ngay</Link>
-            <Link
-              to="/products"
-              className="text-white/40 text-[10px] tracking-luxury uppercase hover:text-gold transition-colors"
-            >
-              Tìm hiểu thêm
-            </Link>
           </div>
         </motion.div>
       </section>
 
       {/* ── Brand Values ──────────────────────────────────── */}
-      <section className="py-24 px-8 bg-pearl">
+      <section id="philosophy-section" className="py-24 px-8 bg-pearl">
         <div className="max-w-7xl mx-auto">
           <motion.div
             variants={fadeInUp}
