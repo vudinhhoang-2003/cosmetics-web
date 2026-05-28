@@ -240,11 +240,15 @@ export default function ProductDetailPage() {
 
             {/* Stock indicator */}
             <div className="flex items-center gap-2 mb-6">
-              <Package size={16} className={product.stock > 0 ? 'text-green-500' : 'text-red-400'} />
+              <Package size={16} className={product.stock > 0 ? (product.stock > 10 ? 'text-green-500' : 'text-amber-500') : 'text-red-400'} />
               {product.stock > 10 ? (
-                <span className="font-sans text-sm text-green-600">Còn hàng</span>
+                <span className="font-sans text-sm text-green-600">
+                  Còn hàng: {product.stock} sản phẩm
+                </span>
               ) : product.stock > 0 ? (
-                <span className="font-sans text-sm text-amber-600">Chỉ còn {product.stock} sản phẩm</span>
+                <span className="font-sans text-sm text-amber-600">
+                  Chỉ còn {product.stock} sản phẩm
+                </span>
               ) : (
                 <span className="font-sans text-sm text-red-500">Hết hàng</span>
               )}

@@ -36,8 +36,8 @@ export default function ProductCard({ product }: Props) {
   }
 
   return (
-    <div className="product-card group border border-transparent hover:border-gold/30 transition-all duration-500">
-      <Link to={`/products/${product.slug}`}>
+    <div className="product-card group border border-transparent hover:border-gold/30 transition-all duration-500 h-full">
+      <Link to={`/products/${product.slug}`} className="h-full flex flex-col">
         {/* Image */}
         <div className="relative overflow-hidden bg-pearl aspect-square">
           <img
@@ -73,38 +73,46 @@ export default function ProductCard({ product }: Props) {
         </div>
 
         {/* Info */}
-        <div className="px-4 py-4 border-t border-soft-gray/60">
+        <div className="px-4 py-4 border-t border-soft-gray/60 flex-1 flex flex-col">
           {product.brand && (
             <p className="editorial-label mb-2">{product.brand}</p>
           )}
-          <h3 className="font-serif text-sm text-dark-text line-clamp-2 mb-3 leading-snug">
+          <h3 className="font-serif text-sm text-dark-text line-clamp-2 mb-2 leading-snug min-h-[2.5rem]">
             {product.name}
           </h3>
 
-          {product.avg_rating !== undefined && product.avg_rating !== null && (
-            <div className="flex items-center gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star
-                  key={s}
-                  size={10}
-                  className={s <= Math.round(product.avg_rating!) ? 'text-gold fill-gold' : 'text-soft-gray fill-soft-gray'}
-                />
-              ))}
-              {product.review_count ? (
-                <span className="text-[10px] text-muted-gray ml-1 font-sans">({product.review_count})</span>
-              ) : null}
-            </div>
-          )}
-
-          <div className="flex items-baseline gap-2">
-            <span className="price-gold text-sm">
-              {formatPrice(Number(product.sale_price || product.price))}
-            </span>
-            {product.sale_price && (
-              <span className="text-xs text-muted-gray line-through font-sans">
-                {formatPrice(Number(product.price))}
-              </span>
+          <div className="min-h-[1.25rem] mb-3 flex items-center">
+            {product.avg_rating !== undefined && product.avg_rating !== null && (
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    size={10}
+                    className={s <= Math.round(product.avg_rating!) ? 'text-gold fill-gold' : 'text-soft-gray fill-soft-gray'}
+                  />
+                ))}
+                {product.review_count ? (
+                  <span className="text-[10px] text-muted-gray ml-1 font-sans">({product.review_count})</span>
+                ) : null}
+              </div>
             )}
+          </div>
+
+          <div className="mt-auto pt-3 border-t border-soft-gray/30 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="price-gold text-sm">
+                {formatPrice(Number(product.sale_price || product.price))}
+              </span>
+              {product.sale_price && (
+                <span className="text-xs text-muted-gray line-through font-sans">
+                  {formatPrice(Number(product.price))}
+                </span>
+              )}
+            </div>
+            
+            <p className="text-[10px] text-muted-gray font-sans">
+              {product.stock > 0 ? `Còn lại: ${product.stock}` : 'Hết hàng'}
+            </p>
           </div>
         </div>
       </Link>

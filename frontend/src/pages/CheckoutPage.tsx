@@ -329,7 +329,7 @@ export default function CheckoutPage() {
                             alt={item.product?.name}
                             className="w-14 h-14 object-cover bg-white"
                           />
-                          <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center w-5 h-5">
+                          <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                             {item.quantity}
                           </span>
                         </div>
@@ -337,7 +337,10 @@ export default function CheckoutPage() {
                           <p className="font-sans text-xs text-dark-text line-clamp-2 leading-snug">
                             {item.product?.name}
                           </p>
-                          <p className="price-gold text-sm mt-1">{formatPrice(price * item.quantity)}</p>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="font-sans text-xs text-muted-gray">Số lượng: {item.quantity}</span>
+                            <p className="price-gold text-sm">{formatPrice(price * item.quantity)}</p>
+                          </div>
                         </div>
                       </div>
                     )
