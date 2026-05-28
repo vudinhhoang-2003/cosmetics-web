@@ -65,6 +65,7 @@ export interface OrderItem {
   quantity: number
   price_at_purchase: number
   product_name?: string
+  image_url?: string
 }
 
 export interface Order {

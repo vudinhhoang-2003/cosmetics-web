@@ -145,7 +145,7 @@ export default function AdminDashboard() {
           <AlertCircle size={18} className="text-amber-600 shrink-0" />
           <p className="font-sans text-sm text-amber-700">
             Có <strong>{stats.pending_orders}</strong> đơn hàng đang chờ xác nhận.{' '}
-            <Link to="/admin/orders" className="underline font-medium">
+            <Link to="/admin/orders?status=pending" className="underline font-medium">
               Xử lý ngay
             </Link>
           </p>

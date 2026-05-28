@@ -139,10 +139,11 @@ def admin_orders(
     skip: int = 0,
     limit: int = 50,
     status: Optional[str] = None,
+    search: Optional[str] = None,
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    return crud_order.get_all(db, skip, limit, status)
+    return crud_order.get_all(db, skip, limit, status, search)
 
 
 @router.get("/users", response_model=List[UserOut])

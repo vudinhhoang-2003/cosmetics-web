@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 from sqlalchemy import Column, String, Integer, Numeric, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
@@ -36,3 +37,7 @@ class OrderItem(Base):
     @property
     def product_name(self) -> str:
         return self.product.name if self.product else "Sản phẩm"
+
+    @property
+    def image_url(self) -> Optional[str]:
+        return self.product.images[0] if self.product and self.product.images else None

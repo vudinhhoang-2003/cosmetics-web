@@ -74,7 +74,7 @@ export const adminApi = {
     min_price?: number; max_price?: number; search?: string; sort?: string
     brand?: string; in_stock?: boolean; sale_only?: boolean
   }) => api.get<ProductList>('/admin/products', { params }),
-  orders: (params?: { skip?: number; limit?: number; status?: string }) =>
+  orders: (params?: { skip?: number; limit?: number; status?: string; search?: string }) =>
     api.get<Order[]>('/admin/orders', { params }),
   users: (params?: { skip?: number; limit?: number }) =>
     api.get<User[]>('/admin/users', { params }),

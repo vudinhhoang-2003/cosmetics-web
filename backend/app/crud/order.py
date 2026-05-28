@@ -76,8 +76,17 @@ def update_status(db: Session, order: Order, status: str) -> Order:
     return order
 
 
-def get_all(db: Session, skip: int = 0, limit: int = 50, status: Optional[str] = None) -> List[Order]:
+def get_all(db: Session, skip: int = 0, limit: int = 50, status: Optional[str] = None, search: Optional[str] = None) -> List[Order]:
     q = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.product))
     if status:
         q = q.filter(Order.status == status)
+    if search:
+        search_filter = f"%{search}%"
+        from sqlalchemy import cast, String
+        q = q.filter(
+            cast(Order.order_code, String).ilike(search_filter) |
+            cast(Order.id, String).ilike(search_filter) |
+            Order.shipping_address['full_name'].astext.ilike(search_filter) |
+            Order.shipping_address['phone'].astext.ilike(search_filter)
+        )
     return q.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
