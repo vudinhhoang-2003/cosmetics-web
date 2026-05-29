@@ -89,10 +89,13 @@ function getImages(value: string) {
 
 export default function AdminProducts() {
   const queryClient = useQueryClient()
+  // Trạng thái modal Thêm/Sửa sản phẩm
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
   const [uploading, setUploading] = useState(false)
+  
+  // Trạng thái bộ lọc và phân trang
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -100,23 +103,28 @@ export default function AdminProducts() {
   const [sort, setSort] = useState('newest')
   const [stockFilter, setStockFilter] = useState('all')
   const [saleFilter, setSaleFilter] = useState('all')
+  
+  // Trạng thái dropdown lọc danh mục và nhập phần trăm giảm giá nhanh
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [discountPercent, setDiscountPercent] = useState<number | ''>('')
 
+  // Tự động debounce từ khóa tìm kiếm sản phẩm sau 300ms
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(search.trim())
-      setPage(1)
+      setPage(1) // Trở lại trang 1 khi lọc mới
     }, 300)
     return () => window.clearTimeout(timer)
   }, [search])
 
+  // Lấy danh sách các danh mục có sẵn
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryApi.list().then((r) => r.data),
   })
   const categories: Category[] = categoriesData || []
 
+  // Truy vấn danh sách sản phẩm quản trị (tự động reload khi thay đổi tham số lọc)
   const { data: productsData, isLoading, isFetching, isError } = useQuery({
     queryKey: ['admin-products', page, debouncedSearch, categoryFilter, sort, stockFilter, saleFilter],
     queryFn: () =>
@@ -131,6 +139,7 @@ export default function AdminProducts() {
       }).then((r) => r.data),
   })
 
+  // Lọc sản phẩm cục bộ dựa trên trạng thái tồn kho (Sắp hết hàng / Hết hàng)
   const products = useMemo(() => {
     const items = productsData?.items || []
     if (stockFilter === 'low_stock') {
@@ -142,11 +151,13 @@ export default function AdminProducts() {
     return items
   }, [productsData?.items, stockFilter])
 
+  // Tính toán số liệu phân trang và thống kê nhanh
   const total = productsData?.total || 0
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const activeCount = products.filter((product) => product.is_active).length
   const lowStockCount = products.filter((product) => product.stock > 0 && product.stock <= LOW_STOCK_LIMIT).length
   const outStockCount = products.filter((product) => product.stock === 0).length
+
 
   const {
     register,

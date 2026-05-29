@@ -69,19 +69,20 @@ export default function AdminCategories() {
 
   const watchName = watch('name') || ''
 
-  // Auto-generate slug from name when name is updated
+  // Tự động chuyển đổi tên danh mục thành đường dẫn thân thiện (Slug) khi thay đổi tên
   const generateSlug = () => {
     const slug = watchName
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .normalize('NFD') // Chuyển đổi ký tự Unicode tổ hợp sang dựng sẵn
+      .replace(/[\u0300-\u036f]/g, '') // Loại bỏ dấu tiếng Việt
       .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '') // Loại bỏ các ký tự đặc biệt
       .trim()
-      .replace(/\s+/g, '-')
+      .replace(/\s+/g, '-') // Thay thế khoảng trắng bằng dấu gạch ngang
     setValue('slug', slug)
   }
 
+  // Xử lý sự kiện upload hình ảnh danh mục lên server
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -101,18 +102,21 @@ export default function AdminCategories() {
     }
   }
 
+  // Mở modal thêm danh mục mới
   const openAdd = () => {
     setEditingCategory(null)
     reset({ name: '', slug: '', image_url: '' })
     setModalOpen(true)
   }
 
+  // Mở modal sửa thông tin danh mục hiện tại
   const openEdit = (cat: Category) => {
     setEditingCategory(cat)
     reset({ name: cat.name, slug: cat.slug, image_url: cat.image_url || '' })
     setModalOpen(true)
   }
 
+  // Mutation tạo danh mục mới
   const createMutation = useMutation({
     mutationFn: (data: CategoryForm) =>
       categoryApi.create({ name: data.name, slug: data.slug, image_url: data.image_url || undefined }),
@@ -124,6 +128,7 @@ export default function AdminCategories() {
     onError: () => toast.error('Không thể thêm danh mục'),
   })
 
+  // Mutation cập nhật danh mục đã có
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: CategoryForm }) =>
       categoryApi.update(id, { name: data.name, slug: data.slug, image_url: data.image_url || undefined }),
@@ -135,6 +140,7 @@ export default function AdminCategories() {
     onError: () => toast.error('Không thể cập nhật danh mục'),
   })
 
+  // Mutation xóa danh mục khỏi hệ thống
   const deleteMutation = useMutation({
     mutationFn: (id: string) => categoryApi.delete(id),
     onSuccess: () => {

@@ -226,13 +226,16 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                   <div>
+                    {/* Custom City Dropdown với thiết kế sang trọng, tối giản và hiệu ứng mượt mà */}
+                    <div>
                     <label className="block font-sans text-sm text-muted-gray mb-1">
                       Tỉnh/Thành phố <span className="text-red-500">*</span>
                     </label>
+                    {/* Sử dụng input hidden để liên kết giá trị được chọn với react-hook-form */}
                     <input type="hidden" {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })} />
                     
                     <div className="relative">
+                      {/* Nút bấm để toggle dropdown hiển thị danh sách thành phố */}
                       <button
                         type="button"
                         onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
@@ -247,12 +250,13 @@ export default function CheckoutPage() {
                       <AnimatePresence>
                         {isCityDropdownOpen && (
                           <>
-                            {/* Backdrop click to close */}
+                            {/* Lớp phủ Backdrop trong suốt để tự động đóng dropdown khi click ra ngoài */}
                             <div 
                               className="fixed inset-0 z-10" 
                               onClick={() => setIsCityDropdownOpen(false)}
                             />
                             
+                            {/* Danh sách các tỉnh/thành phố có hiệu ứng trượt nhẹ bằng Framer Motion */}
                             <motion.div
                               initial={{ opacity: 0, y: -10 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -263,7 +267,7 @@ export default function CheckoutPage() {
                               <div
                                 onClick={() => {
                                   setValue('city', '')
-                                  trigger('city')
+                                  trigger('city') // Kích hoạt kiểm tra validation lại sau khi đổi giá trị
                                   setIsCityDropdownOpen(false)
                                 }}
                                 className="px-4 py-2.5 text-sm font-sans text-muted-gray hover:bg-gold/5 hover:text-gold cursor-pointer transition-colors"
@@ -275,9 +279,10 @@ export default function CheckoutPage() {
                                   key={c}
                                   onClick={() => {
                                     setValue('city', c)
-                                    trigger('city')
+                                    trigger('city') // Kích hoạt kiểm tra validation lại sau khi chọn thành phố
                                     setIsCityDropdownOpen(false)
                                   }}
+
                                   className={`px-4 py-2.5 text-sm font-sans cursor-pointer transition-colors flex items-center justify-between ${
                                     selectedCity === c
                                       ? 'bg-gold/10 text-gold font-medium'

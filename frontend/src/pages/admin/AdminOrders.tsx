@@ -102,21 +102,27 @@ const PAGE_SIZE = 20
 
 export default function AdminOrders() {
   const queryClient = useQueryClient()
+  // Đồng bộ hóa trạng thái bộ lọc đơn hàng qua URL Search Params
   const [searchParams, setSearchParams] = useSearchParams()
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
+  
   const [page, setPage] = useState(1)
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null) // Đơn hàng đang mở xem chi tiết
+  const [updatingId, setUpdatingId] = useState<string | null>(null) // ID đơn hàng đang trong tiến trình cập nhật status
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null) // ID đơn hàng đang mở dropdown đổi status
+  
+  // Trạng thái tìm kiếm
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
+  // Đồng bộ status từ URL vào local state
   useEffect(() => {
     const status = searchParams.get('status') || ''
     setStatusFilter(status)
     setPage(1)
   }, [searchParams])
 
+  // Xử lý khi admin nhấn vào các tab lọc trạng thái
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value)
     setPage(1)
@@ -127,6 +133,7 @@ export default function AdminOrders() {
     }
   }
 
+  // Tự động debounce từ khóa tìm kiếm sau 300ms
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(searchQuery.trim())
@@ -135,14 +142,14 @@ export default function AdminOrders() {
     return () => window.clearTimeout(timer)
   }, [searchQuery])
 
-  // Fetch summary statistics
+  // Lấy dữ liệu số liệu thống kê đơn hàng (tự động làm mới mỗi 30 giây)
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => adminApi.stats().then((r) => r.data),
     refetchInterval: 30000,
   })
 
-  // Fetch orders from server
+  // Lấy danh sách đơn hàng theo bộ lọc, trang và từ khóa tìm kiếm
   const { data: ordersData, isLoading, isFetching } = useQuery({
     queryKey: ['admin-orders-list', statusFilter, page, debouncedSearch],
     queryFn: () =>
@@ -158,11 +165,12 @@ export default function AdminOrders() {
 
   const orders = Array.isArray(ordersData) ? ordersData : []
 
-  // Update order status mutation
+  // Mutation gửi yêu cầu cập nhật trạng thái đơn hàng lên backend
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       orderApi.updateStatus(id, status),
     onSuccess: () => {
+      // Làm mới cache đơn hàng và thống kê
       queryClient.invalidateQueries({ queryKey: ['admin-orders-list'] })
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
       toast.success('Cập nhật trạng thái thành công')
@@ -174,10 +182,12 @@ export default function AdminOrders() {
     },
   })
 
+  // Gọi hàm mutation cập nhật trạng thái
   const handleStatusChange = (orderId: string, newStatus: string) => {
     setUpdatingId(orderId)
     updateStatusMutation.mutate({ id: orderId, status: newStatus })
   }
+
 
   const resetFilters = () => {
     setSearchQuery('')

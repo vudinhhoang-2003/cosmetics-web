@@ -35,16 +35,22 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 }
 
 export default function AccountPage() {
+  // Tab hiện tại: 'profile' (Thông tin) hoặc 'orders' (Đơn hàng)
   const [tab, setTab] = useState<Tab>('profile')
+  // Đơn hàng đang chọn để hiển thị trên Modal chi tiết
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  
+  // Lấy thông tin tài khoản và hàm cập nhật auth từ Zustand store
   const { user, setAuth, accessToken, refreshToken } = useAuthStore()
   const queryClient = useQueryClient()
 
+  // Tải thông tin tài khoản người dùng từ backend
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: () => userApi.me().then((r) => r.data),
   })
 
+  // Tải danh sách đơn hàng cá nhân (chỉ thực hiện khi người dùng chuyển sang tab Đơn hàng)
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () => orderApi.list(0, 50).then((r) => r.data),
@@ -78,6 +84,7 @@ export default function AccountPage() {
     }
   }, [orders, queryOrderId, queryOrderCode])
 
+  // Form cập nhật thông tin cá nhân
   const {
     register: regProfile,
     handleSubmit: handleProfile,
@@ -89,6 +96,7 @@ export default function AccountPage() {
     },
   })
 
+  // Form cập nhật mật khẩu mới
   const {
     register: regPwd,
     handleSubmit: handlePwd,
@@ -97,9 +105,11 @@ export default function AccountPage() {
     formState: { errors: pwdErrors },
   } = useForm<PasswordForm>()
 
+  // Mutation cập nhật thông tin cá nhân lên database
   const profileMutation = useMutation({
     mutationFn: (data: ProfileForm) => userApi.update(data),
     onSuccess: (res) => {
+      // Làm mới dữ liệu profile và cập nhật Zustand store cục bộ
       queryClient.invalidateQueries({ queryKey: ['profile'] })
       setAuth(res.data, accessToken!, refreshToken!)
       toast.success('Cập nhật thông tin thành công')
@@ -107,7 +117,9 @@ export default function AccountPage() {
     onError: () => toast.error('Không thể cập nhật thông tin'),
   })
 
+  // Mutation cập nhật mật khẩu mới lên database
   const passwordMutation = useMutation({
+
     mutationFn: (data: PasswordForm) => userApi.update({ password: data.password }),
     onSuccess: () => {
       toast.success('Đổi mật khẩu thành công')
