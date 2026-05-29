@@ -16,15 +16,23 @@ interface RegisterForm {
 }
 
 export default function RegisterPage() {
+  /**
+   * Trang Đăng Ký Tài Khoản Khách Hàng.
+   * - Hỗ trợ xác thực form: họ tên, email hợp lệ, sđt Việt Nam và độ dài mật khẩu.
+   * - Tự động so sánh Password và Confirm Password thời gian thực (watch).
+   * - Hiển thị vệt màu chỉ báo độ mạnh/yếu của mật khẩu đang nhập.
+   * - Đăng ký thành công sẽ nhận được JWT Token từ server và tự động đăng nhập luôn (auto login).
+   */
   const navigate = useNavigate()
   const location = useLocation()
   const { setAuth, isAuthenticated } = useAuthStore()
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)     // Ẩn/hiện mật khẩu
+  const [showConfirm, setShowConfirm] = useState(false)       // Ẩn/hiện mật khẩu xác nhận
+  const [isLoading, setIsLoading] = useState(false)           // Trạng thái chờ gọi API đăng ký
 
   const from = (location.state as { from?: string })?.from || '/'
 
+  // Khởi tạo react-hook-form
   const {
     register,
     handleSubmit,
@@ -32,13 +40,16 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterForm>()
 
+  // Tự động chuyển hướng về trang cũ nếu người dùng đã đăng nhập sẵn
   useEffect(() => {
     if (isAuthenticated) navigate(from, { replace: true })
   }, [isAuthenticated])
 
+  // Xử lý gửi biểu mẫu đăng ký
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true)
     try {
+      // Gửi API tạo người dùng mới
       const res = await authApi.register({
         email: data.email,
         password: data.password,
@@ -46,6 +57,8 @@ export default function RegisterPage() {
         phone: data.phone || undefined,
       })
       const { access_token, refresh_token, user } = res.data
+      
+      // Đăng nhập tự động ngay sau khi đăng ký thành công
       setAuth(user, access_token, refresh_token)
       toast.success('Đăng ký thành công! Chào mừng bạn đến với Luxe Beauty.')
       navigate(from, { replace: true })
@@ -69,7 +82,7 @@ export default function RegisterPage() {
         transition={{ duration: 0.5 }}
         className="bg-white border border-soft-gray w-full max-w-md p-10"
       >
-        {/* Logo */}
+        {/* Tiêu đề & Logo */}
         <div className="text-center mb-10">
           <Link to="/">
             <h1 className="font-serif text-3xl text-dark-text tracking-widest">LUXE BEAUTY</h1>
@@ -81,7 +94,7 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Full name */}
+          {/* Nhập Họ và tên */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Họ và tên <span className="text-red-500">*</span>
@@ -102,7 +115,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Email */}
+          {/* Nhập Email */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Email <span className="text-red-500">*</span>
@@ -127,7 +140,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Phone */}
+          {/* Nhập Số điện thoại */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Số điện thoại (tuỳ chọn)
@@ -150,7 +163,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Password */}
+          {/* Nhập Mật khẩu */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Mật khẩu <span className="text-red-500">*</span>
@@ -179,7 +192,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Confirm password */}
+          {/* Xác nhận lại mật khẩu */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Xác nhận mật khẩu <span className="text-red-500">*</span>
@@ -209,7 +222,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Strength hint */}
+          {/* Chỉ báo độ mạnh yếu của mật khẩu */}
           {watch('password') && (
             <div className="flex gap-1 mt-1">
               {[1, 2, 3].map((level) => (
@@ -229,7 +242,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Submit */}
+          {/* Nút bấm Đăng ký */}
           <button
             type="submit"
             disabled={isLoading}
@@ -246,7 +259,7 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        {/* Footer links */}
+        {/* Liên kết quay về Đăng nhập */}
         <div className="mt-8 text-center space-y-3">
           <p className="font-sans text-sm text-muted-gray">
             Đã có tài khoản?{' '}
@@ -266,3 +279,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+

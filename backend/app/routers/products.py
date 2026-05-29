@@ -26,6 +26,10 @@ def list_products(
     sale_only: Optional[bool] = None,
     db: Session = Depends(get_db),
 ):
+    """
+    API lấy danh sách sản phẩm công khai cho Frontend.
+    Hỗ trợ phân trang, tìm kiếm gần đúng, lọc theo khoảng giá, hãng, danh mục, tồn kho và sắp xếp.
+    """
     return crud_product.get_multi(
         db,
         skip,
@@ -43,6 +47,7 @@ def list_products(
 
 @router.get("/{slug}", response_model=ProductOut)
 def get_product(slug: str, db: Session = Depends(get_db)):
+    """API lấy thông tin chi tiết một sản phẩm theo slug (đường dẫn URL thân thiện)."""
     p = crud_product.get_by_slug(db, slug)
     if not p:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -55,6 +60,7 @@ def create_product(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
+    """API thêm mới sản phẩm. Yêu cầu quyền Admin."""
     return crud_product.create(db, product)
 
 
@@ -65,6 +71,7 @@ def update_product(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
+    """API cập nhật thông tin sản phẩm bằng ID. Yêu cầu quyền Admin."""
     p = crud_product.get_by_id(db, product_id)
     if not p:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -77,6 +84,7 @@ def delete_product(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
+    """API xóa sản phẩm (xóa mềm). Yêu cầu quyền Admin."""
     p = crud_product.get_by_id(db, product_id)
     if not p:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -90,6 +98,11 @@ def create_review(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    API gửi đánh giá mới cho sản phẩm.
+    - Yêu cầu đã đăng nhập (current_user).
+    - Đảm bảo người dùng chưa từng đánh giá sản phẩm này trước đây (tránh spam).
+    """
     p = crud_product.get_by_id(db, product_id)
     if not p:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -104,6 +117,7 @@ def create_review(
 
 @router.get("/{product_id}/reviews", response_model=List[ReviewOut])
 def get_reviews(product_id: str, db: Session = Depends(get_db)):
+    """API lấy danh sách các đánh giá kèm tên của khách hàng đối với một sản phẩm."""
     reviews = crud_review.get_product_reviews(db, product_id)
     result = []
     for r in reviews:
@@ -111,3 +125,4 @@ def get_reviews(product_id: str, db: Session = Depends(get_db)):
         out.user_name = r.user.full_name if r.user else None
         result.append(out)
     return result
+

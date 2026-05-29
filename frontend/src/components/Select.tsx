@@ -12,7 +12,7 @@ interface SelectProps {
   options: Option[]
   placeholder?: string
   className?: string
-  variant?: 'light' | 'dark'
+  variant?: 'light' | 'dark' // Hỗ trợ 2 biến thể màu sắc (sáng/tối)
 }
 
 export default function Select({
@@ -26,9 +26,11 @@ export default function Select({
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
+  // Tìm option đang được chọn
   const selected = options.find((o) => o.value === value)
   const displayLabel = selected?.label ?? placeholder ?? options[0]?.label
 
+  // Đóng dropdown khi nhấp chuột ra ngoài phạm vi component (Click Outside)
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
@@ -41,7 +43,7 @@ export default function Select({
 
   return (
     <div ref={ref} className={`relative ${className}`}>
-      {/* Trigger */}
+      {/* Nút bấm kích hoạt mở danh sách lựa chọn */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -65,7 +67,7 @@ export default function Select({
         />
       </button>
 
-      {/* Dropdown */}
+      {/* Danh sách các Option lựa chọn */}
       {open && (
         <ul
           className={`
@@ -101,6 +103,7 @@ export default function Select({
               `}
             >
               <span>{o.label}</span>
+              {/* Hiển thị Icon Check bên cạnh option đang được lựa chọn */}
               {o.value === value && <Check size={13} className={isLight ? 'text-gold' : 'text-[#C9A96E]'} />}
             </li>
           ))}
@@ -109,3 +112,4 @@ export default function Select({
     </div>
   )
 }
+

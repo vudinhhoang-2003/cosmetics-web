@@ -5,6 +5,11 @@ import { XCircle, ShoppingBag, ArrowLeft, ShieldAlert } from 'lucide-react'
 import { orderApi } from '../api/endpoints'
 
 export default function CheckoutCancelPage() {
+  /**
+   * Trang hiển thị khi Khách hàng hủy bỏ giao dịch hoặc thanh toán online thất bại.
+   * - Tự động gọi API orderApi.cancelPayment truyền lên order_id hoặc order_code.
+   * - API backend sẽ xóa đơn hàng tạm và cộng trả lại số lượng tồn kho cho sản phẩm.
+   */
   const [searchParams] = useSearchParams()
   const orderId = searchParams.get('order_id')
   const orderCode = searchParams.get('order_code') || searchParams.get('orderCode')
@@ -16,6 +21,7 @@ export default function CheckoutCancelPage() {
         if (orderId) params.order_id = orderId
         if (orderCode) params.order_code = Number(orderCode)
         
+        // Gọi API yêu cầu Backend hủy đơn hàng chưa thanh toán và khôi phục tồn kho (stock)
         if (params.order_id || params.order_code) {
           await orderApi.cancelPayment(params)
         }
@@ -36,7 +42,7 @@ export default function CheckoutCancelPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="bg-white border border-soft-gray p-10 md:p-16 max-w-lg w-full text-center"
       >
-        {/* Cancel icon */}
+        {/* Biểu tượng Hủy thanh toán màu đỏ */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -46,7 +52,7 @@ export default function CheckoutCancelPage() {
           <XCircle size={40} className="text-white" />
         </motion.div>
 
-        {/* Heading */}
+        {/* Tiêu đề & Nội dung giải thích */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,7 +65,7 @@ export default function CheckoutCancelPage() {
           </p>
         </motion.div>
 
-        {/* Order specs */}
+        {/* Hiển thị mã giao dịch bị hủy */}
         {displayCode && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -80,7 +86,7 @@ export default function CheckoutCancelPage() {
           </motion.div>
         )}
 
-        {/* Support items */}
+        {/* Hướng dẫn khắc phục lỗi */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -100,10 +106,10 @@ export default function CheckoutCancelPage() {
           ))}
         </motion.div>
 
-        {/* Divider */}
+        {/* Đường kẻ ngang trang trí màu Gold */}
         <div className="w-12 h-0.5 bg-gold mx-auto mb-8" />
 
-        {/* CTA buttons */}
+        {/* Các nút hành động điều hướng */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -126,7 +132,6 @@ export default function CheckoutCancelPage() {
           </Link>
         </motion.div>
 
-        {/* Back home */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

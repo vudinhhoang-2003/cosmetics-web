@@ -12,6 +12,7 @@ router = APIRouter(tags=["categories"])
 
 @router.get("/", response_model=List[CategoryOut])
 def list_categories(db: Session = Depends(get_db)):
+    """API công khai lấy danh sách tất cả danh mục sản phẩm."""
     return crud_cat.get_all(db)
 
 
@@ -21,6 +22,11 @@ def create_category(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
+    """
+    API tạo mới danh mục sản phẩm.
+    - Yêu cầu quyền quản trị viên (Admin).
+    - Đảm bảo slug của danh mục là độc nhất vô nhị.
+    """
     if crud_cat.get_by_slug(db, data.slug):
         raise HTTPException(status_code=400, detail="Slug already exists")
     return crud_cat.create(db, data)
@@ -33,6 +39,10 @@ def update_category(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
+    """
+    API cập nhật thông tin danh mục sản phẩm.
+    - Yêu cầu quyền Admin.
+    """
     cat = crud_cat.get_by_id(db, cat_id)
     if not cat:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -45,7 +55,12 @@ def delete_category(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
+    """
+    API xóa bỏ danh mục sản phẩm khỏi hệ thống.
+    - Yêu cầu quyền Admin.
+    """
     cat = crud_cat.get_by_id(db, cat_id)
     if not cat:
         raise HTTPException(status_code=404, detail="Category not found")
     crud_cat.delete(db, cat)
+

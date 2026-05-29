@@ -39,21 +39,27 @@ export default function CheckoutPage() {
     formState: { errors },
   } = useForm<CheckoutForm>()
 
+  // Quản lý việc đóng mở Custom City Dropdown và theo dõi giá trị thành phố được chọn
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
   const selectedCity = watch('city')
 
+  // Lấy các sản phẩm được chọn từ giỏ hàng để mang đi thanh toán (truyền qua state từ CartPage)
   const selectedItemIds = location.state?.selectedItemIds as string[] | undefined
   const checkoutItems = selectedItemIds
     ? items.filter((item) => selectedItemIds.includes(item.id))
     : items
 
+  // Tính tổng tiền tạm tính chỉ dựa trên các sản phẩm được chọn thanh toán
   const subtotal = checkoutItems.reduce((sum, item) => {
     const price = item.product?.sale_price ?? item.product?.price ?? 0
     return sum + price * item.quantity
   }, 0)
+  
+  // Áp dụng phí giao hàng: 30k nếu tạm tính dưới 500k, ngược lại miễn phí (0k)
   const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : 30000
   const grandTotal = subtotal + shipping
 
+  // Xử lý khi nhấn nút Đặt Hàng
   const onSubmit = async (data: CheckoutForm) => {
     if (checkoutItems.length === 0) {
       toast.error('Không có sản phẩm nào được chọn để thanh toán')
@@ -61,6 +67,7 @@ export default function CheckoutPage() {
     }
     setIsSubmitting(true)
     try {
+      // 1. Gọi API tạo đơn hàng, truyền kèm theo địa chỉ, phương thức và danh sách ID sản phẩm được thanh toán
       const res = await orderApi.create({
         shipping_address: {
           full_name: data.full_name,
@@ -74,20 +81,25 @@ export default function CheckoutPage() {
         cart_item_ids: selectedItemIds,
       })
       
-      // Remove only purchased items from local store
+      // 2. Cập nhật giỏ hàng cục bộ (Zustand Store) sau khi tạo đơn hàng thành công
+      // Nếu chỉ thanh toán một số sản phẩm, giữ lại các sản phẩm chưa thanh toán trong giỏ hàng. Ngược lại xóa sạch.
       if (selectedItemIds) {
         setItems(items.filter((item) => !selectedItemIds.includes(item.id)))
       } else {
         clearCart()
       }
+      
+      // 3. Làm mới Cache của React Query để đồng bộ giỏ hàng và danh sách đơn hàng mới nhất từ Server
       queryClient.invalidateQueries({ queryKey: ['cart'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       
       toast.success('Đặt hàng thành công!')
       
+      // 4. Nếu chọn thanh toán Online qua cổng PayOS, chuyển hướng người dùng sang cổng thanh toán VietQR
       if (res.data.payment_url) {
         window.location.href = res.data.payment_url
       } else {
+        // Nếu chọn COD, chuyển hướng trực tiếp sang trang thông báo đặt hàng thành công
         navigate(`/order/success?id=${res.data.id}`)
       }
     } catch (err: any) {

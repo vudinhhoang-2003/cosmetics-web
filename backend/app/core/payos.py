@@ -5,15 +5,25 @@ from typing import Optional, Dict, Any
 from app.core.config import settings
 
 class PayOSClient:
+    """
+    PayOSClient cung cấp dịch vụ tương tác với cổng thanh toán PayOS của Việt Nam.
+    Tự động chuyển sang chế độ giả lập (Mock Checkout) nếu chưa điền API keys ở file .env.
+    """
     def __init__(self):
         self.client_id = settings.PAYOS_CLIENT_ID
         self.api_key = settings.PAYOS_API_KEY
         self.checksum_key = settings.PAYOS_CHECKSUM_KEY
+        # Kiểm tra xem hệ thống đã cấu hình đầy đủ API Key hay chưa
         self.is_configured = bool(self.client_id and self.api_key and self.checksum_key)
         self.base_url = "https://api-merchant.payos.vn"
 
     def sign_data(self, data: Dict[str, Any]) -> str:
-        # Sort keys alphabetically and stringify
+        """
+        Tạo mã chữ ký (HMAC-SHA256 signature) từ dữ liệu gửi đi.
+        Sắp xếp các key theo bảng chữ cái alphabet, bỏ qua giá trị rỗng/None,
+        nối lại dưới dạng query string "key1=value1&key2=value2" rồi băm SHA256 với checksum_key.
+        """
+        # Sắp xếp các khóa theo thứ tự bảng chữ cái
         sorted_keys = sorted(data.keys())
         elements = []
         for k in sorted_keys:
@@ -23,7 +33,7 @@ class PayOSClient:
             elements.append(f"{k}={v}")
         sign_str = "&".join(elements)
         
-        # Calculate HMAC-SHA256 signature
+        # Tính toán chữ ký HMAC-SHA256
         return hmac.new(
             self.checksum_key.encode("utf-8"),
             sign_str.encode("utf-8"),
@@ -31,19 +41,23 @@ class PayOSClient:
         ).hexdigest()
 
     async def create_payment_link(self, order_code: int, amount: int, description: str, return_url: str, cancel_url: str) -> Optional[str]:
+        """
+        Tạo link thanh toán trực tuyến qua cổng PayOS.
+        Nếu chưa cấu hình PayOS Keys, hàm sẽ tự động trả về một Link thanh toán giả lập (Mock Payment) để demo.
+        """
         if not self.is_configured:
-            # Fallback to premium simulation mock checkout url!
+            # Fallback: Trả về link giả lập thanh toán cao cấp trên Frontend
             return f"{settings.FRONTEND_URL}/checkout/mock-payment?orderCode={order_code}&amount={amount}"
 
         payload = {
             "orderCode": order_code,
             "amount": amount,
-            "description": description[:30],  # PayOS description is max 30 chars
+            "description": description[:30],  # Mô tả giao dịch trên PayOS bị giới hạn tối đa 30 ký tự
             "cancelUrl": cancel_url,
             "returnUrl": return_url,
         }
         
-        # Generate the signature
+        # Ký số cho payload trước khi gửi lên API PayOS
         payload["signature"] = self.sign_data(payload)
 
         headers = {
@@ -64,18 +78,24 @@ class PayOSClient:
         return None
 
     def verify_webhook_data(self, webhook_body: Dict[str, Any]) -> bool:
+        """
+        Xác thực tính hợp lệ của dữ liệu phản hồi (Webhook) từ cổng PayOS gửi về server của mình.
+        Đảm bảo request thực sự đến từ PayOS chứ không phải hacker giả mạo.
+        """
         if not self.is_configured:
-            # Simulation webhook verification!
+            # Chế độ giả lập: Tự động cho qua
             return True
 
-        # PayOS webhook body has 'data' and 'signature'
+        # Trích xuất dữ liệu 'data' và chữ ký 'signature' từ webhook payload
         data = webhook_body.get("data")
         signature = webhook_body.get("signature")
         if not data or not signature:
             return False
 
-        # Sort and sign webhook data to verify authenticity
+        # So sánh chữ ký tự tạo từ data và chữ ký PayOS đính kèm trong webhook
         signed_signature = self.sign_data(data)
         return hmac.compare_digest(signed_signature, signature)
 
+# Instance payos_client dùng chung toàn hệ thống
 payos_client = PayOSClient()
+

@@ -17,14 +17,17 @@ export default function CartPage() {
   const { isAuthenticated } = useAuthStore()
   const { items, setItems, updateItem, removeItem, total, count } = useCartStore()
   const queryClient = useQueryClient()
+  // Quản lý danh sách ID các sản phẩm được người dùng tích chọn thanh toán trong giỏ hàng
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
 
+  // Khi danh sách sản phẩm trong giỏ hàng được load lần đầu, mặc định tích chọn toàn bộ sản phẩm
   useEffect(() => {
     if (items.length > 0 && selectedItemIds.length === 0) {
       setSelectedItemIds(items.map(item => item.id))
     }
   }, [items])
 
+  // Lắng nghe thay đổi của giỏ hàng để tự động đồng bộ/loại bỏ những ID sản phẩm đã xóa ra khỏi danh sách được tích chọn
   useEffect(() => {
     // Keep selected ids in sync with available items
     setSelectedItemIds(prev => prev.filter(id => items.some(item => item.id === id)))

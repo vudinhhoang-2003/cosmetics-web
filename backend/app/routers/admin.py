@@ -18,6 +18,7 @@ from app.crud import product as crud_product
 router = APIRouter(tags=["admin"])
 
 
+# API Lấy số liệu thống kê Dashboard cho Admin (Tổng doanh thu, số đơn, top sản phẩm, sản phẩm sắp hết hàng)
 @router.get("/stats")
 def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     now = datetime.utcnow()
@@ -28,43 +29,54 @@ def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     active_order_statuses = ["confirmed", "shipping"]
     fulfilled_statuses = revenue_statuses + active_order_statuses
 
+    # Tính doanh thu đã hoàn tất giao hàng (delivered)
     total_revenue = db.query(func.sum(Order.total_price)).filter(
         Order.status.in_(revenue_statuses)
     ).scalar() or 0
 
+    # Tính doanh thu đang xử lý giao hàng (confirmed, shipping)
     in_progress_revenue = db.query(func.sum(Order.total_price)).filter(
         Order.status.in_(active_order_statuses)
     ).scalar() or 0
 
+    # Tính doanh thu của riêng ngày hôm nay
     today_revenue = db.query(func.sum(Order.total_price)).filter(
         Order.status.in_(revenue_statuses),
         Order.created_at >= today_start,
         Order.created_at <= today_end,
     ).scalar() or 0
 
+    # Tính doanh thu của riêng tháng này
     month_revenue = db.query(func.sum(Order.total_price)).filter(
         Order.status.in_(revenue_statuses),
         Order.created_at >= month_start,
     ).scalar() or 0
 
+    # Lấy tổng số lượng đơn hàng, sản phẩm và khách hàng đăng ký
     total_orders = db.query(func.count(Order.id)).scalar()
     total_products = db.query(func.count(Product.id)).filter(Product.is_active == True).scalar()
     total_users = db.query(func.count(User.id)).filter(User.role == "customer").scalar()
 
+    # Đếm số lượng đơn hàng theo từng trạng thái cụ thể
     pending_orders = db.query(func.count(Order.id)).filter(Order.status == "pending").scalar()
     confirmed_orders = db.query(func.count(Order.id)).filter(Order.status == "confirmed").scalar()
     shipping_orders = db.query(func.count(Order.id)).filter(Order.status == "shipping").scalar()
     delivered_orders = db.query(func.count(Order.id)).filter(Order.status == "delivered").scalar()
     cancelled_orders = db.query(func.count(Order.id)).filter(Order.status == "cancelled").scalar()
+    
+    # Đếm số lượng đơn hàng được tạo mới hôm nay
     today_orders = db.query(func.count(Order.id)).filter(
         Order.created_at >= today_start,
         Order.created_at <= today_end,
     ).scalar()
+    
+    # Đếm số lượng sản phẩm sắp hết hàng (tồn kho dưới hoặc bằng 10 sản phẩm)
     low_stock_products = db.query(func.count(Product.id)).filter(
         Product.is_active == True,
         Product.stock <= 10,
     ).scalar()
 
+    # Truy vấn Top 5 sản phẩm bán chạy nhất
     top_products = (
         db.query(Product.name, func.sum(OrderItem.quantity).label("total_sold"))
         .join(OrderItem, OrderItem.product_id == Product.id)
@@ -76,6 +88,7 @@ def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
         .all()
     )
 
+    # Truy vấn Top 5 sản phẩm có mức tồn kho thấp nhất (để hiển thị cảnh báo cho admin)
     low_stock_items = (
         db.query(Product.name, Product.stock)
         .filter(Product.is_active == True, Product.stock <= 10)
@@ -104,6 +117,7 @@ def get_stats(db: Session = Depends(get_db), _: User = Depends(require_admin)):
     }
 
 
+# API Lấy danh sách tất cả sản phẩm phía Admin (hỗ trợ phân trang, lọc bộ lọc nâng cao)
 @router.get("/products", response_model=ProductList)
 def admin_products(
     skip: int = Query(0, ge=0),
@@ -134,6 +148,7 @@ def admin_products(
     )
 
 
+# API Lấy danh sách toàn bộ đơn hàng của hệ thống phía Admin (hỗ trợ lọc theo trạng thái và tìm kiếm nâng cao)
 @router.get("/orders", response_model=List[OrderOut])
 def admin_orders(
     skip: int = 0,
@@ -146,6 +161,7 @@ def admin_orders(
     return crud_order.get_all(db, skip, limit, status, search)
 
 
+# API Lấy danh sách tất cả tài khoản người dùng trên hệ thống phía Admin
 @router.get("/users", response_model=List[UserOut])
 def admin_users(
     skip: int = 0,
@@ -156,6 +172,7 @@ def admin_users(
     return crud_user.get_all(db, skip, limit)
 
 
+# API Khóa hoặc Kích hoạt tài khoản người dùng (Admin toggle trạng thái hoạt động)
 @router.put("/users/{user_id}/toggle-active", response_model=UserOut)
 def toggle_user(
     user_id: str,
@@ -165,5 +182,5 @@ def toggle_user(
     from fastapi import HTTPException
     user = crud_user.get_by_id(db, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
     return crud_user.toggle_active(db, user)

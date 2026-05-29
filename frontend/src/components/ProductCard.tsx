@@ -72,15 +72,17 @@ export default function ProductCard({ product }: Props) {
           )}
         </div>
 
-        {/* Info */}
+        {/* Info - Sử dụng flex-col và flex-1 để kéo giãn phần nội dung thông tin */}
         <div className="px-4 py-4 border-t border-soft-gray/60 flex-1 flex flex-col">
           {product.brand && (
             <p className="editorial-label mb-2">{product.brand}</p>
           )}
+          {/* Tên sản phẩm: Đặt min-h-[2.5rem] (tương đương 2 dòng chữ) để đảm bảo dù tên ngắn 1 dòng hay dài 2 dòng thì chiều cao phần chứa tên vẫn bằng nhau, tránh lệch hàng */}
           <h3 className="font-serif text-sm text-dark-text line-clamp-2 mb-2 leading-snug min-h-[2.5rem]">
             {product.name}
           </h3>
 
+          {/* Đánh giá sao: Cố định min-h-[1.25rem] để các card không có đánh giá vẫn thẳng hàng với card có đánh giá */}
           <div className="min-h-[1.25rem] mb-3 flex items-center">
             {product.avg_rating !== undefined && product.avg_rating !== null && (
               <div className="flex items-center gap-1">
@@ -98,6 +100,7 @@ export default function ProductCard({ product }: Props) {
             )}
           </div>
 
+          {/* Giá tiền và tồn kho: Sử dụng mt-auto để đẩy toàn bộ khối này xuống sát đáy cùng của card */}
           <div className="mt-auto pt-3 border-t border-soft-gray/30 space-y-1">
             <div className="flex items-baseline gap-2">
               <span className="price-gold text-sm">
@@ -110,6 +113,7 @@ export default function ProductCard({ product }: Props) {
               )}
             </div>
             
+            {/* Hiển thị số lượng tồn kho hoặc thông báo hết hàng */}
             <p className="text-[10px] text-muted-gray font-sans">
               {product.stock > 0 ? `Còn lại: ${product.stock}` : 'Hết hàng'}
             </p>

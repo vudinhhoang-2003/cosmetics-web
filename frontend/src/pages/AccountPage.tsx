@@ -47,10 +47,12 @@ export default function AccountPage() {
     enabled: tab === 'orders',
   })
 
+  // 1. Phân tích các query parameter từ URL (ví dụ: ?order_id=xxx hoặc ?order_code=yyy khi đi từ trang đặt hàng thành công sang)
   const [searchParams] = useSearchParams()
   const queryOrderId = searchParams.get('order_id')
   const queryOrderCode = searchParams.get('order_code')
 
+  // 2. Tự động chuyển hướng hiển thị sang tab "Đơn hàng" (orders) và làm mới cache đơn hàng từ server
   useEffect(() => {
     if (queryOrderId || queryOrderCode) {
       setTab('orders')
@@ -58,6 +60,7 @@ export default function AccountPage() {
     }
   }, [queryOrderId, queryOrderCode, queryClient])
 
+  // 3. Khi danh sách đơn hàng được nạp xong, tìm kiếm đơn hàng trùng mã và tự động bật Modal chi tiết lên
   useEffect(() => {
     if (orders && (queryOrderId || queryOrderCode)) {
       const found = orders.find(
@@ -66,7 +69,7 @@ export default function AccountPage() {
           (queryOrderCode && String(o.order_code) === queryOrderCode)
       )
       if (found) {
-        setSelectedOrder(found)
+        setSelectedOrder(found) // Gán dữ liệu đơn hàng tìm thấy vào state để mở Modal chi tiết
       }
     }
   }, [orders, queryOrderId, queryOrderCode])

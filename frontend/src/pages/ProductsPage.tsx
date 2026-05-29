@@ -41,9 +41,19 @@ function formatCompactPrice(value: string) {
 }
 
 export default function ProductsPage() {
+  /**
+   * Trang Danh Sách Sản Phẩm (Cửa hàng chính).
+   * - Đồng bộ hóa toàn bộ trạng thái bộ lọc (tìm kiếm, sắp xếp, thương hiệu, khoảng giá, trang) vào URL qua searchParams.
+   * - Hỗ trợ debounce (trì hoãn gửi request): 350ms cho ô tìm kiếm và 450ms cho việc gõ khoảng giá trực tiếp.
+   * - Tải dữ liệu bất đồng bộ qua React Query, giữ lại dữ liệu cũ khi đổi trang (keepPreviousData) để mượt mà.
+   * - Thiết kế FilterPanel linh hoạt hiển thị bên trái trên Desktop, và hiển thị dạng Slide-over Drawer trên Mobile.
+   * - Hiển thị danh sách badge "Đang lọc" giúp người dùng nhanh chóng tắt bộ lọc không mong muốn.
+   * - Phân trang thông minh dạng thu gọn bằng dấu ba chấm (...) nếu có quá nhiều trang.
+   */
   const [searchParams, setSearchParams] = useSearchParams()
-  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false) // Trạng thái đóng/mở Drawer lọc trên Mobile
 
+  // Lấy các tham số lọc từ URL
   const search = searchParams.get('search') || ''
   const sort = searchParams.get('sort') || 'newest'
   const category = searchParams.get('category') || ''
@@ -54,14 +64,17 @@ export default function ProductsPage() {
   const saleOnly = searchParams.get('sale_only') === 'true'
   const page = Math.max(1, Number(searchParams.get('page') || 1))
 
+  // State tạm thời cho ô nhập liệu để tránh gọi API liên tục khi đang gõ
   const [searchInput, setSearchInput] = useState(search)
   const [minPriceInput, setMinPriceInput] = useState(minPrice)
   const [maxPriceInput, setMaxPriceInput] = useState(maxPrice)
 
+  // Đồng bộ lại Input khi URL thay đổi (ví dụ bấm nút Reset)
   useEffect(() => setSearchInput(search), [search])
   useEffect(() => setMinPriceInput(minPrice), [minPrice])
   useEffect(() => setMaxPriceInput(maxPrice), [maxPrice])
 
+  // Hàm helper cập nhật URL Search Params
   const updateParams = (updates: Record<string, string | string[] | number | boolean | null>) => {
     const next = new URLSearchParams(searchParams)
 
@@ -75,6 +88,7 @@ export default function ProductsPage() {
       }
     })
 
+    // Nếu không chỉnh sửa số trang, tự động quay về trang 1
     if (!Object.prototype.hasOwnProperty.call(updates, 'page')) {
       next.delete('page')
     }
@@ -82,6 +96,7 @@ export default function ProductsPage() {
     setSearchParams(next, { replace: true })
   }
 
+  // Debounce hiệu ứng gõ tìm kiếm từ khóa (350ms)
   useEffect(() => {
     const timer = window.setTimeout(() => {
       if (searchInput !== search) {
@@ -91,6 +106,7 @@ export default function ProductsPage() {
     return () => window.clearTimeout(timer)
   }, [searchInput, search])
 
+  // Debounce hiệu ứng gõ khoảng giá thủ công (450ms)
   useEffect(() => {
     const timer = window.setTimeout(() => {
       if (minPriceInput !== minPrice || maxPriceInput !== maxPrice) {
@@ -103,6 +119,7 @@ export default function ProductsPage() {
     return () => window.clearTimeout(timer)
   }, [minPriceInput, maxPriceInput, minPrice, maxPrice])
 
+  // Tải danh mục sản phẩm phục vụ bộ lọc
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryApi.list().then((r) => r.data),
@@ -112,6 +129,8 @@ export default function ProductsPage() {
   const selectedCategory = categories.find((cat) => cat.slug === category)
 
   const skip = (page - 1) * PAGE_SIZE
+  
+  // Gọi API tải danh sách sản phẩm khớp với tất cả bộ lọc
   const { data: productsData, isLoading, isFetching, isError } = useQuery({
     queryKey: ['products', { search, sort, category, brands, minPrice, maxPrice, inStock, saleOnly, skip }],
     queryFn: () =>
@@ -127,7 +146,7 @@ export default function ProductsPage() {
         in_stock: inStock || undefined,
         sale_only: saleOnly || undefined,
       }).then((r) => r.data),
-    placeholderData: keepPreviousData,
+    placeholderData: keepPreviousData, // Giữ giao diện cũ trong lúc tải trang tiếp theo (tránh giật lag)
   })
 
   const products = productsData?.items || []
@@ -136,6 +155,7 @@ export default function ProductsPage() {
   const rangeStart = total === 0 ? 0 : skip + 1
   const rangeEnd = Math.min(skip + products.length, total)
 
+  // Khởi tạo mảng các bộ lọc đang được kích hoạt để hiển thị tag/badge
   const activeFilters = useMemo(() => {
     const filters: { key: string; label: string; clear: () => void }[] = []
     if (search) filters.push({ key: 'search', label: `Từ khóa: ${search}`, clear: () => updateParams({ search: null }) })
@@ -161,6 +181,7 @@ export default function ProductsPage() {
     return filters
   }, [search, selectedCategory, brands, minPrice, maxPrice, inStock, saleOnly])
 
+  // Xóa sạch toàn bộ các bộ lọc, quay về mặc định ban đầu
   const clearFilters = () => {
     setSearchInput('')
     setMinPriceInput('')
@@ -168,6 +189,7 @@ export default function ProductsPage() {
     setSearchParams({}, { replace: true })
   }
 
+  // Bật/tắt thương hiệu lọc
   const toggleBrand = (brand: string) => {
     updateParams({
       brand: brands.includes(brand)
@@ -176,12 +198,14 @@ export default function ProductsPage() {
     })
   }
 
+  // Áp dụng khoảng giá nhanh theo preset chọn sẵn
   const setPricePreset = (min: string, max: string) => {
     setMinPriceInput(min)
     setMaxPriceInput(max)
     updateParams({ min_price: min || null, max_price: max || null })
   }
 
+  // JSX Panel hiển thị bộ lọc (dùng chung cho cả Desktop sidebar và Mobile Drawer)
   const FilterPanel = () => (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -200,6 +224,7 @@ export default function ProductsPage() {
         )}
       </div>
 
+      {/* Lọc danh mục sản phẩm */}
       <section>
         <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-dark-text mb-3">
           Danh mục
@@ -229,6 +254,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
+      {/* Lọc khoảng giá */}
       <section>
         <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-dark-text mb-3">
           Khoảng giá
@@ -272,6 +298,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
+      {/* Lọc thương hiệu (hãng sản xuất) */}
       <section>
         <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-dark-text mb-3">
           Thương hiệu
@@ -298,6 +325,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
+      {/* Lọc trạng thái tồn kho / khuyến mãi */}
       <section>
         <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-dark-text mb-3">
           Trạng thái
@@ -328,6 +356,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-cream">
+      {/* Header trang cửa hàng */}
       <section className="bg-white border-b border-soft-gray">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -362,15 +391,19 @@ export default function ProductsPage() {
         </div>
       </section>
 
+      {/* Grid nội dung cửa hàng */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex gap-8">
+          {/* Sidebar lọc dành cho Desktop */}
           <aside className="hidden lg:block w-72 shrink-0">
             <div className="sticky top-24 border-r border-soft-gray pr-6">
               <FilterPanel />
             </div>
           </aside>
 
+          {/* Cột sản phẩm bên phải */}
           <main className="flex-1 min-w-0">
+            {/* Thanh tìm kiếm và sắp xếp */}
             <div className="flex flex-col gap-4 mb-5 xl:flex-row xl:items-center">
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-gray" />
@@ -390,6 +423,7 @@ export default function ProductsPage() {
                   options={SORT_OPTIONS}
                   className="flex-1 sm:w-56"
                 />
+                {/* Nút kích hoạt bộ lọc Slide-over trên thiết bị di động */}
                 <button
                   type="button"
                   onClick={() => setFilterOpen(true)}
@@ -401,6 +435,7 @@ export default function ProductsPage() {
               </div>
             </div>
 
+            {/* Danh sách các Tag lọc đang được áp dụng */}
             <div className="flex flex-col gap-4 mb-7">
               <div className="flex items-center justify-between gap-4">
                 <p className="font-sans text-xs text-muted-gray uppercase tracking-wider">
@@ -428,12 +463,14 @@ export default function ProductsPage() {
               )}
             </div>
 
+            {/* Trạng thái hiển thị sản phẩm hoặc tải trang */}
             {isError ? (
               <div className="border border-soft-gray bg-white py-16 text-center">
                 <p className="font-serif text-lg text-dark-text mb-2">Không thể tải sản phẩm</p>
                 <p className="font-sans text-sm text-muted-gray">Vui lòng thử lại sau.</p>
               </div>
             ) : isLoading ? (
+              /* Giao diện Skeleton Loading */
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
                 {Array.from({ length: 8 }).map((_, index) => (
                   <div key={index} className="animate-pulse bg-white border border-soft-gray">
@@ -447,6 +484,7 @@ export default function ProductsPage() {
                 ))}
               </div>
             ) : products.length === 0 ? (
+              /* Giao diện khi không có sản phẩm nào */
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -461,6 +499,7 @@ export default function ProductsPage() {
                 </button>
               </motion.div>
             ) : (
+              /* Lưới hiển thị danh sách sản phẩm thật */
               <motion.div
                 key={`${page}-${category}-${search}-${brands.join('-')}-${minPrice}-${maxPrice}-${inStock}-${saleOnly}`}
                 initial={{ opacity: 0 }}
@@ -474,6 +513,7 @@ export default function ProductsPage() {
               </motion.div>
             )}
 
+            {/* Thanh điều hướng phân trang */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-12">
                 <button
@@ -486,6 +526,7 @@ export default function ProductsPage() {
                   <ChevronLeft size={18} />
                 </button>
 
+                {/* Thuật toán hiển thị số trang có dấu ba chấm (...) rút gọn */}
                 {Array.from({ length: totalPages }, (_, index) => index + 1)
                   .filter((item) => item === 1 || item === totalPages || Math.abs(item - page) <= 2)
                   .reduce<(number | '...')[]>((acc, item, index, arr) => {
@@ -525,6 +566,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* Drawer trượt lọc bên trái dành cho Mobile */}
       {filterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
