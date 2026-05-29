@@ -1,8 +1,13 @@
 """Seed sample data into the database."""
+# File: backend/app/seed.py
+# Nhiệm vụ: Đổ dữ liệu mẫu ban đầu (seed data) vào cơ sở dữ liệu để phục vụ kiểm thử và phát triển.
+# Bao gồm: Danh mục, Sản phẩm, Tài khoản người dùng (Admin & Customer), Đơn hàng mẫu và Đánh giá mẫu.
+
 import os
 import sys
 from datetime import datetime, timedelta
 
+# Thêm thư mục gốc vào PYTHONPATH để import được các module từ app
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.core.database import SessionLocal
@@ -15,14 +20,18 @@ from app.models.review import Review
 
 
 def seed():
+    """Thực hiện chèn dữ liệu mẫu vào database."""
     db = SessionLocal()
     try:
+        # Kiểm tra tham số dòng lệnh để quyết định có xóa sạch dữ liệu cũ và nạp lại hay không
         force_clean = "--force" in sys.argv or "-f" in sys.argv
         
+        # Nếu đã có dữ liệu và không yêu cầu force_clean, bỏ qua tiến trình seed
         if db.query(User).count() > 0 and not force_clean:
             print("Database already seeded. Skipping. Use --force or -f to re-seed.")
             return
 
+        # Tiến hành làm sạch toàn bộ bảng nếu có cờ -f hoặc --force
         if force_clean:
             print("Cleaning existing data...")
             from app.models.cart import CartItem
@@ -616,12 +625,15 @@ def seed():
         print("    Customer2: minh@example.com        / Customer@2026")
 
     except Exception as e:
+        # Rollback giao dịch nếu có bất kỳ lỗi nào xảy ra trong quá trình seed
         db.rollback()
         print(f"✗ Error seeding: {e}")
         raise
     finally:
+        # Đảm bảo đóng kết nối cơ sở dữ liệu
         db.close()
 
 
 if __name__ == "__main__":
+    # Chạy hàm seed khi file được thực thi trực tiếp
     seed()

@@ -1,3 +1,6 @@
+// File: frontend/src/store/cartStore.ts
+// Nhiệm vụ: Zustand store quản lý giỏ hàng cục bộ (local cart) và đồng bộ với giỏ hàng trên DB của người dùng.
+
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { CartItem, Product } from '../types'

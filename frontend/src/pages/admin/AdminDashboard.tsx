@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminDashboard.tsx
+// Nhiệm vụ: Bảng thống kê chi tiết dành cho Admin: doanh thu, lượng đơn hàng, số khách hàng, biểu đồ cột Recharts sản phẩm bán chạy và danh sách đơn hàng mới đặt.
+
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
@@ -10,6 +13,7 @@ import { Link } from 'react-router-dom'
 import { adminApi } from '../../api/endpoints'
 import type { Order } from '../../types'
 import { formatPrice } from '../../utils/format'
+
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending: { label: 'Chờ xác nhận', color: 'bg-amber-100 text-amber-700' },

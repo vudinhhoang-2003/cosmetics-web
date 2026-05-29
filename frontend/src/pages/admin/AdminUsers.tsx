@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminUsers.tsx
+// Nhiệm vụ: Trang quản trị tài khoản người dùng (User Management) dành cho Admin: hiển thị danh sách, tìm kiếm và kích hoạt/vô hiệu hóa tài khoản.
+
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -5,6 +8,7 @@ import { Users, ToggleRight, ToggleLeft, Search, ShieldCheck, User, RefreshCw, C
 import toast from 'react-hot-toast'
 import { adminApi } from '../../api/endpoints'
 import type { User as UserType } from '../../types'
+
 
 const PAGE_SIZE = 20
 

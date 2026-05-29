@@ -1,3 +1,6 @@
+// File: frontend/src/pages/CheckoutPage.tsx
+// Nhiệm vụ: Trang đặt hàng và điền thông tin giao nhận, tích hợp các tùy chọn thanh toán COD hoặc chuyển khoản online qua PayOS.
+
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'

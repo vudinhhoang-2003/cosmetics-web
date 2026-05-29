@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminProducts.tsx
+// Nhiệm vụ: Trang quản trị danh sách sản phẩm (Product Management) cho Admin: Bộ lọc nâng cao, Phân trang, Tìm kiếm, Thêm/Sửa/Xóa sản phẩm, Tải ảnh lên và Tính giá khuyến mãi.
+
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -11,6 +14,7 @@ import { adminApi, categoryApi, productApi, uploadApi } from '../../api/endpoint
 import Select from '../../components/Select'
 import type { Category, Product } from '../../types'
 import { formatPrice } from '../../utils/format'
+
 
 interface ProductForm {
   name: string

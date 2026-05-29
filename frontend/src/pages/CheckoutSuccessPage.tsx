@@ -1,3 +1,6 @@
+// File: frontend/src/pages/CheckoutSuccessPage.tsx
+// Nhiệm vụ: Trang thông báo thanh toán online (chuyển khoản) thành công qua cổng PayOS, hiển thị mã đơn hàng và thông tin xác thực giao dịch.
+
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle, ShoppingBag, ClipboardList, ShieldCheck } from 'lucide-react'

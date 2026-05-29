@@ -1,3 +1,6 @@
+// File: frontend/src/pages/OrderSuccessPage.tsx
+// Nhiệm vụ: Trang thông báo đặt hàng COD thành công, cung cấp mã đơn hàng, thời gian đặt và các bước tiếp theo cho khách hàng.
+
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle, ShoppingBag, ClipboardList } from 'lucide-react'

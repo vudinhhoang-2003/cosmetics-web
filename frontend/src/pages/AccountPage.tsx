@@ -1,3 +1,6 @@
+// File: frontend/src/pages/AccountPage.tsx
+// Nhiệm vụ: Trang cá nhân của khách hàng, cho phép quản lý thông tin cá nhân, đổi mật khẩu, xem lịch sử đặt hàng và trạng thái đơn hàng.
+
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -9,6 +12,7 @@ import { userApi, orderApi } from '../api/endpoints'
 import { useAuthStore } from '../store/authStore'
 import type { Order } from '../types'
 import { formatPrice, formatDateTime } from '../utils/format'
+
 
 type Tab = 'profile' | 'orders'
 

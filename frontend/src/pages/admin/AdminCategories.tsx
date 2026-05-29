@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminCategories.tsx
+// Nhiệm vụ: Trang quản trị danh mục sản phẩm (Category Management): Hiển thị danh sách, thêm, sửa, xóa danh mục và tải ảnh lên máy chủ.
+
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'

@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminOrders.tsx
+// Nhiệm vụ: Trang quản trị đơn hàng (Order Management) dành cho Admin: Bộ lọc trạng thái, tìm kiếm nâng cao, cập nhật trạng thái đơn hàng (Confirmed, Shipping, Delivered, Cancelled) và xem chi tiết đơn hàng.
+
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,6 +14,7 @@ import type { Order } from '../../types'
 import { formatPrice, formatDateTime } from '../../utils/format'
 import Select from '../../components/Select'
 import { useSearchParams } from 'react-router-dom'
+
 
 function OrderRowImage({ src, name }: { src?: string; name: string }) {
   const [error, setError] = useState(false)

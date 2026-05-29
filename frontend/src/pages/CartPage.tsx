@@ -1,3 +1,6 @@
+// File: frontend/src/pages/CartPage.tsx
+// Nhiệm vụ: Trang giỏ hàng, cho phép người dùng xem giỏ hàng, cập nhật số lượng, xóa sản phẩm và tích chọn thanh toán bất kỳ sản phẩm nào.
+
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -10,6 +13,7 @@ import { useAuthStore } from '../store/authStore'
 import type { CartItem } from '../types'
 import { formatPrice } from '../utils/format'
 
+// Ngưỡng đạt điều kiện miễn phí vận chuyển (500.000 đ)
 const FREE_SHIP_THRESHOLD = 500000
 
 export default function CartPage() {
@@ -19,6 +23,7 @@ export default function CartPage() {
   const queryClient = useQueryClient()
   // Quản lý danh sách ID các sản phẩm được người dùng tích chọn thanh toán trong giỏ hàng
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
+
 
   // Khi danh sách sản phẩm trong giỏ hàng được load lần đầu, mặc định tích chọn toàn bộ sản phẩm
   useEffect(() => {
@@ -33,17 +38,19 @@ export default function CartPage() {
     setSelectedItemIds(prev => prev.filter(id => items.some(item => item.id === id)))
   }, [items])
 
-  // Sync cart with server when authenticated
+  // Đồng bộ giỏ hàng từ server khi người dùng đã đăng nhập thành công
   const { data: serverCart } = useQuery({
     queryKey: ['cart'],
     queryFn: () => cartApi.get().then((r) => r.data),
     enabled: isAuthenticated,
   })
 
+  // Khi có dữ liệu giỏ hàng từ server, đồng bộ vào Zustand store cục bộ
   useEffect(() => {
     if (serverCart) setItems(serverCart.items)
   }, [serverCart])
 
+  // Mutation cập nhật số lượng của một sản phẩm trong giỏ hàng lên database
   const updateMutation = useMutation({
     mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
       cartApi.update(id, quantity),
@@ -53,6 +60,7 @@ export default function CartPage() {
     onError: () => toast.error('Không thể cập nhật giỏ hàng'),
   })
 
+  // Mutation xóa sản phẩm ra khỏi giỏ hàng trên database
   const removeMutation = useMutation({
     mutationFn: (id: string) => cartApi.remove(id),
     onSuccess: (_, id) => {
@@ -63,6 +71,7 @@ export default function CartPage() {
     onError: () => toast.error('Không thể xóa sản phẩm'),
   })
 
+  // Hàm xử lý tăng/giảm số lượng sản phẩm
   const handleQuantityChange = (item: CartItem, delta: number) => {
     const newQty = item.quantity + delta
     if (newQty < 1) return
@@ -70,6 +79,7 @@ export default function CartPage() {
       toast.error('Không đủ hàng trong kho')
       return
     }
+    // Nếu đã đăng nhập thì đồng bộ với backend, ngược lại chỉ cập nhật Zustand local
     if (isAuthenticated) {
       updateMutation.mutate({ id: item.id, quantity: newQty })
     } else {
@@ -77,6 +87,7 @@ export default function CartPage() {
     }
   }
 
+  // Hàm xử lý xóa sản phẩm ra khỏi giỏ hàng
   const handleRemove = (item: CartItem) => {
     if (isAuthenticated) {
       removeMutation.mutate(item.id)
@@ -86,13 +97,17 @@ export default function CartPage() {
     }
   }
 
+  // Tính tổng số tiền của các mặt hàng đang được lựa chọn (tích chọn)
   const subtotal = items
     .filter(item => selectedItemIds.includes(item.id))
     .reduce((sum, item) => {
       const price = item.product?.sale_price ?? item.product?.price ?? 0
       return sum + price * item.quantity
     }, 0)
+    
+  // Tính phí vận chuyển: Miễn phí nếu tổng hóa đơn >= FREE_SHIP_THRESHOLD, ngược lại là 30.000 đ
   const shipping = selectedItemIds.length > 0 && subtotal >= FREE_SHIP_THRESHOLD ? 0 : (selectedItemIds.length > 0 ? 30000 : 0)
+
   const grandTotal = subtotal + shipping
 
   if (items.length === 0) {
