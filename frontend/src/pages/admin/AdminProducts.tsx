@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminProducts.tsx
+// Nhiệm vụ: Trang quản trị danh sách sản phẩm (Product Management) cho Admin: Bộ lọc nâng cao, Phân trang, Tìm kiếm, Thêm/Sửa/Xóa sản phẩm, Tải ảnh lên và Tính giá khuyến mãi.
+
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -12,6 +15,7 @@ import Select from '../../components/Select'
 import type { Category, Product } from '../../types'
 import { formatPrice } from '../../utils/format'
 
+
 interface ProductForm {
   name: string
   slug: string
@@ -23,6 +27,27 @@ interface ProductForm {
   category_id: string
   images: string
   is_active: boolean
+}
+
+function ProductRowImage({ src, name }: { src?: string; name: string }) {
+  const [error, setError] = useState(false)
+
+  if (!src || error) {
+    return (
+      <div className="w-12 h-12 bg-beige border border-soft-gray/30 flex items-center justify-center rounded-sm shrink-0" title={name}>
+        <Package size={16} className="text-gold/50" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setError(true)}
+      className="w-12 h-12 object-cover bg-beige rounded-sm shrink-0"
+    />
+  )
 }
 
 const PAGE_SIZE = 20
@@ -64,10 +89,13 @@ function getImages(value: string) {
 
 export default function AdminProducts() {
   const queryClient = useQueryClient()
+  // Trạng thái modal Thêm/Sửa sản phẩm
   const [modalOpen, setModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
   const [uploading, setUploading] = useState(false)
+  
+  // Trạng thái bộ lọc và phân trang
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -75,23 +103,28 @@ export default function AdminProducts() {
   const [sort, setSort] = useState('newest')
   const [stockFilter, setStockFilter] = useState('all')
   const [saleFilter, setSaleFilter] = useState('all')
+  
+  // Trạng thái dropdown lọc danh mục và nhập phần trăm giảm giá nhanh
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [discountPercent, setDiscountPercent] = useState<number | ''>('')
 
+  // Tự động debounce từ khóa tìm kiếm sản phẩm sau 300ms
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(search.trim())
-      setPage(1)
+      setPage(1) // Trở lại trang 1 khi lọc mới
     }, 300)
     return () => window.clearTimeout(timer)
   }, [search])
 
+  // Lấy danh sách các danh mục có sẵn
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryApi.list().then((r) => r.data),
   })
   const categories: Category[] = categoriesData || []
 
+  // Truy vấn danh sách sản phẩm quản trị (tự động reload khi thay đổi tham số lọc)
   const { data: productsData, isLoading, isFetching, isError } = useQuery({
     queryKey: ['admin-products', page, debouncedSearch, categoryFilter, sort, stockFilter, saleFilter],
     queryFn: () =>
@@ -106,6 +139,7 @@ export default function AdminProducts() {
       }).then((r) => r.data),
   })
 
+  // Lọc sản phẩm cục bộ dựa trên trạng thái tồn kho (Sắp hết hàng / Hết hàng)
   const products = useMemo(() => {
     const items = productsData?.items || []
     if (stockFilter === 'low_stock') {
@@ -117,11 +151,13 @@ export default function AdminProducts() {
     return items
   }, [productsData?.items, stockFilter])
 
+  // Tính toán số liệu phân trang và thống kê nhanh
   const total = productsData?.total || 0
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const activeCount = products.filter((product) => product.is_active).length
   const lowStockCount = products.filter((product) => product.stock > 0 && product.stock <= LOW_STOCK_LIMIT).length
   const outStockCount = products.filter((product) => product.stock === 0).length
+
 
   const {
     register,
@@ -461,10 +497,9 @@ export default function AdminProducts() {
                 products.map((product) => (
                   <tr key={product.id} className="hover:bg-beige/30 transition-colors">
                     <td className="px-4 py-3">
-                      <img
+                      <ProductRowImage
                         src={product.images?.[0] || 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=80'}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover bg-beige rounded-sm"
+                        name={product.name}
                       />
                     </td>
                     <td className="px-4 py-3">

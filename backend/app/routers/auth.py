@@ -10,6 +10,12 @@ router = APIRouter(tags=["auth"])
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(data: UserCreate, db: Session = Depends(get_db)):
+    """
+    API đăng ký tài khoản khách hàng mới.
+    - Kiểm tra xem Email đã tồn tại trong DB chưa.
+    - Tạo người dùng mới và băm mật khẩu.
+    - Cấp phát cặp đôi JWT Access Token và Refresh Token ngay lập tức.
+    """
     if crud_user.get_by_email(db, data.email):
         raise HTTPException(status_code=400, detail="Email already registered")
     new_user = crud_user.create(db, data)
@@ -20,6 +26,12 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(data: UserLogin, db: Session = Depends(get_db)):
+    """
+    API đăng nhập cho khách hàng và Admin.
+    - So khớp email và mật khẩu trong DB.
+    - Kiểm tra xem tài khoản có đang hoạt động (active) hay không.
+    - Cấp mới Access Token (hiệu lực ngắn) và Refresh Token (hiệu lực dài) để duy trì phiên đăng nhập.
+    """
     u = crud_user.authenticate(db, data.email, data.password)
     if not u:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -32,6 +44,11 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/refresh", response_model=dict)
 def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+    """
+    API làm mới Access Token mà không cần người dùng nhập lại mật khẩu.
+    - Xác thực chữ ký và thời hạn của Refresh Token.
+    - Trả về Access Token mới nếu Refresh Token hợp lệ.
+    """
     payload = decode_token(refresh_token)
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
@@ -40,3 +57,4 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="User not found")
     new_access = create_access_token({"sub": str(user.id)})
     return {"access_token": new_access, "token_type": "bearer"}
+

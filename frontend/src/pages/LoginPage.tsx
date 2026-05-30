@@ -14,31 +14,46 @@ interface LoginForm {
 }
 
 export default function LoginPage() {
+  /**
+   * Trang Đăng Nhập dành cho Khách Hàng.
+   * - Sử dụng react-hook-form để thu thập dữ liệu và báo lỗi nhanh.
+   * - Hỗ trợ ẩn/hiển thị mật khẩu linh hoạt.
+   * - Tự động ghi nhớ trạng thái đăng nhập vào Zustand useAuthStore.
+   * - Điều hướng khách hàng về lại trang trước đó đang đọc (ví dụ /cart) sau khi login thành công.
+   */
   const navigate = useNavigate()
   const location = useLocation()
   const { setAuth, isAuthenticated } = useAuthStore()
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false) // Trạng thái ẩn/hiện mật khẩu
+  const [isLoading, setIsLoading] = useState(false)       // Trạng thái chờ gọi API đăng nhập
 
+  // Lấy đường dẫn trang trước đó (Redirect Back)
   const from = (location.state as { from?: string })?.from || '/'
 
+  // Khởi tạo các hook xác thực form từ react-hook-form
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>()
 
+  // Nếu người dùng đã đăng nhập sẵn rồi, tự động chuyển về trang cũ
   useEffect(() => {
     if (isAuthenticated) navigate(from, { replace: true })
   }, [isAuthenticated])
 
+  // Hàm xử lý gửi form đăng nhập lên Backend
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
     try {
       const res = await authApi.login(data.email, data.password)
       const { access_token, refresh_token, user } = res.data
+      
+      // Lưu thông tin xác thực vào Zustand Store
       setAuth(user, access_token, refresh_token)
       toast.success(`Xin chào, ${user.full_name || user.email}!`)
+      
+      // Nếu là tài khoản Admin thì chuyển đến trang quản trị /admin
       navigate(user.role === 'admin' ? '/admin' : from, { replace: true })
     } catch (err: any) {
       const status = err?.response?.status
@@ -59,7 +74,7 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="bg-white border border-soft-gray w-full max-w-md p-10"
       >
-        {/* Logo */}
+        {/* Tiêu đề & Logo */}
         <div className="text-center mb-10">
           <Link to="/">
             <h1 className="font-serif text-3xl text-dark-text tracking-widest">LUXE BEAUTY</h1>
@@ -70,8 +85,9 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Biểu mẫu đăng nhập */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Email */}
+          {/* Nhập Email */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Email <span className="text-red-500">*</span>
@@ -96,7 +112,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Password */}
+          {/* Nhập Mật khẩu */}
           <div>
             <label className="font-sans text-sm text-muted-gray mb-1.5 block">
               Mật khẩu <span className="text-red-500">*</span>
@@ -112,6 +128,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 className="input-field pl-10 pr-10 w-full"
               />
+              {/* Nút bật/tắt hiển thị mật khẩu bằng mắt */}
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
@@ -125,7 +142,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Submit */}
+          {/* Nút submit gửi form */}
           <button
             type="submit"
             disabled={isLoading}
@@ -142,7 +159,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Footer links */}
+        {/* Chuyển sang trang đăng ký nếu chưa có tài khoản */}
         <div className="mt-8 text-center space-y-3">
           <p className="font-sans text-sm text-muted-gray">
             Chưa có tài khoản?{' '}

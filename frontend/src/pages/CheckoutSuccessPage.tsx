@@ -1,3 +1,6 @@
+// File: frontend/src/pages/CheckoutSuccessPage.tsx
+// Nhiệm vụ: Trang thông báo thanh toán online (chuyển khoản) thành công qua cổng PayOS, hiển thị mã đơn hàng và thông tin xác thực giao dịch.
+
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle, ShoppingBag, ClipboardList, ShieldCheck } from 'lucide-react'
@@ -5,6 +8,7 @@ import { CheckCircle, ShoppingBag, ClipboardList, ShieldCheck } from 'lucide-rea
 export default function CheckoutSuccessPage() {
   const [searchParams] = useSearchParams()
   const orderCode = searchParams.get('order_code')
+  const orderId = searchParams.get('order_id')
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-6 py-20">
@@ -90,7 +94,7 @@ export default function CheckoutSuccessPage() {
           className="flex flex-col sm:flex-row gap-4"
         >
           <Link
-            to="/account"
+            to={orderId ? `/account?order_id=${orderId}` : (orderCode ? `/account?order_code=${orderCode}` : '/account')}
             className="btn-navy flex items-center justify-center gap-2 py-3 flex-1"
           >
             <ClipboardList size={16} />

@@ -1,3 +1,7 @@
+// File: frontend/src/types/index.ts
+// Nhiệm vụ: Khai báo toàn bộ các TypeScript Interfaces dùng chung cho hệ thống Frontend.
+
+/** Đại diện cho Danh mục sản phẩm (Category) */
 export interface Category {
   id: string
   name: string
@@ -5,6 +9,7 @@ export interface Category {
   image_url?: string
 }
 
+/** Đại diện cho một Sản phẩm (Product) */
 export interface Product {
   id: string
   name: string
@@ -23,6 +28,7 @@ export interface Product {
   review_count?: number
 }
 
+/** Danh sách sản phẩm trả về kèm thông tin phân trang */
 export interface ProductList {
   items: Product[]
   total: number
@@ -30,6 +36,7 @@ export interface ProductList {
   limit: number
 }
 
+/** Đại diện cho một tài khoản Người dùng (User) */
 export interface User {
   id: string
   email: string
@@ -40,6 +47,7 @@ export interface User {
   created_at: string
 }
 
+/** Token xác thực nhận được khi Đăng nhập / Đăng ký thành công */
 export interface Token {
   access_token: string
   refresh_token: string
@@ -47,6 +55,7 @@ export interface Token {
   user: User
 }
 
+/** Mặt hàng nằm trong giỏ hàng (CartItem) */
 export interface CartItem {
   id: string
   product_id: string
@@ -54,11 +63,13 @@ export interface CartItem {
   product: Product
 }
 
+/** Giỏ hàng của người dùng */
 export interface Cart {
   items: CartItem[]
   total: number
 }
 
+/** Chi tiết từng mặt hàng đã mua trong đơn hàng */
 export interface OrderItem {
   id: string
   product_id: string
@@ -68,6 +79,7 @@ export interface OrderItem {
   image_url?: string
 }
 
+/** Đơn đặt hàng (Order) */
 export interface Order {
   id: string
   user_id: string
@@ -81,6 +93,7 @@ export interface Order {
   items: OrderItem[]
 }
 
+/** Thông tin địa chỉ nhận hàng của khách hàng */
 export interface ShippingAddress {
   full_name: string
   phone: string
@@ -90,6 +103,7 @@ export interface ShippingAddress {
   note?: string
 }
 
+/** Đánh giá sản phẩm (Review) */
 export interface Review {
   id: string
   user_id: string
@@ -100,6 +114,7 @@ export interface Review {
   user_name?: string
 }
 
+/** Thống kê số liệu dành riêng cho Dashboard của Admin */
 export interface AdminStats {
   total_revenue: number
   in_progress_revenue: number
@@ -118,3 +133,4 @@ export interface AdminStats {
   top_products: { name: string; total_sold: number }[]
   low_stock_items: { name: string; stock: number }[]
 }
+

@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminLoginPage.tsx
+// Nhiệm vụ: Trang đăng nhập độc lập dành cho Quản trị viên (Super Admin / Admin), kiểm tra quyền 'admin' trước khi cho phép điều hướng vào trang quản lý.
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -5,6 +8,7 @@ import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { authApi } from '../../api/endpoints'
 import { useAdminAuthStore } from '../../store/authStore'
+
 
 interface LoginForm {
   email: string

@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminCategories.tsx
+// Nhiệm vụ: Trang quản trị danh mục sản phẩm (Category Management): Hiển thị danh sách, thêm, sửa, xóa danh mục và tải ảnh lên máy chủ.
+
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -11,6 +14,29 @@ interface CategoryForm {
   name: string
   slug: string
   image_url: string
+}
+
+function CategoryRowImage({ src, name }: { src?: string; name: string }) {
+  const [error, setError] = useState(false)
+
+  if (!src || error) {
+    return (
+      <div className="w-12 h-12 bg-beige border border-soft-gray/30 flex items-center justify-center rounded-none shrink-0" title={name}>
+        <Tag size={16} className="text-gold/55" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-12 h-12 border border-soft-gray/60 p-0.5 bg-white shadow-sm shrink-0">
+      <img
+        src={src}
+        alt={name}
+        onError={() => setError(true)}
+        className="w-full h-full object-cover rounded-none"
+      />
+    </div>
+  )
 }
 
 export default function AdminCategories() {
@@ -43,19 +69,20 @@ export default function AdminCategories() {
 
   const watchName = watch('name') || ''
 
-  // Auto-generate slug from name when name is updated
+  // Tự động chuyển đổi tên danh mục thành đường dẫn thân thiện (Slug) khi thay đổi tên
   const generateSlug = () => {
     const slug = watchName
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .normalize('NFD') // Chuyển đổi ký tự Unicode tổ hợp sang dựng sẵn
+      .replace(/[\u0300-\u036f]/g, '') // Loại bỏ dấu tiếng Việt
       .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '') // Loại bỏ các ký tự đặc biệt
       .trim()
-      .replace(/\s+/g, '-')
+      .replace(/\s+/g, '-') // Thay thế khoảng trắng bằng dấu gạch ngang
     setValue('slug', slug)
   }
 
+  // Xử lý sự kiện upload hình ảnh danh mục lên server
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -75,18 +102,21 @@ export default function AdminCategories() {
     }
   }
 
+  // Mở modal thêm danh mục mới
   const openAdd = () => {
     setEditingCategory(null)
     reset({ name: '', slug: '', image_url: '' })
     setModalOpen(true)
   }
 
+  // Mở modal sửa thông tin danh mục hiện tại
   const openEdit = (cat: Category) => {
     setEditingCategory(cat)
     reset({ name: cat.name, slug: cat.slug, image_url: cat.image_url || '' })
     setModalOpen(true)
   }
 
+  // Mutation tạo danh mục mới
   const createMutation = useMutation({
     mutationFn: (data: CategoryForm) =>
       categoryApi.create({ name: data.name, slug: data.slug, image_url: data.image_url || undefined }),
@@ -98,6 +128,7 @@ export default function AdminCategories() {
     onError: () => toast.error('Không thể thêm danh mục'),
   })
 
+  // Mutation cập nhật danh mục đã có
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: CategoryForm }) =>
       categoryApi.update(id, { name: data.name, slug: data.slug, image_url: data.image_url || undefined }),
@@ -109,6 +140,7 @@ export default function AdminCategories() {
     onError: () => toast.error('Không thể cập nhật danh mục'),
   })
 
+  // Mutation xóa danh mục khỏi hệ thống
   const deleteMutation = useMutation({
     mutationFn: (id: string) => categoryApi.delete(id),
     onSuccess: () => {
@@ -200,21 +232,9 @@ export default function AdminCategories() {
                     key={cat.id}
                     className="hover:bg-beige/25 transition-colors"
                   >
-                    <td className="px-6 py-4">
-                      {cat.image_url ? (
-                        <div className="w-12 h-12 border border-soft-gray/60 p-0.5 bg-white shadow-sm shrink-0">
-                          <img
-                            src={cat.image_url}
-                            alt={cat.name}
-                            className="w-full h-full object-cover rounded-none"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 bg-beige border border-soft-gray/30 flex items-center justify-center rounded-none shrink-0">
-                          <Tag size={16} className="text-gold/55" />
-                        </div>
-                      )}
-                    </td>
+                     <td className="px-6 py-4">
+                       <CategoryRowImage src={cat.image_url} name={cat.name} />
+                     </td>
                     <td className="px-6 py-4">
                       <p className="font-semibold text-dark-text">{cat.name}</p>
                     </td>

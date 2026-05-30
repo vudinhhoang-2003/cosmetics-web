@@ -6,7 +6,7 @@ import { cartApi } from './api/endpoints'
 import Layout from './components/Layout'
 import AdminLayout from './components/AdminLayout'
 
-// Customer pages
+// Các trang dành cho Khách hàng
 import HomePage from './pages/HomePage'
 import ProductsPage from './pages/ProductsPage'
 import ProductDetailPage from './pages/ProductDetailPage'
@@ -20,7 +20,7 @@ import CheckoutSuccessPage from './pages/CheckoutSuccessPage'
 import CheckoutCancelPage from './pages/CheckoutCancelPage'
 import CheckoutMockPaymentPage from './pages/CheckoutMockPaymentPage'
 
-// Admin pages
+// Các trang quản lý dành cho Admin
 import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
@@ -28,7 +28,7 @@ import AdminOrders from './pages/admin/AdminOrders'
 import AdminCategories from './pages/admin/AdminCategories'
 import AdminUsers from './pages/admin/AdminUsers'
 
-// Sync giỏ hàng từ server ngay khi đăng nhập để cập nhật số lượng trên icon Navbar
+// Thành phần phụ hỗ trợ đồng bộ giỏ hàng từ server ngay khi đăng nhập thành công
 function CartSyncer() {
   const { isAuthenticated } = useAuthStore()
   const { setItems } = useCartStore()
@@ -44,11 +44,13 @@ function CartSyncer() {
   return null
 }
 
+// Bộ bọc bảo vệ định tuyến dành cho Khách hàng (yêu cầu đăng nhập trước khi truy cập)
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />
 }
 
+// Bộ bọc bảo vệ định tuyến dành cho Admin (yêu cầu quyền quản trị viên)
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isAdmin } = useAdminAuthStore()
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />
@@ -59,15 +61,20 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <>
+      {/* Kích hoạt tự động đồng bộ giỏ hàng */}
       <CartSyncer />
+      
+      {/* Thiết lập cấu hình định tuyến cho toàn bộ ứng dụng */}
       <Routes>
-        {/* Customer routes */}
+        {/* Nhóm các định tuyến dành cho Khách hàng được hiển thị dưới dạng Layout (Navbar & Footer) */}
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:slug" element={<ProductDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          
+          {/* Các trang yêu cầu đăng nhập tài khoản khách hàng */}
           <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
           <Route
             path="/checkout"
@@ -95,8 +102,10 @@ export default function App() {
           />
         </Route>
 
-        {/* Admin routes */}
+        {/* Định tuyến đăng nhập Admin */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
+        
+        {/* Nhóm định tuyến quản trị hệ thống Admin (yêu cầu quyền Admin và bọc trong AdminLayout) */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
@@ -108,4 +117,5 @@ export default function App() {
     </>
   )
 }
+
 

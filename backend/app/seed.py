@@ -1,8 +1,13 @@
 """Seed sample data into the database."""
+# File: backend/app/seed.py
+# Nhiệm vụ: Đổ dữ liệu mẫu ban đầu (seed data) vào cơ sở dữ liệu để phục vụ kiểm thử và phát triển.
+# Bao gồm: Danh mục, Sản phẩm, Tài khoản người dùng (Admin & Customer), Đơn hàng mẫu và Đánh giá mẫu.
+
 import os
 import sys
 from datetime import datetime, timedelta
 
+# Thêm thư mục gốc vào PYTHONPATH để import được các module từ app
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.core.database import SessionLocal
@@ -15,11 +20,29 @@ from app.models.review import Review
 
 
 def seed():
+    """Thực hiện chèn dữ liệu mẫu vào database."""
     db = SessionLocal()
     try:
-        if db.query(User).count() > 0:
-            print("Database already seeded. Skipping.")
+        # Kiểm tra tham số dòng lệnh để quyết định có xóa sạch dữ liệu cũ và nạp lại hay không
+        force_clean = "--force" in sys.argv or "-f" in sys.argv
+        
+        # Nếu đã có dữ liệu và không yêu cầu force_clean, bỏ qua tiến trình seed
+        if db.query(User).count() > 0 and not force_clean:
+            print("Database already seeded. Skipping. Use --force or -f to re-seed.")
             return
+
+        # Tiến hành làm sạch toàn bộ bảng nếu có cờ -f hoặc --force
+        if force_clean:
+            print("Cleaning existing data...")
+            from app.models.cart import CartItem
+            db.query(Review).delete()
+            db.query(CartItem).delete()
+            db.query(OrderItem).delete()
+            db.query(Order).delete()
+            db.query(Product).delete()
+            db.query(Category).delete()
+            db.query(User).delete()
+            db.commit()
 
         print("Seeding database...")
 
@@ -491,13 +514,18 @@ def seed():
             },
         ]
 
-        for od in orders_data:
+        import random
+        base_code = 100000000
+        for i, od in enumerate(orders_data):
             items_spec = od.pop("items")
-            total = sum(
+            subtotal = sum(
                 int(products[idx].sale_price or products[idx].price) * qty
                 for idx, qty in items_spec
             )
-            order = Order(total_price=total, **od)
+            shipping_fee = 0 if subtotal >= 500000 else 30000
+            total = subtotal + shipping_fee
+            order_code = base_code + i + random.randint(1000, 9999)
+            order = Order(total_price=total, order_code=order_code, **od)
             db.add(order)
             db.flush()
 
@@ -597,12 +625,15 @@ def seed():
         print("    Customer2: minh@example.com        / Customer@2026")
 
     except Exception as e:
+        # Rollback giao dịch nếu có bất kỳ lỗi nào xảy ra trong quá trình seed
         db.rollback()
         print(f"✗ Error seeding: {e}")
         raise
     finally:
+        # Đảm bảo đóng kết nối cơ sở dữ liệu
         db.close()
 
 
 if __name__ == "__main__":
+    # Chạy hàm seed khi file được thực thi trực tiếp
     seed()

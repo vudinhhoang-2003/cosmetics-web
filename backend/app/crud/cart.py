@@ -6,14 +6,17 @@ import uuid
 
 
 def get_user_cart(db: Session, user_id) -> List[CartItem]:
+    """Lấy danh sách toàn bộ các mục sản phẩm trong giỏ hàng của một người dùng cụ thể."""
     return db.query(CartItem).filter(CartItem.user_id == user_id).all()
 
 
 def get_item(db: Session, item_id, user_id) -> Optional[CartItem]:
+    """Tìm một mục giỏ hàng cụ thể bằng ID của nó và ID của người dùng (để đảm bảo tính phân quyền)."""
     return db.query(CartItem).filter(CartItem.id == item_id, CartItem.user_id == user_id).first()
 
 
 def get_product_item(db: Session, user_id, product_id) -> Optional[CartItem]:
+    """Tìm mục giỏ hàng bằng cặp ID người dùng và ID sản phẩm (dùng để kiểm tra sản phẩm đã có trong giỏ chưa)."""
     return db.query(CartItem).filter(
         CartItem.user_id == user_id,
         CartItem.product_id == product_id,
@@ -21,6 +24,11 @@ def get_product_item(db: Session, user_id, product_id) -> Optional[CartItem]:
 
 
 def add_item(db: Session, user_id, product_id, quantity: int) -> CartItem:
+    """
+    Thêm một sản phẩm vào giỏ hàng.
+    Nếu sản phẩm đã tồn tại trong giỏ hàng thì cộng thêm số lượng mới vào số lượng cũ.
+    Nếu chưa tồn tại thì tạo một mục giỏ hàng mới.
+    """
     existing = db.query(CartItem).filter(
         CartItem.user_id == user_id,
         CartItem.product_id == product_id
@@ -30,6 +38,7 @@ def add_item(db: Session, user_id, product_id, quantity: int) -> CartItem:
         db.commit()
         db.refresh(existing)
         return existing
+    
     item = CartItem(user_id=user_id, product_id=product_id, quantity=quantity)
     db.add(item)
     db.commit()
@@ -38,6 +47,7 @@ def add_item(db: Session, user_id, product_id, quantity: int) -> CartItem:
 
 
 def update_quantity(db: Session, item: CartItem, quantity: int) -> CartItem:
+    """Cập nhật số lượng mới cho một sản phẩm trong giỏ hàng."""
     item.quantity = quantity
     db.commit()
     db.refresh(item)
@@ -45,18 +55,25 @@ def update_quantity(db: Session, item: CartItem, quantity: int) -> CartItem:
 
 
 def remove_item(db: Session, item: CartItem) -> None:
+    """Xóa hoàn toàn một mục sản phẩm khỏi giỏ hàng."""
     db.delete(item)
     db.commit()
 
 
 def clear_cart(db: Session, user_id) -> None:
+    """Xóa sạch giỏ hàng của người dùng (sau khi đặt hàng thành công)."""
     db.query(CartItem).filter(CartItem.user_id == user_id).delete()
     db.commit()
 
 
 def calculate_total(items: List[CartItem]) -> float:
+    """
+    Tính tổng số tiền của danh sách các sản phẩm trong giỏ hàng.
+    Ưu tiên lấy giá khuyến mãi sale_price, nếu không có thì lấy giá niêm yết price.
+    """
     total = 0.0
     for item in items:
         price = float(item.product.sale_price or item.product.price)
         total += price * item.quantity
     return round(total, 2)
+

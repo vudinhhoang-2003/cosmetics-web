@@ -1,7 +1,11 @@
+// File: frontend/src/pages/CheckoutPage.tsx
+// Nhiệm vụ: Trang đặt hàng và điền thông tin giao nhận, tích hợp các tùy chọn thanh toán COD hoặc chuyển khoản online qua PayOS.
+
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { motion } from 'framer-motion'
+import { useQueryClient } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
 import { CreditCard, Wallet, MapPin, ChevronRight, Truck, ChevronDown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { orderApi } from '../api/endpoints'
@@ -23,27 +27,50 @@ type PaymentMethod = 'COD' | 'online'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
-  const { items, total, clearCart } = useCartStore()
+  const location = useLocation()
+  const queryClient = useQueryClient()
+  const { items, clearCart, setItems } = useCartStore()
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
+    trigger,
     formState: { errors },
   } = useForm<CheckoutForm>()
 
-  const subtotal = total()
+  // Quản lý việc đóng mở Custom City Dropdown và theo dõi giá trị thành phố được chọn
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false)
+  const selectedCity = watch('city')
+
+  // Lấy các sản phẩm được chọn từ giỏ hàng để mang đi thanh toán (truyền qua state từ CartPage)
+  const selectedItemIds = location.state?.selectedItemIds as string[] | undefined
+  const checkoutItems = selectedItemIds
+    ? items.filter((item) => selectedItemIds.includes(item.id))
+    : items
+
+  // Tính tổng tiền tạm tính chỉ dựa trên các sản phẩm được chọn thanh toán
+  const subtotal = checkoutItems.reduce((sum, item) => {
+    const price = item.product?.sale_price ?? item.product?.price ?? 0
+    return sum + price * item.quantity
+  }, 0)
+  
+  // Áp dụng phí giao hàng: 30k nếu tạm tính dưới 500k, ngược lại miễn phí (0k)
   const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : 30000
   const grandTotal = subtotal + shipping
 
+  // Xử lý khi nhấn nút Đặt Hàng
   const onSubmit = async (data: CheckoutForm) => {
-    if (items.length === 0) {
-      toast.error('Giỏ hàng của bạn đang trống')
+    if (checkoutItems.length === 0) {
+      toast.error('Không có sản phẩm nào được chọn để thanh toán')
       return
     }
     setIsSubmitting(true)
     try {
+      // 1. Gọi API tạo đơn hàng, truyền kèm theo địa chỉ, phương thức và danh sách ID sản phẩm được thanh toán
       const res = await orderApi.create({
         shipping_address: {
           full_name: data.full_name,
@@ -54,13 +81,28 @@ export default function CheckoutPage() {
           note: data.note || undefined,
         },
         payment_method: paymentMethod.toLowerCase(),
+        cart_item_ids: selectedItemIds,
       })
-      clearCart()
+      
+      // 2. Cập nhật giỏ hàng cục bộ (Zustand Store) sau khi tạo đơn hàng thành công
+      // Nếu chỉ thanh toán một số sản phẩm, giữ lại các sản phẩm chưa thanh toán trong giỏ hàng. Ngược lại xóa sạch.
+      if (selectedItemIds) {
+        setItems(items.filter((item) => !selectedItemIds.includes(item.id)))
+      } else {
+        clearCart()
+      }
+      
+      // 3. Làm mới Cache của React Query để đồng bộ giỏ hàng và danh sách đơn hàng mới nhất từ Server
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      
       toast.success('Đặt hàng thành công!')
       
+      // 4. Nếu chọn thanh toán Online qua cổng PayOS, chuyển hướng người dùng sang cổng thanh toán VietQR
       if (res.data.payment_url) {
         window.location.href = res.data.payment_url
       } else {
+        // Nếu chọn COD, chuyển hướng trực tiếp sang trang thông báo đặt hàng thành công
         navigate(`/order/success?id=${res.data.id}`)
       }
     } catch (err: any) {
@@ -71,7 +113,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (items.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="text-center">
@@ -158,11 +200,11 @@ export default function CheckoutPage() {
 
                   <div>
                     <label className="block font-sans text-sm text-muted-gray mb-1">
-                      Quận/Huyện <span className="text-red-500">*</span>
+                      Phường/Xã <span className="text-red-500">*</span>
                     </label>
                     <input
-                      {...register('district', { required: 'Vui lòng nhập quận/huyện' })}
-                      placeholder="Quận 1"
+                      {...register('district', { required: 'Vui lòng nhập phường/xã' })}
+                      placeholder="Phường Bến Nghé"
                       className="input-field w-full"
                     />
                     {errors.district && (
@@ -176,7 +218,7 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       {...register('address', { required: 'Vui lòng nhập địa chỉ' })}
-                      placeholder="Số nhà, tên đường, phường/xã..."
+                      placeholder="Số nhà, tên đường..."
                       className="input-field w-full"
                     />
                     {errors.address && (
@@ -184,21 +226,79 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  <div>
+                    {/* Custom City Dropdown với thiết kế sang trọng, tối giản và hiệu ứng mượt mà */}
+                    <div>
                     <label className="block font-sans text-sm text-muted-gray mb-1">
                       Tỉnh/Thành phố <span className="text-red-500">*</span>
                     </label>
+                    {/* Sử dụng input hidden để liên kết giá trị được chọn với react-hook-form */}
+                    <input type="hidden" {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })} />
+                    
                     <div className="relative">
-                      <select
-                        {...register('city', { required: 'Vui lòng chọn tỉnh/thành phố' })}
-                        className="w-full appearance-none px-4 py-3 pr-10 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer"
+                      {/* Nút bấm để toggle dropdown hiển thị danh sách thành phố */}
+                      <button
+                        type="button"
+                        onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+                        className="w-full flex items-center justify-between px-4 py-3 border border-soft-gray bg-white text-dark-text text-sm font-sans focus:outline-none focus:border-gold transition-colors cursor-pointer text-left"
                       >
-                        <option value="">-- Chọn tỉnh/thành phố --</option>
-                        {CITIES.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-gray" />
+                        <span className={selectedCity ? 'text-dark-text' : 'text-muted-gray'}>
+                          {selectedCity || '-- Chọn tỉnh/thành phố --'}
+                        </span>
+                        <ChevronDown size={14} className="text-muted-gray" />
+                      </button>
+
+                      <AnimatePresence>
+                        {isCityDropdownOpen && (
+                          <>
+                            {/* Lớp phủ Backdrop trong suốt để tự động đóng dropdown khi click ra ngoài */}
+                            <div 
+                              className="fixed inset-0 z-10" 
+                              onClick={() => setIsCityDropdownOpen(false)}
+                            />
+                            
+                            {/* Danh sách các tỉnh/thành phố có hiệu ứng trượt nhẹ bằng Framer Motion */}
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute left-0 right-0 mt-1 bg-[#FAF6F0] border border-gold/15 shadow-xl z-20 max-h-60 overflow-y-auto rounded-none py-1"
+                            >
+                              <div
+                                onClick={() => {
+                                  setValue('city', '')
+                                  trigger('city') // Kích hoạt kiểm tra validation lại sau khi đổi giá trị
+                                  setIsCityDropdownOpen(false)
+                                }}
+                                className="px-4 py-2.5 text-sm font-sans text-muted-gray hover:bg-gold/5 hover:text-gold cursor-pointer transition-colors"
+                              >
+                                -- Chọn tỉnh/thành phố --
+                              </div>
+                              {CITIES.map((c) => (
+                                <div
+                                  key={c}
+                                  onClick={() => {
+                                    setValue('city', c)
+                                    trigger('city') // Kích hoạt kiểm tra validation lại sau khi chọn thành phố
+                                    setIsCityDropdownOpen(false)
+                                  }}
+
+                                  className={`px-4 py-2.5 text-sm font-sans cursor-pointer transition-colors flex items-center justify-between ${
+                                    selectedCity === c
+                                      ? 'bg-gold/10 text-gold font-medium'
+                                      : 'text-dark-text hover:bg-gold/5 hover:text-gold'
+                                  }`}
+                                >
+                                  <span>{c}</span>
+                                  {selectedCity === c && (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gold" />
+                                  )}
+                                </div>
+                              ))}
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
                     </div>
                     {errors.city && (
                       <p className="text-red-500 text-xs mt-1 font-sans">{errors.city.message}</p>
@@ -316,7 +416,7 @@ export default function CheckoutPage() {
 
                 {/* Items list */}
                 <div className="space-y-4 mb-6 max-h-72 overflow-y-auto pr-1">
-                  {items.map((item) => {
+                  {checkoutItems.map((item) => {
                     const price = item.product?.sale_price ?? item.product?.price ?? 0
                     return (
                       <div key={item.id} className="flex gap-3">
@@ -329,7 +429,7 @@ export default function CheckoutPage() {
                             alt={item.product?.name}
                             className="w-14 h-14 object-cover bg-white"
                           />
-                          <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center w-5 h-5">
+                          <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                             {item.quantity}
                           </span>
                         </div>
@@ -337,7 +437,10 @@ export default function CheckoutPage() {
                           <p className="font-sans text-xs text-dark-text line-clamp-2 leading-snug">
                             {item.product?.name}
                           </p>
-                          <p className="price-gold text-sm mt-1">{formatPrice(price * item.quantity)}</p>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="font-sans text-xs text-muted-gray">Số lượng: {item.quantity}</span>
+                            <p className="price-gold text-sm">{formatPrice(price * item.quantity)}</p>
+                          </div>
                         </div>
                       </div>
                     )

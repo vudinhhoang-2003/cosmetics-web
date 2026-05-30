@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { ShoppingBag, Star } from 'lucide-react'
 import type { Product } from '../types'
 import { useCartStore } from '../store/cartStore'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
+  const queryClient = useQueryClient()
   const { addItem } = useCartStore()
   const { isAuthenticated } = useAuthStore()
   const img = product.images?.[0] || 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=600'
@@ -26,6 +28,7 @@ export default function ProductCard({ product }: Props) {
     try {
       const res = await cartApi.add(product.id, 1)
       addItem(res.data)
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
       toast.success('Đã thêm vào giỏ hàng')
     } catch {
       toast.error('Không thể thêm vào giỏ hàng')
@@ -33,8 +36,8 @@ export default function ProductCard({ product }: Props) {
   }
 
   return (
-    <div className="product-card group border border-transparent hover:border-gold/30 transition-all duration-500">
-      <Link to={`/products/${product.slug}`}>
+    <div className="product-card group border border-transparent hover:border-gold/30 transition-all duration-500 h-full">
+      <Link to={`/products/${product.slug}`} className="h-full flex flex-col">
         {/* Image */}
         <div className="relative overflow-hidden bg-pearl aspect-square">
           <img
@@ -69,39 +72,51 @@ export default function ProductCard({ product }: Props) {
           )}
         </div>
 
-        {/* Info */}
-        <div className="px-4 py-4 border-t border-soft-gray/60">
+        {/* Info - Sử dụng flex-col và flex-1 để kéo giãn phần nội dung thông tin */}
+        <div className="px-4 py-4 border-t border-soft-gray/60 flex-1 flex flex-col">
           {product.brand && (
             <p className="editorial-label mb-2">{product.brand}</p>
           )}
-          <h3 className="font-serif text-sm text-dark-text line-clamp-2 mb-3 leading-snug">
+          {/* Tên sản phẩm: Đặt min-h-[2.5rem] (tương đương 2 dòng chữ) để đảm bảo dù tên ngắn 1 dòng hay dài 2 dòng thì chiều cao phần chứa tên vẫn bằng nhau, tránh lệch hàng */}
+          <h3 className="font-serif text-sm text-dark-text line-clamp-2 mb-2 leading-snug min-h-[2.5rem]">
             {product.name}
           </h3>
 
-          {product.avg_rating !== undefined && product.avg_rating !== null && (
-            <div className="flex items-center gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star
-                  key={s}
-                  size={10}
-                  className={s <= Math.round(product.avg_rating!) ? 'text-gold fill-gold' : 'text-soft-gray fill-soft-gray'}
-                />
-              ))}
-              {product.review_count ? (
-                <span className="text-[10px] text-muted-gray ml-1 font-sans">({product.review_count})</span>
-              ) : null}
-            </div>
-          )}
-
-          <div className="flex items-baseline gap-2">
-            <span className="price-gold text-sm">
-              {formatPrice(Number(product.sale_price || product.price))}
-            </span>
-            {product.sale_price && (
-              <span className="text-xs text-muted-gray line-through font-sans">
-                {formatPrice(Number(product.price))}
-              </span>
+          {/* Đánh giá sao: Cố định min-h-[1.25rem] để các card không có đánh giá vẫn thẳng hàng với card có đánh giá */}
+          <div className="min-h-[1.25rem] mb-3 flex items-center">
+            {product.avg_rating !== undefined && product.avg_rating !== null && (
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    size={10}
+                    className={s <= Math.round(product.avg_rating!) ? 'text-gold fill-gold' : 'text-soft-gray fill-soft-gray'}
+                  />
+                ))}
+                {product.review_count ? (
+                  <span className="text-[10px] text-muted-gray ml-1 font-sans">({product.review_count})</span>
+                ) : null}
+              </div>
             )}
+          </div>
+
+          {/* Giá tiền và tồn kho: Sử dụng mt-auto để đẩy toàn bộ khối này xuống sát đáy cùng của card */}
+          <div className="mt-auto pt-3 border-t border-soft-gray/30 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="price-gold text-sm">
+                {formatPrice(Number(product.sale_price || product.price))}
+              </span>
+              {product.sale_price && (
+                <span className="text-xs text-muted-gray line-through font-sans">
+                  {formatPrice(Number(product.price))}
+                </span>
+              )}
+            </div>
+            
+            {/* Hiển thị số lượng tồn kho hoặc thông báo hết hàng */}
+            <p className="text-[10px] text-muted-gray font-sans">
+              {product.stock > 0 ? `Còn lại: ${product.stock}` : 'Hết hàng'}
+            </p>
           </div>
         </div>
       </Link>

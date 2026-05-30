@@ -17,10 +17,27 @@ const stagger = {
 }
 
 export default function HomePage() {
+  /**
+   * Trang chủ chính thức mang phong cách cao cấp Luxe Beauty.
+   * - Sử dụng useQuery (React Query) để tải danh mục sản phẩm và danh sách sản phẩm nổi bật.
+   * - Áp dụng các hiệu ứng hoạt họa mượt mà (fade-in, stagger-children) từ thư viện Framer Motion.
+   * - Cấu trúc giao diện gồm:
+   *   1. Hero Section: Banner kích thước toàn màn hình với hình ảnh cao cấp và các nút kêu gọi hành động.
+   *   2. Features Strip: Các đặc quyền mua sắm như miễn phí ship, cam kết chính hãng.
+   *   3. Categories Grid: Bố cục dạng Masonry sang trọng giới thiệu các bộ sưu tập.
+   *   4. Manifesto Block: Châm ngôn, triết lý làm đẹp đẳng cấp của hãng.
+   *   5. Featured Products Grid: Lưới hiển thị các sản phẩm bán chạy/nổi bật nhất.
+   *   6. Editorial Banner: Mời đăng ký thành viên nhận ưu đãi độc quyền.
+   *   7. Brand Values: 3 cam kết vàng về chất lượng của sản phẩm Luxe Beauty.
+   */
+  
+  // Tải danh mục sản phẩm từ Backend
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoryApi.list().then((r) => r.data),
   })
+  
+  // Tải danh sách sản phẩm nổi bật (giới hạn 8 sản phẩm)
   const { data: productsData } = useQuery({
     queryKey: ['products', 'featured'],
     queryFn: () => productApi.list({ limit: 8 }).then((r) => r.data),
@@ -32,12 +49,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-cream">
 
-      {/* ── Hero ──────────────────────────────────────────── */}
+      {/* ── Hero Section — Banner lớn trang chủ ──────────────── */}
       <section className="relative h-screen min-h-[640px] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1800&q=85')" }}
         />
+        {/* Phủ một lớp gradient tối để làm nổi bật phần text chữ trắng */}
         <div className="absolute inset-0 bg-gradient-to-r from-obsidian/85 via-obsidian/50 to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-12 w-full">
@@ -93,6 +111,7 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Mũi tên chỉ báo cuộn chuột xuống dưới */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -108,7 +127,7 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* ── Features strip ────────────────────────────────── */}
+      {/* ── Features Strip — Các đặc quyền cam kết ────────────── */}
       <section className="border-y border-soft-gray bg-pearl py-5">
         <div className="max-w-7xl mx-auto px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-soft-gray">
@@ -129,7 +148,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Categories — editorial masonry ────────────────── */}
+      {/* ── Categories Masonry — Lưới danh mục ──────────────── */}
       {categories.length > 0 && (
         <section id="categories-section" className="py-24 px-8 bg-cream">
           <div className="max-w-7xl mx-auto">
@@ -151,6 +170,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="grid grid-cols-2 md:grid-cols-3 gap-3"
             >
+              {/* Danh mục thứ nhất hiển thị nổi bật với kích thước lớn */}
               {categories[0] && (
                 <motion.div variants={fadeInUp} className="col-span-2">
                   <Link
@@ -175,6 +195,7 @@ export default function HomePage() {
                 </motion.div>
               )}
 
+              {/* Các danh mục trung bình */}
               {categories.slice(1, 3).map((cat) => (
                 <motion.div key={cat.id} variants={fadeInUp}>
                   <Link
@@ -198,6 +219,7 @@ export default function HomePage() {
                 </motion.div>
               ))}
 
+              {/* Các danh mục nhỏ hơn ở đáy lưới */}
               {categories.slice(3, 6).map((cat) => (
                 <motion.div key={cat.id} variants={fadeInUp}>
                   <Link
@@ -222,7 +244,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── Manifesto ─────────────────────────────────────── */}
+      {/* ── Manifesto Section — Tuyên ngôn thương hiệu ────────── */}
       <section className="bg-obsidian py-28 px-8">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
@@ -251,7 +273,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Featured Products ─────────────────────────────── */}
+      {/* ── Featured Products — Lưới sản phẩm nổi bật ────────── */}
       {products.length > 0 && (
         <section className="py-24 px-8 bg-white">
           <div className="max-w-7xl mx-auto">
@@ -290,7 +312,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── Editorial Banner ──────────────────────────────── */}
+      {/* ── Editorial Banner — Banner đặc quyền thành viên ────── */}
       <section className="relative py-36 px-8 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -322,7 +344,7 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* ── Brand Values ──────────────────────────────────── */}
+      {/* ── Brand Values — Giá trị cốt lõi của thương hiệu ────── */}
       <section id="philosophy-section" className="py-24 px-8 bg-pearl">
         <div className="max-w-7xl mx-auto">
           <motion.div

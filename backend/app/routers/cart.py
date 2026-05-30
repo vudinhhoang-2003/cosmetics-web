@@ -12,6 +12,7 @@ router = APIRouter(tags=["cart"])
 
 @router.get("/", response_model=CartOut)
 def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """API lấy thông tin giỏ hàng của người dùng hiện tại cùng tổng số tiền."""
     items = crud_cart.get_user_cart(db, current_user.id)
     total = crud_cart.calculate_total(items)
     return CartOut(items=[CartItemOut.model_validate(i) for i in items], total=total)
@@ -23,6 +24,11 @@ def add_to_cart(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    API thêm sản phẩm vào giỏ hàng.
+    - Kiểm tra xem sản phẩm có tồn tại và đang kích hoạt không.
+    - Kiểm tra số lượng tồn kho (stock) của sản phẩm có đủ đáp ứng tổng số lượng yêu cầu hay không.
+    """
     p = crud_product.get_by_id(db, data.product_id)
     if not p or not p.is_active:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -41,6 +47,11 @@ def update_cart_item(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """
+    API cập nhật số lượng của một mục sản phẩm trong giỏ hàng.
+    - Nếu số lượng cập nhật <= 0, tiến hành xóa sản phẩm khỏi giỏ hàng.
+    - Kiểm tra tồn kho của sản phẩm có đủ đáp ứng số lượng mới hay không.
+    """
     from fastapi import Response
     item = crud_cart.get_item(db, item_id, current_user.id)
     if not item:
@@ -61,7 +72,9 @@ def remove_from_cart(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """API xóa một sản phẩm cụ thể ra khỏi giỏ hàng."""
     item = crud_cart.get_item(db, item_id, current_user.id)
     if not item:
         raise HTTPException(status_code=404, detail="Cart item not found")
     crud_cart.remove_item(db, item)
+

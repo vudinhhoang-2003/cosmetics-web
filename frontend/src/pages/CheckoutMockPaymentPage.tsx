@@ -7,12 +7,19 @@ import api from '../api/axios'
 import { formatPrice } from '../utils/format'
 
 export default function CheckoutMockPaymentPage() {
+  /**
+   * Cổng thanh toán giả lập PayOS (VietQR) dành cho lập trình viên/thử nghiệm.
+   * - Hiển thị mã QR VietQR tượng trưng.
+   * - Nút "Xác nhận đã quét & pay thành công" sẽ gọi API giả lập chuyển khoản `/payment/simulate-success` ở Backend để cập nhật trạng thái đơn hàng.
+   * - Nút "Hủy bỏ giao dịch" sẽ chuyển hướng về trang `/checkout/cancel` để hủy đơn hàng và hoàn lại tồn kho.
+   */
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const orderCode = searchParams.get('orderCode')
   const amount = searchParams.get('amount')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Gọi API backend để chuyển trạng thái đơn hàng sang đã thanh toán (confirmed)
   const handleSimulateSuccess = async () => {
     setIsLoading(true)
     try {
@@ -26,6 +33,7 @@ export default function CheckoutMockPaymentPage() {
     }
   }
 
+  // Hủy giao dịch giả lập, chuyển hướng về trang cancel để backend khôi phục hàng
   const handleCancel = () => {
     toast.error('Giao dịch đã bị hủy')
     navigate(`/checkout/cancel?order_code=${orderCode}`)
@@ -39,7 +47,7 @@ export default function CheckoutMockPaymentPage() {
         transition={{ duration: 0.5 }}
         className="bg-slate-900 border border-slate-800 p-8 md:p-12 max-w-md w-full text-center shadow-2xl relative overflow-hidden rounded-2xl"
       >
-        {/* Glow accent */}
+        {/* Điểm nhấn vệt sáng neon sang trọng */}
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#C9A96E]/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl animate-pulse" />
 
@@ -52,7 +60,7 @@ export default function CheckoutMockPaymentPage() {
 
         <h1 className="font-serif text-2xl text-[#C9A96E] mb-6 tracking-wide">LUXE BEAUTY</h1>
 
-        {/* Order specs */}
+        {/* Thông số hóa đơn chi tiết */}
         <div className="bg-slate-950/60 border border-slate-800/60 p-5 rounded-xl space-y-3 mb-8">
           <div className="flex justify-between items-center text-xs font-sans text-slate-400">
             <span>Mã đơn hàng:</span>
@@ -80,7 +88,7 @@ export default function CheckoutMockPaymentPage() {
           Đây là chế độ **Giả lập Cổng thanh toán PayOS**. Nhấp nút dưới đây để hoàn tất giả lập giao dịch một cách nhanh chóng!
         </p>
 
-        {/* Actions */}
+        {/* Các nút hành động */}
         <div className="space-y-4">
           <button
             onClick={handleSimulateSuccess}

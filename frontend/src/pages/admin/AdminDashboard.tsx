@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminDashboard.tsx
+// Nhiệm vụ: Bảng thống kê chi tiết dành cho Admin: doanh thu, lượng đơn hàng, số khách hàng, biểu đồ cột Recharts sản phẩm bán chạy và danh sách đơn hàng mới đặt.
+
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
@@ -10,6 +13,7 @@ import { Link } from 'react-router-dom'
 import { adminApi } from '../../api/endpoints'
 import type { Order } from '../../types'
 import { formatPrice } from '../../utils/format'
+
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending: { label: 'Chờ xác nhận', color: 'bg-amber-100 text-amber-700' },
@@ -29,6 +33,7 @@ const fadeUp = {
 }
 
 export default function AdminDashboard() {
+  // Lấy dữ liệu thống kê tổng hợp từ API Admin (tự động làm mới mỗi 30 giây)
   const {
     data: stats,
     isLoading: statsLoading,
@@ -39,6 +44,7 @@ export default function AdminDashboard() {
     refetchInterval: 30000,
   })
 
+  // Lấy danh sách 10 đơn hàng gần đây nhất để hiển thị nhanh tại bảng
   const {
     data: recentOrders,
     isLoading: ordersLoading,
@@ -49,6 +55,7 @@ export default function AdminDashboard() {
     refetchInterval: 30000,
   })
 
+  // Đang tải dữ liệu stats
   if (statsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -57,6 +64,7 @@ export default function AdminDashboard() {
     )
   }
 
+  // Lỗi khi tải stats
   if (statsError || !stats) {
     return (
       <div className="bg-white border border-soft-gray p-8">
@@ -68,11 +76,15 @@ export default function AdminDashboard() {
     )
   }
 
+  // Số lượng đơn hàng đang xử lý hoạt động (đã xác nhận và đang giao)
   const activeOrders = stats.confirmed_orders + stats.shipping_orders
+  // Tổng số đơn không tính các đơn đã bị hủy bỏ
   const nonCancelledOrders = stats.total_orders - stats.cancelled_orders
+  // Tính toán tỷ lệ giao hàng thành công trên tổng đơn không bị hủy
   const deliveryRate = nonCancelledOrders > 0
     ? Math.round((stats.delivered_orders / nonCancelledOrders) * 100)
     : 0
+
 
   const statCards = [
     {

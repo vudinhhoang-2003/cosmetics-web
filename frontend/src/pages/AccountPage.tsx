@@ -1,14 +1,18 @@
-import { useState } from 'react'
+// File: frontend/src/pages/AccountPage.tsx
+// Nhiệm vụ: Trang cá nhân của khách hàng, cho phép quản lý thông tin cá nhân, đổi mật khẩu, xem lịch sử đặt hàng và trạng thái đơn hàng.
+
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Package, ChevronRight, Lock, Phone, UserCircle, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { userApi, orderApi } from '../api/endpoints'
 import { useAuthStore } from '../store/authStore'
 import type { Order } from '../types'
-import { formatPrice } from '../utils/format'
+import { formatPrice, formatDateTime } from '../utils/format'
+
 
 type Tab = 'profile' | 'orders'
 
@@ -31,22 +35,56 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 }
 
 export default function AccountPage() {
+  // Tab hiện tại: 'profile' (Thông tin) hoặc 'orders' (Đơn hàng)
   const [tab, setTab] = useState<Tab>('profile')
+  // Đơn hàng đang chọn để hiển thị trên Modal chi tiết
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  
+  // Lấy thông tin tài khoản và hàm cập nhật auth từ Zustand store
   const { user, setAuth, accessToken, refreshToken } = useAuthStore()
   const queryClient = useQueryClient()
 
+  // Tải thông tin tài khoản người dùng từ backend
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: () => userApi.me().then((r) => r.data),
   })
 
+  // Tải danh sách đơn hàng cá nhân (chỉ thực hiện khi người dùng chuyển sang tab Đơn hàng)
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () => orderApi.list(0, 50).then((r) => r.data),
     enabled: tab === 'orders',
   })
 
+  // 1. Phân tích các query parameter từ URL (ví dụ: ?order_id=xxx hoặc ?order_code=yyy khi đi từ trang đặt hàng thành công sang)
+  const [searchParams] = useSearchParams()
+  const queryOrderId = searchParams.get('order_id')
+  const queryOrderCode = searchParams.get('order_code')
+
+  // 2. Tự động chuyển hướng hiển thị sang tab "Đơn hàng" (orders) và làm mới cache đơn hàng từ server
+  useEffect(() => {
+    if (queryOrderId || queryOrderCode) {
+      setTab('orders')
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+    }
+  }, [queryOrderId, queryOrderCode, queryClient])
+
+  // 3. Khi danh sách đơn hàng được nạp xong, tìm kiếm đơn hàng trùng mã và tự động bật Modal chi tiết lên
+  useEffect(() => {
+    if (orders && (queryOrderId || queryOrderCode)) {
+      const found = orders.find(
+        (o) =>
+          (queryOrderId && o.id === queryOrderId) ||
+          (queryOrderCode && String(o.order_code) === queryOrderCode)
+      )
+      if (found) {
+        setSelectedOrder(found) // Gán dữ liệu đơn hàng tìm thấy vào state để mở Modal chi tiết
+      }
+    }
+  }, [orders, queryOrderId, queryOrderCode])
+
+  // Form cập nhật thông tin cá nhân
   const {
     register: regProfile,
     handleSubmit: handleProfile,
@@ -58,6 +96,7 @@ export default function AccountPage() {
     },
   })
 
+  // Form cập nhật mật khẩu mới
   const {
     register: regPwd,
     handleSubmit: handlePwd,
@@ -66,9 +105,11 @@ export default function AccountPage() {
     formState: { errors: pwdErrors },
   } = useForm<PasswordForm>()
 
+  // Mutation cập nhật thông tin cá nhân lên database
   const profileMutation = useMutation({
     mutationFn: (data: ProfileForm) => userApi.update(data),
     onSuccess: (res) => {
+      // Làm mới dữ liệu profile và cập nhật Zustand store cục bộ
       queryClient.invalidateQueries({ queryKey: ['profile'] })
       setAuth(res.data, accessToken!, refreshToken!)
       toast.success('Cập nhật thông tin thành công')
@@ -76,7 +117,9 @@ export default function AccountPage() {
     onError: () => toast.error('Không thể cập nhật thông tin'),
   })
 
+  // Mutation cập nhật mật khẩu mới lên database
   const passwordMutation = useMutation({
+
     mutationFn: (data: PasswordForm) => userApi.update({ password: data.password }),
     onSuccess: () => {
       toast.success('Đổi mật khẩu thành công')
@@ -87,6 +130,25 @@ export default function AccountPage() {
 
   const onSaveProfile = (data: ProfileForm) => profileMutation.mutate(data)
   const onChangePassword = (data: PasswordForm) => passwordMutation.mutate(data)
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: (id: string) => orderApi.cancel(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      toast.success('Hủy đơn hàng thành công')
+      setSelectedOrder(null)
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.detail || 'Không thể hủy đơn hàng'
+      toast.error(msg)
+    },
+  })
+
+  const handleCancelOrder = (id: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
+      cancelOrderMutation.mutate(id)
+    }
+  }
 
   const tabs = [
     { key: 'profile' as Tab, label: 'Thông tin cá nhân', icon: User },
@@ -312,7 +374,7 @@ export default function AccountPage() {
                               </span>
                             </td>
                             <td className="px-5 py-4 text-muted-gray">
-                              {new Date(order.created_at).toLocaleDateString('vi-VN')}
+                              {formatDateTime(order.created_at)}
                             </td>
                             <td className="px-5 py-4">
                               <span
@@ -388,7 +450,7 @@ export default function AccountPage() {
                   <div>
                     <p className="font-sans text-xs text-muted-gray mb-1 uppercase tracking-wider">Ngày đặt hàng</p>
                     <span className="font-sans text-sm text-dark-text">
-                      {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
+                      {formatDateTime(selectedOrder.created_at)}
                     </span>
                   </div>
                 </div>
@@ -449,10 +511,21 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              {/* Footer Total */}
-              <div className="px-6 py-4 border-t border-soft-gray bg-beige flex justify-between items-center font-sans">
-                <span className="text-sm font-medium text-dark-text uppercase tracking-wider">Tổng giá trị:</span>
-                <span className="price-gold text-lg font-bold">{formatPrice(selectedOrder.total_price)}</span>
+              {/* Footer Total & Actions */}
+              <div className="px-6 py-4 border-t border-soft-gray bg-beige flex flex-col sm:flex-row justify-between items-center gap-4 font-sans w-full">
+                <div className="flex justify-between w-full sm:w-auto items-center gap-2">
+                  <span className="text-sm font-medium text-dark-text uppercase tracking-wider">Tổng giá trị:</span>
+                  <span className="price-gold text-lg font-bold">{formatPrice(selectedOrder.total_price)}</span>
+                </div>
+                {selectedOrder.status === 'pending' && (
+                  <button
+                    onClick={() => handleCancelOrder(selectedOrder.id)}
+                    disabled={cancelOrderMutation.isPending}
+                    className="w-full sm:w-auto px-5 py-2 border border-rose-200 hover:border-rose-300 text-rose-600 hover:bg-rose-50 text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50"
+                  >
+                    {cancelOrderMutation.isPending ? 'Đang hủy...' : 'Hủy đơn hàng'}
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>

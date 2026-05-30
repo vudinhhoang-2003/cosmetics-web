@@ -1,3 +1,6 @@
+// File: frontend/src/pages/ProductDetailPage.tsx
+// Nhiệm vụ: Trang chi tiết sản phẩm, hiển thị ảnh, thông số sản phẩm, đánh giá và tính năng thêm vào giỏ hàng.
+
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -24,25 +27,30 @@ export default function ProductDetailPage() {
   const { addItem } = useCartStore()
   const queryClient = useQueryClient()
 
+  // Các State UI: Ảnh đang chọn, Số lượng mua, Điểm đánh giá khi hover hoặc click chọn
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [reviewRating, setReviewRating] = useState(5)
   const [hoverRating, setHoverRating] = useState(0)
 
+  // React Hook Form quản lý đánh giá của sản phẩm
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ReviewForm>()
 
+  // Truy vấn lấy chi tiết sản phẩm theo slug
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', slug],
     queryFn: () => productApi.get(slug!).then((r) => r.data),
     enabled: !!slug,
   })
 
+  // Truy vấn danh sách đánh giá/bình luận của sản phẩm
   const { data: reviews } = useQuery({
     queryKey: ['reviews', product?.id],
     queryFn: () => productApi.getReviews(product!.id).then((r) => r.data),
     enabled: !!product?.id,
   })
 
+  // Truy vấn lấy sản phẩm liên quan (cùng danh mục)
   const { data: relatedData } = useQuery({
     queryKey: ['related', product?.category_id],
     queryFn: () =>
@@ -52,17 +60,21 @@ export default function ProductDetailPage() {
     enabled: !!product?.category?.slug,
   })
 
+  // Lọc bỏ sản phẩm hiện tại khỏi danh sách sản phẩm liên quan
   const relatedProducts = relatedData?.items?.filter((p) => p.id !== product?.id).slice(0, 4) ?? []
 
+  // Mutation xử lý thêm sản phẩm vào giỏ hàng
   const addToCartMutation = useMutation({
     mutationFn: () => cartApi.add(product!.id, quantity),
     onSuccess: (res) => {
       addItem(res.data)
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
       toast.success('Đã thêm vào giỏ hàng')
     },
     onError: () => toast.error('Không thể thêm vào giỏ hàng'),
   })
 
+  // Mutation gửi đánh giá sản phẩm mới
   const reviewMutation = useMutation({
     mutationFn: (data: ReviewForm) =>
       productApi.createReview(product!.id, { rating: reviewRating, comment: data.comment }),
@@ -76,6 +88,7 @@ export default function ProductDetailPage() {
     onError: () => toast.error('Không thể gửi đánh giá'),
   })
 
+  // Xử lý thêm vào giỏ hàng
   const handleAddToCart = () => {
     if (!isAuthenticated) {
       toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng')
@@ -84,6 +97,7 @@ export default function ProductDetailPage() {
     addToCartMutation.mutate()
   }
 
+  // Xử lý gửi biểu mẫu đánh giá
   const onSubmitReview = (data: ReviewForm) => {
     if (!isAuthenticated) {
       toast.error('Vui lòng đăng nhập để đánh giá')
@@ -92,6 +106,7 @@ export default function ProductDetailPage() {
     reviewMutation.mutate(data)
   }
 
+  // Trạng thái đang tải dữ liệu
   if (isLoading) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
@@ -239,11 +254,15 @@ export default function ProductDetailPage() {
 
             {/* Stock indicator */}
             <div className="flex items-center gap-2 mb-6">
-              <Package size={16} className={product.stock > 0 ? 'text-green-500' : 'text-red-400'} />
+              <Package size={16} className={product.stock > 0 ? (product.stock > 10 ? 'text-green-500' : 'text-amber-500') : 'text-red-400'} />
               {product.stock > 10 ? (
-                <span className="font-sans text-sm text-green-600">Còn hàng</span>
+                <span className="font-sans text-sm text-green-600">
+                  Còn hàng: {product.stock} sản phẩm
+                </span>
               ) : product.stock > 0 ? (
-                <span className="font-sans text-sm text-amber-600">Chỉ còn {product.stock} sản phẩm</span>
+                <span className="font-sans text-sm text-amber-600">
+                  Chỉ còn {product.stock} sản phẩm
+                </span>
               ) : (
                 <span className="font-sans text-sm text-red-500">Hết hàng</span>
               )}

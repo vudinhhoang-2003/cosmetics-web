@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '../store/authStore'
 import { useCartStore } from '../store/cartStore'
 
+// Các liên kết trên thanh điều hướng chính
 const navLinks = [
   { label: 'Trang Chủ', to: '/' },
   { label: 'Sản Phẩm', to: '/products' },
@@ -13,9 +14,12 @@ const navLinks = [
   { label: 'Nước Hoa', to: '/products?category=nuoc-hoa' },
 ]
 
+// Component phụ render các link điều hướng và tự động gán class active khi URL trùng khớp
 function NavLink({ label, to }: { label: string; to: string }) {
   const { pathname, search } = useLocation()
   const currentFull = pathname + search
+  
+  // Logic kiểm tra xem đường dẫn hiện tại có khớp với 'to' hay không
   const isActive =
     to === '/'
       ? pathname === '/'
@@ -30,31 +34,35 @@ function NavLink({ label, to }: { label: string; to: string }) {
 }
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [scrolled, setScrolled] = useState(false) // Trạng thái cuộn trang để đổi background
+  const [menuOpen, setMenuOpen] = useState(false)   // Trạng thái mở menu trên Mobile
+  const [searchOpen, setSearchOpen] = useState(false) // Trạng thái mở thanh tìm kiếm
+  const [searchTerm, setSearchTerm] = useState('')   // Từ khóa tìm kiếm
   const { isAuthenticated, user, logout, isAdmin } = useAuthStore()
-  const { count } = useCartStore()
+  const { count } = useCartStore() // Tổng số lượng sản phẩm trong giỏ hàng
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Xử lý đăng xuất khách hàng
   const handleLogout = () => {
     logout()
     setMenuOpen(false)
     navigate('/')
   }
 
+  // Lắng nghe sự kiện cuộn chuột để thay đổi độ mờ/viền của Navbar (tạo hiệu ứng chuyển đổi mượt mà)
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
+  // Đóng Menu Mobile mỗi khi chuyển hướng trang
   useEffect(() => {
     setMenuOpen(false)
   }, [location.pathname])
 
+  // Xử lý tìm kiếm sản phẩm
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchTerm.trim()) {
@@ -73,14 +81,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-[60px] md:h-[72px]">
 
-          {/* Desktop left nav */}
+          {/* Menu bên trái trên Desktop (Trang chủ, sản phẩm) */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 flex-1">
             {navLinks.slice(0, 2).map((link) => (
               <NavLink key={link.to} {...link} />
             ))}
           </nav>
 
-          {/* Logo — centered absolutely */}
+          {/* Logo Luxe Beauty được đặt ở chính giữa Navbar */}
           <Link
             to="/"
             className="absolute left-1/2 -translate-x-1/2 z-10 flex-shrink-0"
@@ -93,14 +101,15 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop right nav */}
+          {/* Menu bên phải trên Desktop (Son môi, nước hoa, chăm sóc da & icons tài khoản, giỏ hàng) */}
           <div className="hidden md:flex items-center justify-end gap-6 lg:gap-8 flex-1">
             {navLinks.slice(2).map((link) => (
               <NavLink key={link.to} {...link} />
             ))}
 
-            {/* Icons */}
+            {/* Các nút chức năng phụ */}
             <div className="flex items-center gap-3 ml-1 pl-3 border-l border-soft-gray">
+              {/* Nút tìm kiếm */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
                 className="text-dark-text hover:text-gold transition-colors duration-300 p-0.5"
@@ -108,6 +117,7 @@ export default function Navbar() {
                 <Search size={16} />
               </button>
 
+              {/* Nút giỏ hàng kèm theo số lượng badge nếu có sản phẩm */}
               <Link to="/cart" className="relative text-dark-text hover:text-gold transition-colors duration-300 p-0.5">
                 <ShoppingBag size={16} />
                 {isAuthenticated && count() > 0 && (
@@ -117,12 +127,13 @@ export default function Navbar() {
                 )}
               </Link>
 
+              {/* Dropdown quản lý tài khoản người dùng */}
               {isAuthenticated ? (
                 <div className="relative group p-0.5">
                   <button className="text-dark-text hover:text-gold transition-colors duration-300">
                     <User size={16} />
                   </button>
-                  {/* Dropdown */}
+                  {/* Menu con thả xuống khi hover */}
                   <div className="absolute right-0 top-full mt-3 w-52 bg-white border border-soft-gray border-t-2 border-t-gold opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 shadow-sm">
                     <div className="px-4 py-3 border-b border-soft-gray">
                       <p className="editorial-label mb-0.5">Xin chào</p>
@@ -151,7 +162,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile */}
+          {/* Giao diện nút bấm trên Thiết bị di động (Mobile) */}
           <div className="md:hidden flex items-center gap-3 ml-auto">
             <button onClick={() => setSearchOpen(!searchOpen)} className="text-dark-text hover:text-gold transition-colors p-1">
               <Search size={17} />
@@ -171,7 +182,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Thanh tìm kiếm ẩn hiện với hiệu ứng hoạt họa từ Framer Motion */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
@@ -199,7 +210,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu */}
+      {/* Danh sách Menu thả trên thiết bị di động (Mobile Menu) */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -235,3 +246,4 @@ export default function Navbar() {
     </header>
   )
 }
+

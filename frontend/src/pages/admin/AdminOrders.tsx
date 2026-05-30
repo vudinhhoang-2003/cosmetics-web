@@ -1,3 +1,6 @@
+// File: frontend/src/pages/admin/AdminOrders.tsx
+// Nhiệm vụ: Trang quản trị đơn hàng (Order Management) dành cho Admin: Bộ lọc trạng thái, tìm kiếm nâng cao, cập nhật trạng thái đơn hàng (Confirmed, Shipping, Delivered, Cancelled) và xem chi tiết đơn hàng.
+
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,9 +11,52 @@ import {
 import toast from 'react-hot-toast'
 import { adminApi, orderApi } from '../../api/endpoints'
 import type { Order } from '../../types'
-import { formatPrice } from '../../utils/format'
+import { formatPrice, formatDateTime } from '../../utils/format'
 import Select from '../../components/Select'
 import { useSearchParams } from 'react-router-dom'
+
+
+function OrderRowImage({ src, name }: { src?: string; name: string }) {
+  const [error, setError] = useState(false)
+
+  if (!src || error) {
+    return (
+      <div className="w-16 h-16 bg-beige border border-soft-gray/50 flex items-center justify-center rounded-sm shrink-0" title={name}>
+        <Package size={20} className="text-gold/50" />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setError(true)}
+      className="w-16 h-16 object-cover bg-beige border border-soft-gray/50 rounded-sm shrink-0"
+    />
+  )
+}
+
+function getPaymentStatus(order: Order) {
+  if (order.status === 'cancelled') {
+    return { label: 'Giao dịch hủy', color: 'bg-red-50 text-red-600 border border-red-200/50' }
+  }
+
+  if (order.payment_method === 'online') {
+    if (order.status === 'pending') {
+      return { label: 'Chưa thanh toán', color: 'bg-red-50 text-red-600 border border-red-200/50' }
+    } else {
+      return { label: 'Đã thanh toán', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
+    }
+  } else {
+    // COD
+    if (order.status === 'delivered') {
+      return { label: 'Đã thanh toán', color: 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' }
+    } else {
+      return { label: 'Thanh toán COD', color: 'bg-amber-50 text-amber-700 border border-amber-200/50' }
+    }
+  }
+}
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
@@ -56,21 +102,27 @@ const PAGE_SIZE = 20
 
 export default function AdminOrders() {
   const queryClient = useQueryClient()
+  // Đồng bộ hóa trạng thái bộ lọc đơn hàng qua URL Search Params
   const [searchParams, setSearchParams] = useSearchParams()
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
+  
   const [page, setPage] = useState(1)
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null) // Đơn hàng đang mở xem chi tiết
+  const [updatingId, setUpdatingId] = useState<string | null>(null) // ID đơn hàng đang trong tiến trình cập nhật status
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null) // ID đơn hàng đang mở dropdown đổi status
+  
+  // Trạng thái tìm kiếm
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
+  // Đồng bộ status từ URL vào local state
   useEffect(() => {
     const status = searchParams.get('status') || ''
     setStatusFilter(status)
     setPage(1)
   }, [searchParams])
 
+  // Xử lý khi admin nhấn vào các tab lọc trạng thái
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value)
     setPage(1)
@@ -81,6 +133,7 @@ export default function AdminOrders() {
     }
   }
 
+  // Tự động debounce từ khóa tìm kiếm sau 300ms
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(searchQuery.trim())
@@ -89,14 +142,14 @@ export default function AdminOrders() {
     return () => window.clearTimeout(timer)
   }, [searchQuery])
 
-  // Fetch summary statistics
+  // Lấy dữ liệu số liệu thống kê đơn hàng (tự động làm mới mỗi 30 giây)
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => adminApi.stats().then((r) => r.data),
     refetchInterval: 30000,
   })
 
-  // Fetch orders from server
+  // Lấy danh sách đơn hàng theo bộ lọc, trang và từ khóa tìm kiếm
   const { data: ordersData, isLoading, isFetching } = useQuery({
     queryKey: ['admin-orders-list', statusFilter, page, debouncedSearch],
     queryFn: () =>
@@ -112,11 +165,12 @@ export default function AdminOrders() {
 
   const orders = Array.isArray(ordersData) ? ordersData : []
 
-  // Update order status mutation
+  // Mutation gửi yêu cầu cập nhật trạng thái đơn hàng lên backend
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       orderApi.updateStatus(id, status),
     onSuccess: () => {
+      // Làm mới cache đơn hàng và thống kê
       queryClient.invalidateQueries({ queryKey: ['admin-orders-list'] })
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] })
       toast.success('Cập nhật trạng thái thành công')
@@ -128,10 +182,12 @@ export default function AdminOrders() {
     },
   })
 
+  // Gọi hàm mutation cập nhật trạng thái
   const handleStatusChange = (orderId: string, newStatus: string) => {
     setUpdatingId(orderId)
     updateStatusMutation.mutate({ id: orderId, status: newStatus })
   }
+
 
   const resetFilters = () => {
     setSearchQuery('')
@@ -246,6 +302,9 @@ export default function AdminOrders() {
                   Tổng tiền
                 </th>
                 <th className="px-6 py-3.5 text-center text-xs text-muted-gray uppercase tracking-wider font-semibold">
+                  Thanh toán
+                </th>
+                <th className="px-6 py-3.5 text-center text-xs text-muted-gray uppercase tracking-wider font-semibold">
                   Trạng thái
                 </th>
                 <th className="px-6 py-3.5 text-center text-xs text-muted-gray uppercase tracking-wider font-semibold">
@@ -257,7 +316,7 @@ export default function AdminOrders() {
               {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
+                      {Array.from({ length: 7 }).map((_, j) => (
                         <td key={j} className="px-6 py-4">
                           <div className="h-4 bg-soft-gray animate-pulse rounded" />
                         </td>
@@ -267,7 +326,7 @@ export default function AdminOrders() {
                 : orders.length === 0
                 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-16 text-center">
+                    <td colSpan={7} className="px-6 py-16 text-center">
                       <Package size={40} className="text-soft-gray mx-auto mb-3" />
                       <p className="font-serif text-lg text-dark-text">Không tìm thấy đơn hàng nào</p>
                       <p className="font-sans text-xs text-muted-gray mt-1">Vui lòng kiểm tra lại từ khóa tìm kiếm hoặc bộ lọc.</p>
@@ -294,11 +353,7 @@ export default function AdminOrders() {
                           </p>
                         </td>
                         <td className="px-6 py-4 text-muted-gray text-xs hidden sm:table-cell">
-                          {new Date(order.created_at).toLocaleDateString('vi-VN', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })}
+                          {formatDateTime(order.created_at)}
                         </td>
                         <td className="px-6 py-4 text-right font-medium text-dark-text">
                           <span className="text-gold font-bold text-sm">
@@ -306,10 +361,24 @@ export default function AdminOrders() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center">
+                          {(() => {
+                            const payStatus = getPaymentStatus(order)
+                            return (
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${payStatus.color}`}>
+                                {payStatus.label}
+                              </span>
+                            )
+                          })()}
+                        </td>
+                        <td className="px-6 py-4 text-center">
                           {isUpdating ? (
                             <div className="flex justify-center">
                               <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
                             </div>
+                          ) : order.status === 'cancelled' ? (
+                            <span className={`inline-block text-xs font-semibold px-3.5 py-1.5 rounded-full border shadow-sm ${statusInfo.color}`}>
+                              {statusInfo.label}
+                            </span>
                           ) : (
                             <div className="relative inline-block text-left">
                               <button
@@ -533,27 +602,26 @@ export default function AdminOrders() {
                           <span className="font-semibold text-dark-text">
                             {selectedOrder.payment_method === 'COD'
                               ? 'Thanh toán COD khi nhận hàng'
-                              : selectedOrder.payment_method === 'VIETQR'
-                                ? 'Chuyển khoản online VietQR'
-                                : 'Ví điện tử'}
+                              : selectedOrder.payment_method === 'online'
+                                ? 'Chuyển khoản VietQR (PayOS)'
+                                : 'Chuyển khoản / Ví điện tử'}
                           </span>
                         </div>
                         <div className="flex justify-between items-center py-1 border-t border-soft-gray/50">
                           <span className="text-muted-gray">Trạng thái thanh toán:</span>
-                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            selectedOrder.status === 'delivered'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : selectedOrder.status === 'cancelled'
-                                ? 'bg-red-50 text-red-600'
-                                : 'bg-amber-50 text-amber-600'
-                          }`}>
-                            {selectedOrder.status === 'delivered' ? 'Đã hoàn tất' : selectedOrder.status === 'cancelled' ? 'Giao dịch lỗi/Hủy' : 'Chờ xử lý'}
-                          </span>
+                          {(() => {
+                            const payStatus = getPaymentStatus(selectedOrder)
+                            return (
+                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${payStatus.color}`}>
+                                {payStatus.label}
+                              </span>
+                            )
+                          })()}
                         </div>
                         <div className="flex justify-between items-center py-1 border-t border-soft-gray/50">
                           <span className="text-muted-gray">Thời gian tạo đơn:</span>
                           <span className="font-mono text-xs text-dark-text font-medium">
-                            {new Date(selectedOrder.created_at).toLocaleString('vi-VN')}
+                            {formatDateTime(selectedOrder.created_at)}
                           </span>
                         </div>
                       </div>
@@ -570,10 +638,9 @@ export default function AdminOrders() {
                         key={item.id}
                         className="flex gap-4 items-center bg-white border border-soft-gray p-4 shadow-sm transition-all hover:border-gold/30"
                       >
-                        <img
+                        <OrderRowImage
                           src={item.image_url || 'https://images.unsplash.com/photo-1586495777744-4e6232bf2f8f?w=150'}
-                          alt={item.product_name || 'Sản phẩm'}
-                          className="w-16 h-16 object-cover bg-beige border border-soft-gray/50 rounded-sm shrink-0"
+                          name={item.product_name || 'Sản phẩm'}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="font-sans text-sm font-semibold text-dark-text leading-snug line-clamp-1">
@@ -598,27 +665,35 @@ export default function AdminOrders() {
                 </div>
 
                 {/* Quick Status Update Buttons */}
-                <div className="border-t border-gold/10 pt-6">
-                  <p className="font-sans text-[10px] text-muted-gray uppercase tracking-luxury font-bold mb-3">Cập nhật nhanh trạng thái đơn hàng</p>
-                  <div className="flex gap-2 flex-wrap">
-                    {STATUS_OPTIONS.slice(1).map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => {
-                          handleStatusChange(selectedOrder.id, opt.value)
-                          setSelectedOrder({ ...selectedOrder, status: opt.value as Order['status'] })
-                        }}
-                        className={`px-4 py-2 text-xs font-sans border transition-all duration-200 ${
-                          selectedOrder.status === opt.value
-                            ? 'bg-gold text-white border-gold font-semibold shadow-sm'
-                            : 'border-soft-gray bg-white text-muted-gray hover:border-gold hover:text-gold'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
+                {selectedOrder.status !== 'cancelled' ? (
+                  <div className="border-t border-gold/10 pt-6">
+                    <p className="font-sans text-[10px] text-muted-gray uppercase tracking-luxury font-bold mb-3">Cập nhật nhanh trạng thái đơn hàng</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {STATUS_OPTIONS.slice(1).map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => {
+                            handleStatusChange(selectedOrder.id, opt.value)
+                            setSelectedOrder({ ...selectedOrder, status: opt.value as Order['status'] })
+                          }}
+                          className={`px-4 py-2 text-xs font-sans border transition-all duration-200 ${
+                            selectedOrder.status === opt.value
+                              ? 'bg-gold text-white border-gold font-semibold shadow-sm'
+                              : 'border-soft-gray bg-white text-muted-gray hover:border-gold hover:text-gold'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="border-t border-gold/10 pt-6">
+                    <p className="font-sans text-xs text-rose-600 font-semibold bg-rose-50 border border-rose-100 p-3 text-center">
+                      Đơn hàng đã hủy không thể thay đổi sang trạng thái khác.
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
