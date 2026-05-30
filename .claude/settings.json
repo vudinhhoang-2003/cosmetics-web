@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path 'f:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics' -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(python -c \"import docx; print\\('python-docx ok'\\)\")",
+      "Bash(pip install *)",
+      "Bash(python -c \"import docx; print\\('ok'\\)\")",
+      "Bash(python generate_report.py)",
+      "Bash(curl -sI \"http://localhost/api/products?page=1\")"
+    ]
+  }
+}

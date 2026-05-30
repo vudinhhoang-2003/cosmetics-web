@@ -16,7 +16,22 @@
       "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\hooks\")",
       "Bash(New-Item -ItemType Directory -Force -Path \"F:\\\\DOANTHUE\\\\Son\\\\Website_Cosmetics\\\\frontend\\\\src\\\\types\")",
       "Bash(Write-Output \"Directories created\")",
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "Bash(ls -la /Users/dev/workspace-e34236f7)",
+      "Read(//Users/dev/**)",
+      "Bash(find /Users/dev/workspace-e34236f7 -maxdepth 3 -type d -name \"*cosmetic*\" -o -name \"*website*\" 2>/dev/null | head -20)",
+      "Bash(xargs wc -l)",
+      "Bash(ls -la \"F:/DOANTHUE/Son/\" 2>&1 | head -30)",
+      "Read(//f/DOANTHUE/Son/**)",
+      "Bash(python -c ' *)",
+      "Bash(curl -sI http://localhost)",
+      "Bash(curl -sI http://localhost:5173)",
+      "Bash(curl -sI http://localhost:8000/api/health)",
+      "Bash(node -e \"try{require\\('playwright'\\);console.log\\('playwright OK'\\)}catch\\(e\\){console.log\\('no playwright'\\)}\")",
+      "Bash(node -e \"try{require\\('puppeteer'\\);console.log\\('puppeteer OK'\\)}catch\\(e\\){console.log\\('no puppeteer'\\)}\")",
+      "Bash(npm install *)",
+      "Bash(curl -s http://localhost/admin/login)",
+      "Bash(python replace_demo_slides.py)"
     ]
   }
 }

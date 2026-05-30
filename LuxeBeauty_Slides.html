@@ -1,0 +1,2895 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuxeBeauty - Báo cáo đồ án tốt nghiệp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #DB2777;
+  --pink-light: #FCE7F3;
+  --pink-dark: #9D174D;
+  --dark: #111827;
+  --gray-700: #374151;
+  --gray-500: #6B7280;
+  --gray-300: #D1D5DB;
+  --gray-100: #F3F4F6;
+  --gray-50: #F9FAFB;
+  --white: #FFFFFF;
+  --gold: #C9A961;
+  --green: #10B981;
+  --blue: #3B82F6;
+  --yellow: #F59E0B;
+  --purple: #8B5CF6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: #1a1a1a;
+  color: var(--dark);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+.presentation {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  flex-direction: column;
+  background: var(--white);
+  padding: 50px 70px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: fadeIn 0.4s ease;
+  overflow: hidden;
+}
+
+.slide.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== NAVIGATION ===== */
+.nav-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(17, 24, 39, 0.85);
+  padding: 8px 16px;
+  border-radius: 50px;
+  backdrop-filter: blur(8px);
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--pink);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:hover {
+  background: var(--pink-dark);
+  transform: scale(1.1);
+}
+
+.slide-counter {
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 8px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--pink);
+  z-index: 101;
+  transition: width 0.3s;
+}
+
+/* ===== SLIDE HEADER ===== */
+.slide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 3px solid var(--pink);
+  margin-bottom: 30px;
+}
+
+.slide-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.5px;
+}
+
+.chapter-badge {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.slide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ===== SLIDE 1 - COVER ===== */
+.cover-slide {
+  background: linear-gradient(135deg, #FDF2F8 0%, #FFFFFF 50%, #FCE7F3 100%);
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.cover-decor {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+}
+
+.cover-decor.top-left {
+  top: -150px;
+  left: -150px;
+  background: var(--pink);
+}
+
+.cover-decor.bottom-right {
+  bottom: -150px;
+  right: -150px;
+  background: #FBBF24;
+}
+
+.cover-content {
+  z-index: 2;
+  max-width: 1000px;
+  padding: 40px;
+}
+
+.school-info {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dark);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.school-divider {
+  width: 80px;
+  height: 3px;
+  background: var(--pink);
+  margin: 20px auto 30px;
+}
+
+.report-type {
+  font-size: 24px;
+  color: var(--gray-700);
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.project-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.project-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 84px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 50px;
+  letter-spacing: -2px;
+}
+
+.cover-info {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 28px 40px;
+  border-radius: 16px;
+  display: inline-block;
+  border: 1px solid rgba(219, 39, 119, 0.15);
+}
+
+.cover-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  font-size: 16px;
+  color: var(--gray-700);
+  padding: 6px 0;
+}
+
+.cover-info-label {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.cover-footer {
+  position: absolute;
+  bottom: 30px;
+  font-size: 14px;
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* ===== SLIDE 2 - AGENDA ===== */
+.agenda-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.agenda-item {
+  background: linear-gradient(135deg, #FFF 0%, var(--pink-light) 100%);
+  border-radius: 16px;
+  padding: 28px 24px;
+  border-left: 5px solid var(--pink);
+  transition: transform 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.agenda-item:hover {
+  transform: translateY(-4px);
+}
+
+.agenda-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--pink);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.agenda-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.agenda-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+
+.agenda-desc {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.5;
+}
+
+/* ===== TWO COLUMN LAYOUT ===== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  flex: 1;
+  min-height: 0;
+}
+
+.col-card {
+  background: var(--gray-50);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.col-card.pink {
+  background: linear-gradient(135deg, var(--pink-light), #FFFFFF);
+  border: 1px solid rgba(219, 39, 119, 0.2);
+}
+
+.col-card.dark {
+  background: var(--dark);
+  color: white;
+}
+
+.col-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.col-card.dark .col-title {
+  color: white;
+}
+
+.stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--pink);
+  font-family: 'Playfair Display', serif;
+  min-width: 100px;
+}
+
+.stat-label {
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.col-card.dark .stat-label {
+  color: var(--gray-300);
+}
+
+/* ===== BULLET LISTS ===== */
+.bullet-list {
+  list-style: none;
+}
+
+.bullet-list li {
+  position: relative;
+  padding: 10px 0 10px 32px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--gray-700);
+}
+
+.bullet-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 22px;
+  height: 22px;
+  background: var(--pink);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bullet-list.dark li {
+  color: var(--gray-300);
+}
+
+.bullet-list.x-mark li::before {
+  content: "✗";
+  background: #EF4444;
+}
+
+/* ===== TABLES ===== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.data-table thead {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+}
+
+.data-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+
+.data-table tbody tr:hover {
+  background: var(--pink-light);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===== TECH STACK GRID ===== */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  flex: 1;
+}
+
+.tech-card {
+  background: white;
+  border: 2px solid var(--gray-100);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.tech-card:hover {
+  border-color: var(--pink);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(219, 39, 119, 0.15);
+}
+
+.tech-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.tech-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.tech-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tech-list li {
+  padding: 6px 12px;
+  background: var(--gray-50);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.tech-list li strong {
+  color: var(--pink);
+  font-weight: 700;
+}
+
+/* ===== ARCHITECTURE DIAGRAM ===== */
+.arch-diagram {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+}
+
+.arch-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.arch-box {
+  background: white;
+  border: 2px solid var(--pink);
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 160px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--dark);
+  box-shadow: 0 3px 8px rgba(219, 39, 119, 0.1);
+}
+
+.arch-box.dark {
+  background: var(--dark);
+  color: white;
+  border-color: var(--dark);
+}
+
+.arch-box.pink {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  border-color: var(--pink);
+}
+
+.arch-box-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.arch-arrow {
+  font-size: 24px;
+  color: var(--pink);
+  font-weight: 700;
+}
+
+/* ===== STATS CARDS ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  padding: 24px 20px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.stat-card.alt-1 { background: linear-gradient(135deg, #3B82F6, #1E40AF); }
+.stat-card.alt-2 { background: linear-gradient(135deg, #F59E0B, #B45309); }
+.stat-card.alt-3 { background: linear-gradient(135deg, #10B981, #065F46); }
+.stat-card.alt-4 { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+
+.stat-card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.stat-card-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-card-label {
+  font-size: 13px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* ===== USE CASE BADGES ===== */
+.uc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  flex: 1;
+}
+
+.uc-card {
+  background: white;
+  border-left: 4px solid var(--pink);
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.uc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.uc-icon {
+  font-size: 24px;
+}
+
+.uc-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.uc-badge {
+  display: inline-block;
+  background: var(--pink-light);
+  color: var(--pink-dark);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.uc-features {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.6;
+}
+
+/* ===== ACTOR CARDS ===== */
+.actors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  flex: 1;
+}
+
+.actor-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  border-top: 6px solid var(--pink);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.actor-card.alt { border-top-color: var(--blue); }
+.actor-card.alt2 { border-top-color: var(--gold); }
+
+.actor-avatar {
+  width: 80px;
+  height: 80px;
+  background: var(--pink-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.actor-card.alt .actor-avatar { background: #DBEAFE; }
+.actor-card.alt2 .actor-avatar { background: #FEF3C7; }
+
+.actor-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.actor-role {
+  font-size: 13px;
+  color: var(--pink);
+  font-weight: 600;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.actor-card.alt .actor-role { color: var(--blue); }
+.actor-card.alt2 .actor-role { color: var(--gold); }
+
+.actor-features {
+  list-style: none;
+  text-align: left;
+  width: 100%;
+  font-size: 13px;
+  color: var(--gray-700);
+}
+
+.actor-features li {
+  padding: 4px 0;
+}
+
+.actor-features li::before {
+  content: "▸ ";
+  color: var(--pink);
+  font-weight: 700;
+}
+
+/* ===== FLOW DIAGRAM ===== */
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  justify-content: center;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border-left: 4px solid var(--pink);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.flow-step-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.flow-step-content {
+  flex: 1;
+}
+
+.flow-step-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 2px;
+}
+
+.flow-step-desc {
+  font-size: 12px;
+  color: var(--gray-500);
+  line-height: 1.4;
+}
+
+.flow-step-tag {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ===== CODE BLOCK ===== */
+.code-block {
+  background: var(--dark);
+  color: #E5E7EB;
+  padding: 18px 22px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.code-block .green { color: #4ADE80; }
+.code-block .blue { color: #60A5FA; }
+.code-block .pink { color: #F472B6; }
+.code-block .gray { color: #9CA3AF; }
+
+/* ===== ENDPOINT TABLE ===== */
+.endpoint-method {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: inline-block;
+  min-width: 50px;
+  text-align: center;
+}
+
+.endpoint-method.GET { background: #D1FAE5; color: #065F46; }
+.endpoint-method.POST { background: #FEF3C7; color: #92400E; }
+.endpoint-method.PUT { background: #DBEAFE; color: #1E40AF; }
+.endpoint-method.DELETE { background: #FEE2E2; color: #991B1B; }
+
+.endpoint-path {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--gray-700);
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  flex: 1;
+}
+
+.timeline-col {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.timeline-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.timeline-col.mid .timeline-dot { background: var(--yellow); }
+.timeline-col.long .timeline-dot { background: #EF4444; }
+
+.timeline-title {
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--dark);
+}
+
+.timeline-sub {
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.timeline-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.timeline-list li {
+  padding: 8px 12px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+/* ===== THANK YOU SLIDE ===== */
+.thanks-slide {
+  background: linear-gradient(135deg, #FDF2F8 0%, #FFFFFF 50%, #FCE7F3 100%);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+}
+
+.thanks-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 96px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+.thanks-sub {
+  font-size: 26px;
+  color: var(--gray-700);
+  font-weight: 500;
+  margin-bottom: 50px;
+}
+
+.thanks-info {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.thanks-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: var(--gray-700);
+}
+
+/* ===== PERF GRID ===== */
+.perf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  flex: 1;
+}
+
+.perf-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  border-top: 5px solid var(--green);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.perf-card.security { border-top-color: var(--blue); }
+
+.perf-card-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.perf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--gray-100);
+  font-size: 14px;
+}
+
+.perf-row:last-child { border-bottom: none; }
+
+.perf-row-label {
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.perf-badge {
+  background: var(--green);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ===== ERD DIAGRAM ===== */
+.erd-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  position: relative;
+}
+
+.erd-table {
+  background: white;
+  border: 2px solid var(--pink);
+  border-radius: 10px;
+  padding: 0;
+  min-width: 160px;
+  position: absolute;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.erd-table-name {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 12px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.erd-fields {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--gray-700);
+}
+
+.erd-fields div {
+  padding: 2px 0;
+}
+
+.erd-fields .pk { color: var(--pink); font-weight: 700; }
+.erd-fields .fk { color: var(--blue); }
+
+/* ===== SVG line for ERD ===== */
+.erd-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ===== KEYBOARD HINT ===== */
+.keyboard-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(17, 24, 39, 0.85);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+
+.keyboard-hint kbd {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  margin: 0 2px;
+}
+
+/* SCREEN MOCKUP */
+.mockup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  flex: 1;
+}
+
+.mockup-card {
+  background: var(--gray-50);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mockup-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--dark);
+}
+
+.mockup-frame {
+  background: white;
+  border: 2px solid var(--gray-300);
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.mockup-topbar {
+  background: var(--gray-100);
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mockup-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.mockup-content {
+  flex: 1;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mockup-line {
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: 4px;
+}
+
+.mockup-line.pink { background: var(--pink-light); }
+.mockup-line.short { width: 60%; }
+.mockup-line.mid { width: 80%; }
+
+.mockup-features {
+  list-style: none;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--gray-700);
+}
+
+.mockup-features li {
+  padding: 3px 0;
+}
+
+.mockup-features li::before {
+  content: "✓ ";
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* SLIDE NUMBER */
+.slide-number {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--gray-300);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* Small text helper */
+.text-small { font-size: 13px; }
+.text-tiny { font-size: 11px; }
+.text-pink { color: var(--pink); }
+.text-bold { font-weight: 700; }
+.mt-2 { margin-top: 12px; }
+.mb-2 { margin-bottom: 12px; }
+
+/* ===== REAL DEMO (screenshots) ===== */
+.real-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  flex: 1;
+  min-height: 0;
+}
+.real-demo-card {
+  background: var(--gray-50);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.real-demo-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--dark);
+}
+.real-screenshot {
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--gray-300);
+  background: white;
+  min-height: 0;
+  position: relative;
+}
+.real-screenshot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.real-features {
+  list-style: none;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--gray-700);
+}
+.real-features li {
+  padding: 4px 0;
+  line-height: 1.4;
+}
+.real-features li::before {
+  content: "✓ ";
+  color: var(--pink);
+  font-weight: 700;
+}
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="presentation">
+
+<!-- ═══════════════ SLIDE 1: COVER ═══════════════ -->
+<div class="slide cover-slide active">
+  <div class="cover-decor top-left"></div>
+  <div class="cover-decor bottom-right"></div>
+  <div class="cover-content">
+    <div class="school-info">Trường Đại học [Tên trường]</div>
+    <div class="school-info" style="font-weight:500;font-size:15px;letter-spacing:1px">Khoa Công nghệ Thông tin</div>
+    <div class="school-divider"></div>
+    <div class="report-type">BÁO CÁO ĐỒ ÁN TỐT NGHIỆP</div>
+    <div class="project-title">WEBSITE THƯƠNG MẠI ĐIỆN TỬ MỸ PHẨM</div>
+    <div class="project-brand">LUXE BEAUTY</div>
+    <div class="cover-info">
+      <div class="cover-info-row">
+        <span class="cover-info-label">Sinh viên thực hiện:</span>
+        <span>Nguyễn Văn Sơn</span>
+      </div>
+      <div class="cover-info-row">
+        <span class="cover-info-label">Giảng viên hướng dẫn:</span>
+        <span>[Họ và tên]</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">TP. Hồ Chí Minh — Tháng 5 năm 2026</div>
+</div>
+
+<!-- ═══════════════ SLIDE 2: AGENDA ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Nội dung trình bày</div>
+    <div class="chapter-badge">AGENDA</div>
+  </div>
+  <div class="slide-body">
+    <div class="agenda-grid">
+      <div class="agenda-item">
+        <div class="agenda-icon">🎯</div>
+        <div class="agenda-number">01</div>
+        <div class="agenda-title">Mở đầu</div>
+        <div class="agenda-desc">Lý do, mục tiêu, phạm vi đề tài</div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-icon">💻</div>
+        <div class="agenda-number">02</div>
+        <div class="agenda-title">Công nghệ sử dụng</div>
+        <div class="agenda-desc">Stack công nghệ và kiến trúc</div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-icon">📋</div>
+        <div class="agenda-number">03</div>
+        <div class="agenda-title">Đặc tả yêu cầu</div>
+        <div class="agenda-desc">Use Case, yêu cầu chức năng</div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-icon">🏗️</div>
+        <div class="agenda-number">04</div>
+        <div class="agenda-title">Thiết kế hệ thống</div>
+        <div class="agenda-desc">CSDL, API, luồng xử lý</div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-icon">🚀</div>
+        <div class="agenda-number">05</div>
+        <div class="agenda-title">Cài đặt &amp; Kiểm thử</div>
+        <div class="agenda-desc">Demo, test, hiệu năng</div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-icon">✅</div>
+        <div class="agenda-number">06</div>
+        <div class="agenda-title">Kết luận</div>
+        <div class="agenda-desc">Kết quả &amp; hướng phát triển</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">02 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 3: LÝ DO ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Lý do chọn đề tài</div>
+    <div class="chapter-badge">CHƯƠNG 1 — MỞ ĐẦU</div>
+  </div>
+  <div class="slide-body">
+    <div class="two-col">
+      <div class="col-card pink">
+        <div class="col-title">📊 Bối cảnh thị trường</div>
+        <div class="stat-row">
+          <span class="stat-value">25%</span>
+          <span class="stat-label">Tăng trưởng TMĐT Việt Nam mỗi năm</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-value">25 tỷ$</span>
+          <span class="stat-label">Tổng giá trị giao dịch TMĐT 2025</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-value">1,5 tỷ$</span>
+          <span class="stat-label">Thị trường mỹ phẩm online Việt Nam</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-value">20%</span>
+          <span class="stat-label">Tăng trưởng ngành mỹ phẩm online</span>
+        </div>
+      </div>
+      <div class="col-card">
+        <div class="col-title">💡 Vì sao cần đề tài này?</div>
+        <ul class="bullet-list">
+          <li><strong>Xu hướng D2C</strong> (Direct-to-Consumer) bùng nổ – doanh nghiệp muốn tự chủ thương hiệu</li>
+          <li>Khách hàng <strong>Gen Z &amp; Millennials</strong> ưa chuộng mua sắm online</li>
+          <li><strong>SME mỹ phẩm</strong> cần website riêng thay vì phụ thuộc Shopee, Lazada</li>
+          <li>Cơ hội thực hành <strong>công nghệ hiện đại</strong>: FastAPI, React, Docker</li>
+          <li><strong>Tính ứng dụng cao</strong> – sản phẩm có thể triển khai thực tế</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">03 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 4: MỤC TIÊU & PHẠM VI ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Mục tiêu &amp; Phạm vi đề tài</div>
+    <div class="chapter-badge">CHƯƠNG 1 — MỞ ĐẦU</div>
+  </div>
+  <div class="slide-body">
+    <div class="two-col">
+      <div class="col-card pink">
+        <div class="col-title">🎯 Mục tiêu chính</div>
+        <ul class="bullet-list">
+          <li>Xây dựng website TMĐT mỹ phẩm <strong>hoàn chỉnh</strong></li>
+          <li>Hệ thống xác thực <strong>JWT</strong>, phân quyền customer/admin</li>
+          <li><strong>Admin Dashboard</strong> quản lý toàn diện</li>
+          <li>Tích hợp <strong>PayOS</strong> – QR Code thanh toán</li>
+          <li>Kiến trúc <strong>Clean Architecture</strong> 4 lớp</li>
+          <li>Đóng gói <strong>Docker Compose</strong> – deploy 1 lệnh</li>
+          <li>Bộ test <strong>Pytest</strong> tự động</li>
+        </ul>
+      </div>
+      <div class="col-card dark">
+        <div class="col-title" style="color:#FCE7F3">📦 Phạm vi triển khai</div>
+        <ul class="bullet-list dark">
+          <li>Phân hệ khách hàng: duyệt, mua, đánh giá</li>
+          <li>Phân hệ quản trị: CRUD + thống kê</li>
+          <li>Backend REST API + PostgreSQL</li>
+          <li>Frontend React + TypeScript</li>
+        </ul>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid #374151">
+          <div style="color:#FCE7F3;font-weight:600;margin-bottom:8px;font-size:14px">⚠️ Ngoài phạm vi:</div>
+          <ul class="bullet-list x-mark dark">
+            <li>App mobile native (iOS/Android)</li>
+            <li>Tích hợp giao hàng GHN/GHTK</li>
+            <li>Mã giảm giá / voucher / coupon</li>
+            <li>Chat hỗ trợ realtime</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">04 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 5: KIẾN TRÚC TỔNG QUAN ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Kiến trúc tổng thể hệ thống</div>
+    <div class="chapter-badge">CHƯƠNG 2 — CÔNG NGHỆ</div>
+  </div>
+  <div class="slide-body">
+    <div class="arch-diagram">
+      <div class="arch-row">
+        <div class="arch-box">
+          <div class="arch-box-icon">🌐</div>
+          <div>Browser / Client</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box dark">
+          <div class="arch-box-icon">🔀</div>
+          <div>Nginx Reverse Proxy</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box">
+          <div class="arch-box-icon">⚛️</div>
+          <div>React Frontend (SPA)</div>
+        </div>
+      </div>
+      <div class="arch-arrow" style="margin: 0;">↓</div>
+      <div class="arch-row">
+        <div class="arch-box pink" style="min-width: 280px;">
+          <div class="arch-box-icon">⚡</div>
+          <div>FastAPI Backend (Python 3.12)</div>
+        </div>
+      </div>
+      <div class="arch-arrow" style="margin: 0;">↓</div>
+      <div class="arch-row">
+        <div class="arch-box">
+          <div class="arch-box-icon">🗄️</div>
+          <div>PostgreSQL 16</div>
+        </div>
+        <div class="arch-box">
+          <div class="arch-box-icon">☁️</div>
+          <div>Cloudinary CDN</div>
+        </div>
+        <div class="arch-box">
+          <div class="arch-box-icon">💳</div>
+          <div>PayOS Gateway</div>
+        </div>
+      </div>
+      <div style="margin-top: 24px; text-align: center; font-size: 13px; color: var(--gray-500); font-style: italic;">
+        Toàn bộ hệ thống được đóng gói bằng <strong style="color: var(--pink)">Docker Compose</strong> — 3 container độc lập
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">05 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 6: STACK CÔNG NGHỆ ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Stack công nghệ sử dụng</div>
+    <div class="chapter-badge">CHƯƠNG 2 — CÔNG NGHỆ</div>
+  </div>
+  <div class="slide-body">
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-icon">⚡</div>
+        <div class="tech-card-title">Backend</div>
+        <ul class="tech-list">
+          <li><strong>FastAPI</strong> 0.111.0</li>
+          <li>Python 3.12</li>
+          <li>Pydantic v2</li>
+          <li>JWT + Bcrypt</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">⚛️</div>
+        <div class="tech-card-title">Frontend</div>
+        <ul class="tech-list">
+          <li><strong>React</strong> 18.3.1</li>
+          <li>TypeScript 5.4</li>
+          <li>Vite 5.3</li>
+          <li>Tailwind CSS</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🗄️</div>
+        <div class="tech-card-title">Database</div>
+        <ul class="tech-list">
+          <li><strong>PostgreSQL</strong> 16</li>
+          <li>SQLAlchemy 2.0</li>
+          <li>Alembic Migration</li>
+          <li>UUID + JSONB</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🐳</div>
+        <div class="tech-card-title">DevOps</div>
+        <ul class="tech-list">
+          <li><strong>Docker</strong> + Compose</li>
+          <li>Nginx Alpine</li>
+          <li>Multi-stage build</li>
+          <li>Pytest 71 tests</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🎨</div>
+        <div class="tech-card-title">UI &amp; State</div>
+        <ul class="tech-list">
+          <li><strong>Zustand</strong> store</li>
+          <li>TanStack Query</li>
+          <li>Framer Motion</li>
+          <li>Recharts</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🔌</div>
+        <div class="tech-card-title">Tích hợp</div>
+        <ul class="tech-list">
+          <li><strong>Cloudinary</strong> CDN</li>
+          <li>PayOS Gateway</li>
+          <li>HMAC Webhook</li>
+          <li>COD Payment</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">06 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 7: FASTAPI ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Vì sao chọn FastAPI?</div>
+    <div class="chapter-badge">CHƯƠNG 2 — CÔNG NGHỆ</div>
+  </div>
+  <div class="slide-body">
+    <div class="two-col">
+      <div class="col-card">
+        <div class="col-title">⚡ Ưu điểm FastAPI</div>
+        <ul class="bullet-list">
+          <li><strong>Hiệu năng cao</strong> – ngang NodeJS / Go</li>
+          <li><strong>Auto Swagger Docs</strong> – /docs &amp; /redoc</li>
+          <li><strong>Validation tự động</strong> bằng Pydantic v2</li>
+          <li><strong>Async/await</strong> native (ASGI)</li>
+          <li><strong>Dependency Injection</strong> tích hợp sẵn</li>
+          <li>Python <strong>type hints</strong> hoàn chỉnh</li>
+          <li>Hỗ trợ <strong>OpenAPI 3.1</strong> chuẩn</li>
+        </ul>
+      </div>
+      <div class="col-card pink">
+        <div class="col-title">🏗️ Áp dụng vào dự án</div>
+        <div style="background: white; padding: 16px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 6px;">CLEAN ARCHITECTURE – 4 LỚP</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8;">
+            <div style="color: var(--pink); font-weight: 700;">📡 Routers</div>
+            <div style="padding-left: 16px; color: var(--gray-500);">↓ HTTP layer</div>
+            <div style="color: var(--pink); font-weight: 700;">🧠 CRUD</div>
+            <div style="padding-left: 16px; color: var(--gray-500);">↓ Business logic</div>
+            <div style="color: var(--pink); font-weight: 700;">📋 Schemas</div>
+            <div style="padding-left: 16px; color: var(--gray-500);">↓ Validation</div>
+            <div style="color: var(--pink); font-weight: 700;">🗄️ Models</div>
+            <div style="padding-left: 16px; color: var(--gray-500);">↓ Database ORM</div>
+          </div>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>30+ endpoints</strong> RESTful</li>
+          <li>JWT Auth + Role-based access</li>
+          <li>Rate limiting với SlowAPI</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">07 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 8: REACT TYPESCRIPT ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Frontend — React 18 + TypeScript</div>
+    <div class="chapter-badge">CHƯƠNG 2 — CÔNG NGHỆ</div>
+  </div>
+  <div class="slide-body">
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-icon">⚛️</div>
+        <div class="tech-card-title">Core Stack</div>
+        <ul class="tech-list">
+          <li><strong>React 18</strong> Concurrent</li>
+          <li><strong>TypeScript</strong> Type-safe</li>
+          <li><strong>Vite</strong> Dev server nhanh</li>
+          <li><strong>Tailwind</strong> Utility-first</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🗃️</div>
+        <div class="tech-card-title">State Management</div>
+        <ul class="tech-list">
+          <li><strong>Zustand</strong> – Auth store</li>
+          <li><strong>Zustand</strong> – Cart store</li>
+          <li><strong>TanStack</strong> Query cache</li>
+          <li>Auto refetch + Optimistic</li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">✨</div>
+        <div class="tech-card-title">UX Libraries</div>
+        <ul class="tech-list">
+          <li>React Router DOM v6</li>
+          <li>React Hook Form</li>
+          <li>Framer Motion (animation)</li>
+          <li>React Hot Toast</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top: 20px; padding: 20px; background: var(--gray-50); border-radius: 14px;">
+      <div style="font-weight: 700; color: var(--dark); margin-bottom: 10px; font-size: 16px;">📂 18 Pages tổng cộng</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; color: var(--gray-700);">
+        <div><strong style="color: var(--pink);">Customer (13):</strong> Home, Products, Detail, Cart, Checkout, Login, Register, Account, Order History...</div>
+        <div><strong style="color: var(--pink);">Admin (5):</strong> Login, Dashboard, Products, Orders, Categories, Users</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">08 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 9: TÍCH HỢP BÊN THỨ BA ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Tích hợp dịch vụ bên thứ ba</div>
+    <div class="chapter-badge">CHƯƠNG 2 — CÔNG NGHỆ</div>
+  </div>
+  <div class="slide-body">
+    <div class="two-col">
+      <div class="col-card">
+        <div class="col-title">☁️ Cloudinary CDN</div>
+        <div style="background: #DBEAFE; padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-weight: 700; color: #1E40AF; margin-bottom: 6px;">Quản lý ảnh sản phẩm</div>
+          <div style="font-size: 13px; color: var(--gray-700);">CDN toàn cầu, tự động tối ưu</div>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>Upload API</strong> từ Admin panel</li>
+          <li><strong>Auto resize, crop</strong> theo URL params</li>
+          <li><strong>WebP conversion</strong> tự động (giảm 30% size)</li>
+          <li>Giảm tải băng thông server backend</li>
+          <li>Tốc độ phân phối ảnh toàn cầu</li>
+        </ul>
+      </div>
+      <div class="col-card pink">
+        <div class="col-title">💳 PayOS Payment Gateway</div>
+        <div style="background: white; padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+          <div style="font-weight: 700; color: var(--pink); margin-bottom: 6px;">Cổng thanh toán Việt Nam</div>
+          <div style="font-size: 13px; color: var(--gray-700);">QR Code + chuyển khoản ngân hàng</div>
+        </div>
+        <ul class="bullet-list">
+          <li><strong>QR Code</strong> thanh toán nhanh chóng</li>
+          <li><strong>Webhook</strong> xác nhận giao dịch realtime</li>
+          <li><strong>HMAC checksum</strong> bảo mật webhook</li>
+          <li><strong>Mock payment</strong> endpoint cho testing</li>
+          <li>Hỗ trợ <strong>COD</strong> – thanh toán khi nhận hàng</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">09 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 10: ACTORS ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Các bên liên quan (Actors)</div>
+    <div class="chapter-badge">CHƯƠNG 3 — ĐẶC TẢ YÊU CẦU</div>
+  </div>
+  <div class="slide-body">
+    <div class="actors-grid">
+      <div class="actor-card">
+        <div class="actor-avatar">👤</div>
+        <div class="actor-name">Khách vãng lai</div>
+        <div class="actor-role">GUEST</div>
+        <ul class="actor-features">
+          <li>Xem danh sách sản phẩm</li>
+          <li>Tìm kiếm &amp; lọc</li>
+          <li>Xem chi tiết sản phẩm</li>
+          <li>Đọc đánh giá</li>
+          <li>Đăng ký tài khoản</li>
+        </ul>
+      </div>
+      <div class="actor-card alt">
+        <div class="actor-avatar">🛒</div>
+        <div class="actor-name">Khách hàng</div>
+        <div class="actor-role">CUSTOMER</div>
+        <ul class="actor-features">
+          <li>Kế thừa quyền Guest</li>
+          <li>Quản lý giỏ hàng</li>
+          <li>Đặt hàng &amp; thanh toán</li>
+          <li>Lịch sử đơn hàng</li>
+          <li>Viết đánh giá sản phẩm</li>
+          <li>Quản lý hồ sơ cá nhân</li>
+        </ul>
+      </div>
+      <div class="actor-card alt2">
+        <div class="actor-avatar">⚙️</div>
+        <div class="actor-name">Quản trị viên</div>
+        <div class="actor-role">ADMIN</div>
+        <ul class="actor-features">
+          <li>Dashboard thống kê</li>
+          <li>CRUD sản phẩm</li>
+          <li>CRUD danh mục</li>
+          <li>Quản lý đơn hàng</li>
+          <li>Quản lý người dùng</li>
+          <li>Upload ảnh sản phẩm</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">10 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 11: USE CASE TỔNG QUÁT ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Yêu cầu chức năng — 29 Use Cases</div>
+    <div class="chapter-badge">CHƯƠNG 3 — ĐẶC TẢ YÊU CẦU</div>
+  </div>
+  <div class="slide-body">
+    <div class="uc-grid">
+      <div class="uc-card">
+        <div class="uc-card-header">
+          <div class="uc-icon">🔐</div>
+          <div class="uc-title">Xác thực</div>
+        </div>
+        <div class="uc-badge">5 USE CASES</div>
+        <div class="uc-features">
+          Đăng ký, đăng nhập JWT, refresh token, đăng xuất, phân quyền customer/admin
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-header">
+          <div class="uc-icon">📦</div>
+          <div class="uc-title">Sản phẩm</div>
+        </div>
+        <div class="uc-badge">7 USE CASES</div>
+        <div class="uc-features">
+          CRUD sản phẩm, tìm kiếm, lọc (category/price/brand), sắp xếp, phân trang, xem chi tiết theo slug
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-header">
+          <div class="uc-icon">🛒</div>
+          <div class="uc-title">Giỏ hàng</div>
+        </div>
+        <div class="uc-badge">4 USE CASES</div>
+        <div class="uc-features">
+          Thêm vào giỏ, cập nhật số lượng, xóa item, tính tổng tiền tự động
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-header">
+          <div class="uc-icon">📋</div>
+          <div class="uc-title">Đặt hàng</div>
+        </div>
+        <div class="uc-badge">6 USE CASES</div>
+        <div class="uc-features">
+          Tạo đơn từ giỏ, thanh toán PayOS / COD, theo dõi trạng thái, lịch sử đơn hàng, admin update status
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-header">
+          <div class="uc-icon">⭐</div>
+          <div class="uc-title">Đánh giá</div>
+        </div>
+        <div class="uc-badge">3 USE CASES</div>
+        <div class="uc-features">
+          Viết đánh giá (1-5 sao + comment), xem đánh giá, admin xóa đánh giá không phù hợp
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-card-header">
+          <div class="uc-icon">👨‍💼</div>
+          <div class="uc-title">Quản trị</div>
+        </div>
+        <div class="uc-badge">4 USE CASES</div>
+        <div class="uc-features">
+          Dashboard stats, quản lý danh mục, quản lý người dùng, upload ảnh Cloudinary
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">11 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 12: USE CASE ĐẶT HÀNG ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Use Case: Đặt hàng (UC-17)</div>
+    <div class="chapter-badge">CHƯƠNG 3 — ĐẶC TẢ YÊU CẦU</div>
+  </div>
+  <div class="slide-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 22%;">Thuộc tính</th>
+          <th>Nội dung</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Mã Use Case</strong></td>
+          <td>UC-17 — Place Order</td>
+        </tr>
+        <tr>
+          <td><strong>Actor chính</strong></td>
+          <td>Khách hàng đã đăng nhập (Customer)</td>
+        </tr>
+        <tr>
+          <td><strong>Tiền điều kiện</strong></td>
+          <td>Đã login JWT + giỏ hàng có ≥ 1 sản phẩm</td>
+        </tr>
+        <tr>
+          <td><strong>Hậu điều kiện</strong></td>
+          <td>Đơn hàng mới được tạo, giỏ hàng được xoá, stock được trừ</td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top;"><strong>Luồng chính</strong></td>
+          <td>
+            <strong>1.</strong> Vào trang Checkout &nbsp;→&nbsp;
+            <strong>2.</strong> Nhập địa chỉ giao hàng &nbsp;→&nbsp;
+            <strong>3.</strong> Chọn PayOS / COD &nbsp;→&nbsp;
+            <strong>4.</strong> Validate tồn kho<br>
+            <strong>5.</strong> Tạo Order + OrderItems (DB) &nbsp;→&nbsp;
+            <strong>6.</strong> Xoá CartItems &nbsp;→&nbsp;
+            <strong>7.</strong> PayOS: tạo payment link &amp; redirect
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Luồng thay thế</strong></td>
+          <td>Sản phẩm hết hàng → hiển thị lỗi, không tạo đơn. PayOS lỗi → đơn ở trạng thái pending</td>
+        </tr>
+        <tr>
+          <td><strong>Ngoại lệ</strong></td>
+          <td>Network timeout → thông báo lỗi kết nối, đơn hàng được giữ ở trạng thái pending</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="slide-number">12 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 13: YÊU CẦU PHI CHỨC NĂNG ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Yêu cầu phi chức năng</div>
+    <div class="chapter-badge">CHƯƠNG 3 — ĐẶC TẢ YÊU CẦU</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; flex: 1;">
+      <div style="background: white; border-radius: 14px; padding: 22px; border-top: 5px solid var(--green); box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
+        <div style="font-weight: 800; font-size: 17px; margin-bottom: 12px;">Hiệu năng</div>
+        <ul class="bullet-list">
+          <li>API trung bình <strong>&lt; 200ms</strong></li>
+          <li>Page load <strong>&lt; 3 giây</strong></li>
+          <li>Hỗ trợ đồng thời 50+ users</li>
+        </ul>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 22px; border-top: 5px solid var(--blue); box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
+        <div style="font-weight: 800; font-size: 17px; margin-bottom: 12px;">Bảo mật</div>
+        <ul class="bullet-list">
+          <li><strong>Bcrypt</strong> hash password</li>
+          <li><strong>JWT</strong> token bảo vệ</li>
+          <li><strong>Rate limit</strong> chống brute force</li>
+          <li><strong>CORS</strong> whitelist domain</li>
+        </ul>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 22px; border-top: 5px solid var(--yellow); box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 32px; margin-bottom: 8px;">📱</div>
+        <div style="font-weight: 800; font-size: 17px; margin-bottom: 12px;">Khả năng sử dụng</div>
+        <ul class="bullet-list">
+          <li><strong>Responsive</strong> 360→1440px</li>
+          <li>Thông báo lỗi rõ ràng</li>
+          <li>Tương thích đa trình duyệt</li>
+        </ul>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 22px; border-top: 5px solid var(--purple); box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 32px; margin-bottom: 8px;">🛠️</div>
+        <div style="font-weight: 800; font-size: 17px; margin-bottom: 12px;">Khả năng bảo trì</div>
+        <ul class="bullet-list">
+          <li>Phân lớp <strong>Clean Arch</strong></li>
+          <li>Code review checklist</li>
+          <li>Auto-test 71 cases</li>
+        </ul>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 22px; border-top: 5px solid var(--pink); box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 32px; margin-bottom: 8px;">📈</div>
+        <div style="font-weight: 800; font-size: 17px; margin-bottom: 12px;">Khả năng mở rộng</div>
+        <ul class="bullet-list">
+          <li><strong>Stateless API</strong> scale ngang</li>
+          <li>Database connection pool</li>
+          <li>CDN tách bạch</li>
+        </ul>
+      </div>
+      <div style="background: white; border-radius: 14px; padding: 22px; border-top: 5px solid #06B6D4; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 32px; margin-bottom: 8px;">🟢</div>
+        <div style="font-weight: 800; font-size: 17px; margin-bottom: 12px;">Tính sẵn sàng</div>
+        <ul class="bullet-list">
+          <li>Docker <strong>restart policy</strong></li>
+          <li>Volume persist DB</li>
+          <li>Health check endpoint</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">13 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 14: CLEAN ARCHITECTURE ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Kiến trúc Backend — Clean Architecture</div>
+    <div class="chapter-badge">CHƯƠNG 4 — THIẾT KẾ</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 28px; flex: 1;">
+      <div style="display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #FCE7F3, #FBCFE8); padding: 20px; border-radius: 12px; border-left: 5px solid var(--pink); position: relative;">
+          <div style="font-size: 22px; margin-bottom: 6px;">📡</div>
+          <div style="font-weight: 800; font-size: 16px;">ROUTERS</div>
+          <div style="font-size: 13px; color: var(--gray-700);">HTTP endpoint, auth check</div>
+          <div style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--pink); font-family: 'JetBrains Mono', monospace;">auth.py, products.py</div>
+        </div>
+        <div style="text-align: center; color: var(--pink); font-size: 18px;">↓</div>
+        <div style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE); padding: 20px; border-radius: 12px; border-left: 5px solid var(--blue); position: relative;">
+          <div style="font-size: 22px; margin-bottom: 6px;">🧠</div>
+          <div style="font-weight: 800; font-size: 16px;">CRUD</div>
+          <div style="font-size: 13px; color: var(--gray-700);">Business logic, DB queries</div>
+          <div style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--blue); font-family: 'JetBrains Mono', monospace;">create_order()</div>
+        </div>
+        <div style="text-align: center; color: var(--blue); font-size: 18px;">↓</div>
+        <div style="background: linear-gradient(135deg, #FEF3C7, #FDE68A); padding: 20px; border-radius: 12px; border-left: 5px solid var(--yellow); position: relative;">
+          <div style="font-size: 22px; margin-bottom: 6px;">📋</div>
+          <div style="font-weight: 800; font-size: 16px;">SCHEMAS</div>
+          <div style="font-size: 13px; color: var(--gray-700);">Pydantic validation</div>
+          <div style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #92400E; font-family: 'JetBrains Mono', monospace;">ProductCreate</div>
+        </div>
+        <div style="text-align: center; color: var(--yellow); font-size: 18px;">↓</div>
+        <div style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0); padding: 20px; border-radius: 12px; border-left: 5px solid var(--green); position: relative;">
+          <div style="font-size: 22px; margin-bottom: 6px;">🗄️</div>
+          <div style="font-weight: 800; font-size: 16px;">MODELS</div>
+          <div style="font-size: 13px; color: var(--gray-700);">SQLAlchemy ORM</div>
+          <div style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #065F46; font-family: 'JetBrains Mono', monospace;">User, Product</div>
+        </div>
+      </div>
+      <div class="col-card">
+        <div class="col-title">✨ Lợi ích kiến trúc</div>
+        <ul class="bullet-list">
+          <li><strong>Separation of Concerns</strong> – mỗi lớp chỉ làm 1 việc</li>
+          <li><strong>Dễ test</strong> – mock từng lớp độc lập</li>
+          <li><strong>Dễ bảo trì</strong> – sửa 1 lớp không ảnh hưởng lớp khác</li>
+          <li><strong>Dễ mở rộng</strong> – thêm endpoint mới chỉ cần thêm Router + CRUD</li>
+          <li><strong>Pydantic auto-validation</strong> – không cần viết validation tay</li>
+          <li><strong>Type safety</strong> với Python type hints</li>
+        </ul>
+        <div style="margin-top: 16px; padding: 14px; background: var(--gray-50); border-radius: 10px; font-size: 13px; color: var(--gray-700); font-style: italic;">
+          💡 Mỗi lớp chỉ biết về lớp bên dưới nó — Router gọi CRUD, CRUD gọi Models. Thay đổi cách lưu trữ chỉ cần sửa CRUD.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">14 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 15: ERD ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Thiết kế Cơ sở dữ liệu — ERD</div>
+    <div class="chapter-badge">CHƯƠNG 4 — THIẾT KẾ</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; flex: 1; align-items: center;">
+
+      <div style="grid-column: 1; grid-row: 1;">
+        <div style="background: white; border: 2px solid var(--pink); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, var(--pink), var(--pink-dark)); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">categories</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id (UUID)</div>
+            <div>name</div>
+            <div>slug</div>
+            <div>image_url</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column: 2; grid-row: 1;">
+        <div style="background: white; border: 2px solid var(--blue); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, var(--blue), #1E40AF); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">products</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id</div>
+            <div>name, slug, price</div>
+            <div>sale_price, stock</div>
+            <div>images[] (ARRAY)</div>
+            <div style="color: var(--blue);">🔗 category_id</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column: 3; grid-row: 1;">
+        <div style="background: white; border: 2px solid var(--pink); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, var(--pink), var(--pink-dark)); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">users</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id (UUID)</div>
+            <div>email (UNIQUE)</div>
+            <div>password_hash</div>
+            <div>full_name, phone</div>
+            <div>role (customer/admin)</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column: 4; grid-row: 1;">
+        <div style="background: white; border: 2px solid var(--yellow); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, var(--yellow), #B45309); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">cart_items</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id</div>
+            <div style="color: var(--blue);">🔗 user_id</div>
+            <div style="color: var(--blue);">🔗 product_id</div>
+            <div>quantity</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column: 1; grid-row: 2;">
+        <div style="background: white; border: 2px solid var(--green); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, var(--green), #065F46); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">reviews</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id</div>
+            <div style="color: var(--blue);">🔗 user_id</div>
+            <div style="color: var(--blue);">🔗 product_id</div>
+            <div>rating (1-5)</div>
+            <div>comment</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column: 2; grid-row: 2;">
+        <div style="background: white; border: 2px solid var(--purple); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: linear-gradient(135deg, var(--purple), #6D28D9); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">order_items</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id</div>
+            <div style="color: var(--blue);">🔗 order_id</div>
+            <div style="color: var(--blue);">🔗 product_id</div>
+            <div>quantity</div>
+            <div>price_at_purchase</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column: 3 / span 2; grid-row: 2;">
+        <div style="background: white; border: 2px solid var(--dark); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.08);">
+          <div style="background: var(--dark); color: white; padding: 8px; text-align: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 13px;">orders</div>
+          <div style="padding: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; line-height: 1.6;">
+            <div style="color: var(--pink); font-weight: 700;">🔑 id (UUID)</div>
+            <div style="color: var(--blue);">🔗 user_id</div>
+            <div>status (pending/confirmed/shipping/delivered)</div>
+            <div>total_price, payment_method</div>
+            <div>shipping_address (JSONB)</div>
+            <div>order_code, created_at</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top: 16px; text-align: center; font-size: 13px; color: var(--gray-500); font-style: italic;">
+      ✨ 7 bảng — tận dụng <strong style="color: var(--pink)">UUID, ARRAY, JSONB</strong> đặc trưng PostgreSQL
+    </div>
+  </div>
+  <div class="slide-number">15 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 16: API ENDPOINTS ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Thiết kế RESTful API — 30+ endpoints</div>
+    <div class="chapter-badge">CHƯƠNG 4 — THIẾT KẾ</div>
+  </div>
+  <div class="slide-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 12%;">Method</th>
+          <th style="width: 38%;">Endpoint</th>
+          <th>Mô tả</th>
+          <th style="width: 15%;">Auth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/auth/register</td><td>Đăng ký tài khoản mới</td><td>—</td></tr>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/auth/login</td><td>Đăng nhập, nhận JWT token</td><td>—</td></tr>
+        <tr><td><span class="endpoint-method GET">GET</span></td><td class="endpoint-path">/api/products?category=&search=&sort=</td><td>Danh sách sản phẩm với filter</td><td>—</td></tr>
+        <tr><td><span class="endpoint-method GET">GET</span></td><td class="endpoint-path">/api/products/{slug}</td><td>Chi tiết sản phẩm theo slug</td><td>—</td></tr>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/products</td><td>Tạo sản phẩm mới</td><td>🔒 Admin</td></tr>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/cart</td><td>Thêm sản phẩm vào giỏ</td><td>🔑 Customer</td></tr>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/orders</td><td>Tạo đơn hàng từ giỏ</td><td>🔑 Customer</td></tr>
+        <tr><td><span class="endpoint-method PUT">PUT</span></td><td class="endpoint-path">/api/orders/{id}/status</td><td>Cập nhật trạng thái đơn hàng</td><td>🔒 Admin</td></tr>
+        <tr><td><span class="endpoint-method GET">GET</span></td><td class="endpoint-path">/api/admin/stats</td><td>Thống kê dashboard tổng quan</td><td>🔒 Admin</td></tr>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/upload/image</td><td>Upload ảnh lên Cloudinary</td><td>🔒 Admin</td></tr>
+        <tr><td><span class="endpoint-method POST">POST</span></td><td class="endpoint-path">/api/payment/webhook</td><td>Nhận webhook xác nhận từ PayOS</td><td>HMAC</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top: 14px; text-align: center; font-size: 13px; color: var(--gray-500); font-style: italic;">
+      Tổng cộng <strong style="color: var(--pink)">30+ endpoints</strong> — tự sinh Swagger docs tại <code style="background: var(--gray-100); padding: 2px 6px; border-radius: 4px;">/docs</code>
+    </div>
+  </div>
+  <div class="slide-number">16 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 17: LUỒNG MUA HÀNG ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Luồng xử lý: Customer Journey</div>
+    <div class="chapter-badge">CHƯƠNG 4 — THIẾT KẾ</div>
+  </div>
+  <div class="slide-body">
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num">1</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Duyệt sản phẩm</div>
+          <div class="flow-step-desc">Khách hàng vào trang /products, lọc theo danh mục "Chăm sóc da"</div>
+        </div>
+        <div class="flow-step-tag">GET /api/products</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">2</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Xem chi tiết sản phẩm</div>
+          <div class="flow-step-desc">Click sản phẩm → trang chi tiết với gallery ảnh, mô tả, reviews</div>
+        </div>
+        <div class="flow-step-tag">GET /api/products/{slug}</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">3</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Thêm vào giỏ hàng</div>
+          <div class="flow-step-desc">Kiểm tra tồn kho, tạo cart_item trong DB, cập nhật cartStore</div>
+        </div>
+        <div class="flow-step-tag">POST /api/cart</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">4</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Vào trang Checkout</div>
+          <div class="flow-step-desc">Nhập địa chỉ giao hàng, chọn phương thức thanh toán (PayOS / COD)</div>
+        </div>
+        <div class="flow-step-tag">/checkout</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">5</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Tạo đơn hàng</div>
+          <div class="flow-step-desc">Backend: validate stock → tạo Order + OrderItems → xoá CartItems</div>
+        </div>
+        <div class="flow-step-tag">POST /api/orders</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">6</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Thanh toán PayOS</div>
+          <div class="flow-step-desc">Tạo payment link → redirect → khách quét QR Code ngân hàng</div>
+        </div>
+        <div class="flow-step-tag">PayOS API</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num">7</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Webhook xác nhận thành công</div>
+          <div class="flow-step-desc">PayOS gửi webhook → verify HMAC → cập nhật order.status = 'confirmed'</div>
+        </div>
+        <div class="flow-step-tag">POST /webhook ✅</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">17 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 18: JWT FLOW ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Luồng xác thực JWT</div>
+    <div class="chapter-badge">CHƯƠNG 4 — THIẾT KẾ</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; flex: 1;">
+      <div class="code-block">
+<span class="gray">// Sequence Diagram: Login Flow</span>
+
+Client                Backend              Database
+  |                      |                     |
+  |-- <span class="pink">POST /auth/login</span> -→|                     |
+  |   {email, password}  |                     |
+  |                      |-- <span class="blue">SELECT user</span> ----→|
+  |                      |←-- user record ----|
+  |                      |                     |
+  |                      | <span class="green">verify bcrypt</span>       |
+  |                      | <span class="green">generate JWT</span>        |
+  |                      |                     |
+  |←-- <span class="pink">200 OK</span> ----------|                     |
+  |   {access_token,     |                     |
+  |    refresh_token}    |                     |
+  |                      |                     |
+  |                      |                     |
+  |-- API Request ------→|                     |
+  |   Bearer {token}     |                     |
+  |                      | <span class="green">verify signature</span>    |
+  |                      | <span class="green">check expiry</span>        |
+  |←-- Response ---------|                     |
+  |                      |                     |
+  |-- <span class="pink">401</span> Expired -----→|                     |
+  |-- <span class="pink">POST /refresh</span> ---→|                     |
+  |←-- New access token -|                     |
+      </div>
+      <div class="col-card pink">
+        <div class="col-title">🔐 Chi tiết bảo mật</div>
+        <ul class="bullet-list">
+          <li><strong>Access Token</strong>: 30 phút (HS256)</li>
+          <li><strong>Refresh Token</strong>: 7 ngày</li>
+          <li><strong>Bcrypt cost 12</strong> – chống brute force</li>
+          <li><strong>HTTPBearer scheme</strong> chuẩn</li>
+          <li>Token signature không thể giả mạo</li>
+          <li>Auto refresh khi 401 (axios interceptor)</li>
+          <li><strong>require_admin</strong> dependency cho admin endpoints</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">18 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 19: DOCKER DEPLOY ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Triển khai với Docker Compose</div>
+    <div class="chapter-badge">CHƯƠNG 5 — CÀI ĐẶT</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1;">
+      <div>
+        <div style="background: var(--gray-50); padding: 24px; border-radius: 16px; border: 2px dashed var(--gray-300); height: 100%;">
+          <div style="font-weight: 800; color: var(--dark); margin-bottom: 16px; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+            🐳 Docker Compose Stack
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: white; border-left: 5px solid var(--blue); padding: 14px 16px; border-radius: 8px;">
+              <div style="font-weight: 700; color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 14px;">luxe_db</div>
+              <div style="font-size: 12px; color: var(--gray-500); margin-top: 4px;">PostgreSQL 16 Alpine · port 5432 · volume pgdata</div>
+            </div>
+            <div style="text-align: center; color: var(--gray-300);">↑ depends on</div>
+            <div style="background: white; border-left: 5px solid var(--pink); padding: 14px 16px; border-radius: 8px;">
+              <div style="font-weight: 700; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: 14px;">luxe_backend</div>
+              <div style="font-size: 12px; color: var(--gray-500); margin-top: 4px;">FastAPI + Uvicorn · port 8000 · volume uploads</div>
+            </div>
+            <div style="text-align: center; color: var(--gray-300);">↑ proxied by</div>
+            <div style="background: white; border-left: 5px solid var(--green); padding: 14px 16px; border-radius: 8px;">
+              <div style="font-weight: 700; color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 14px;">luxe_frontend</div>
+              <div style="font-size: 12px; color: var(--gray-500); margin-top: 4px;">Nginx + React build · port 80 · multi-stage</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="code-block" style="margin-bottom: 16px;">
+<span class="gray"># Clone &amp; cấu hình</span>
+git clone &lt;repo&gt;
+<span class="blue">cd</span> luxe-beauty
+<span class="blue">cp</span> .env.example .env
+
+<span class="gray"># Khởi động toàn bộ hệ thống</span>
+docker compose <span class="green">up --build -d</span>
+
+<span class="gray"># Migration &amp; seed dữ liệu</span>
+docker compose <span class="blue">exec</span> backend \
+  alembic <span class="green">upgrade head</span>
+docker compose <span class="blue">exec</span> backend \
+  python <span class="green">-m</span> app.seed
+
+<span class="gray"># Kết quả:</span>
+<span class="pink">✓</span> 3 container running
+<span class="pink">✓</span> 52 sản phẩm seeded
+<span class="pink">✓</span> Truy cập: http://localhost
+        </div>
+        <div style="background: linear-gradient(135deg, var(--pink-light), white); padding: 14px; border-radius: 10px; font-size: 13px; color: var(--gray-700); border: 1px solid rgba(219,39,119,0.2);">
+          💡 <strong>1 lệnh duy nhất</strong> để chạy toàn bộ hệ thống trên mọi máy có Docker
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">19 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 20: DEMO HOMEPAGE & PRODUCTS (REAL) ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Demo: Trang chủ &amp; Danh sách sản phẩm</div>
+    <div class="chapter-badge">CHƯƠNG 5 — DEMO (1/3)</div>
+  </div>
+  <div class="slide-body">
+    <div class="real-demo-grid">
+      <div class="real-demo-card">
+        <div class="real-demo-title">🏠 Homepage — "L\'Art de la Beauté"</div>
+        <div class="real-screenshot">
+          <img src="screenshots/01_homepage.png" alt="Homepage LuxeBeauty">
+        </div>
+        <ul class="real-features">
+          <li>Hero banner phong cách tạp chí thời trang cao cấp</li>
+          <li>Typography Playfair Display + Cormorant Garamond</li>
+          <li>Tone màu nude / champagne sang trọng</li>
+          <li>Navigation: Son môi · Chăm sóc da · Nước hoa</li>
+        </ul>
+      </div>
+      <div class="real-demo-card">
+        <div class="real-demo-title">📦 Danh sách sản phẩm</div>
+        <div class="real-screenshot">
+          <img src="screenshots/02_products_list.png" alt="Products List">
+        </div>
+        <ul class="real-features">
+          <li>Sidebar lọc: danh mục, khoảng giá, thương hiệu</li>
+          <li>Grid 3 cột với 9+ thương hiệu (Chanel, Dior, MAC...)</li>
+          <li>Search bar realtime + sort 4 tiêu chí</li>
+          <li>Layout responsive trên mọi kích thước màn hình</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">20 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 21: DEMO PRODUCT DETAIL & CART (REAL) ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Demo: Chi tiết sản phẩm &amp; Giỏ hàng</div>
+    <div class="chapter-badge">CHƯƠNG 5 — DEMO (2/3)</div>
+  </div>
+  <div class="slide-body">
+    <div class="real-demo-grid">
+      <div class="real-demo-card">
+        <div class="real-demo-title">🔍 Chi tiết sản phẩm Chanel Rouge Allure</div>
+        <div class="real-screenshot">
+          <img src="screenshots/03_product_detail.png" alt="Product Detail">
+        </div>
+        <ul class="real-features">
+          <li>Image gallery với thumbnail navigation rõ ràng</li>
+          <li>Hiển thị rating sao + số lượng đánh giá</li>
+          <li>Giá khuyến mãi 1.380.000₫ vs giá gốc, badge "Còn hàng"</li>
+          <li>Bộ chọn số lượng + nút "Thêm vào giỏ" gold accent</li>
+        </ul>
+      </div>
+      <div class="real-demo-card">
+        <div class="real-demo-title">🛒 Giỏ hàng đầy đủ</div>
+        <div class="real-screenshot">
+          <img src="screenshots/06_cart_with_items.png" alt="Cart with items">
+        </div>
+        <ul class="real-features">
+          <li>Bảng hiển thị sản phẩm đã thêm</li>
+          <li>Cập nhật số lượng + xoá sản phẩm dễ dàng</li>
+          <li>Tính tổng tiền realtime, đồng bộ với server</li>
+          <li>Nút "Tiến hành thanh toán" nổi bật</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">21 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 22: DEMO CHECKOUT & AUTH (REAL) ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Demo: Thanh toán &amp; Xác thực</div>
+    <div class="chapter-badge">CHƯƠNG 5 — DEMO (3/3)</div>
+  </div>
+  <div class="slide-body">
+    <div class="real-demo-grid">
+      <div class="real-demo-card">
+        <div class="real-demo-title">💳 Trang Checkout</div>
+        <div class="real-screenshot">
+          <img src="screenshots/06b_checkout.png" alt="Checkout">
+        </div>
+        <ul class="real-features">
+          <li>Form địa chỉ giao hàng đầy đủ</li>
+          <li>Validation realtime với React Hook Form</li>
+          <li>Lựa chọn phương thức: PayOS QR Code / COD</li>
+          <li>Tóm tắt đơn hàng cố định, tổng tiền rõ ràng</li>
+        </ul>
+      </div>
+      <div class="real-demo-card">
+        <div class="real-demo-title">🔐 Đăng nhập / Đăng ký</div>
+        <div class="real-screenshot">
+          <img src="screenshots/04_login.png" alt="Login">
+        </div>
+        <ul class="real-features">
+          <li>Form xác thực gọn gàng, sang trọng</li>
+          <li>JWT Authentication: Access + Refresh Token</li>
+          <li>Phân quyền customer / admin tách bạch</li>
+          <li>Bcrypt password hashing — bảo mật cao</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">22 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 23: KIỂM THỬ PYTEST ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Kiểm thử tự động với Pytest</div>
+    <div class="chapter-badge">CHƯƠNG 5 — KIỂM THỬ</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 28px; flex: 1;">
+      <div>
+        <table class="data-table" style="font-size: 13px;">
+          <thead>
+            <tr>
+              <th>Module test</th>
+              <th style="width: 80px; text-align: center;">Cases</th>
+              <th style="width: 80px; text-align: center;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>test_auth.py</td><td style="text-align: center;">12</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr><td>test_products.py</td><td style="text-align: center;">15</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr><td>test_cart.py</td><td style="text-align: center;">10</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr><td>test_orders.py</td><td style="text-align: center;">12</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr><td>test_categories.py</td><td style="text-align: center;">8</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr><td>test_users.py</td><td style="text-align: center;">6</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr><td>test_admin.py</td><td style="text-align: center;">8</td><td style="text-align: center;"><span class="perf-badge">PASS</span></td></tr>
+            <tr style="background: var(--pink-light); font-weight: 800;">
+              <td><strong>TỔNG CỘNG</strong></td>
+              <td style="text-align: center; color: var(--pink); font-size: 18px;">71</td>
+              <td style="text-align: center;"><span class="perf-badge" style="background: var(--pink);">100%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-block">
+<span class="gray">$ cd backend &amp;&amp; pytest tests/ -v</span>
+
+================ test session starts ================
+collected <span class="pink">71 items</span>
+
+tests/test_auth.py <span class="green">............</span>          [16%]
+tests/test_products.py <span class="green">...............</span>   [37%]
+tests/test_cart.py <span class="green">..........</span>            [51%]
+tests/test_orders.py <span class="green">............</span>        [68%]
+tests/test_categories.py <span class="green">........</span>        [79%]
+tests/test_users.py <span class="green">......</span>               [88%]
+tests/test_admin.py <span class="green">........</span>             [99%]
+
+============= <span class="green">71 passed in 4.23s</span> ==============
+
+<span class="gray"># Coverage report:</span>
+<span class="blue">app/routers/</span>     <span class="green">94%</span>
+<span class="blue">app/crud/</span>        <span class="green">91%</span>
+<span class="blue">app/core/</span>        <span class="green">88%</span>
+<span class="pink">TOTAL</span>            <span class="green">92%</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">23 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 24: HIỆU NĂNG & BẢO MẬT ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Hiệu năng &amp; Bảo mật</div>
+    <div class="chapter-badge">CHƯƠNG 5 — KIỂM THỬ</div>
+  </div>
+  <div class="slide-body">
+    <div class="perf-grid">
+      <div class="perf-card">
+        <div class="perf-card-title">⚡ Hiệu năng API</div>
+        <div class="perf-row">
+          <span class="perf-row-label">GET /api/products (1 user)</span>
+          <span class="perf-badge">45ms</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">GET /api/products (10 concurrent)</span>
+          <span class="perf-badge">67ms</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">GET /api/products (50 concurrent)</span>
+          <span class="perf-badge">134ms</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">POST /api/auth/login (bcrypt)</span>
+          <span class="perf-badge" style="background: var(--yellow);">120ms</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">GET /api/products/:slug</span>
+          <span class="perf-badge">38ms</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">POST /api/orders</span>
+          <span class="perf-badge">89ms</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">GET /api/admin/stats</span>
+          <span class="perf-badge">78ms</span>
+        </div>
+        <div style="margin-top: 14px; padding: 10px; background: var(--gray-50); border-radius: 8px; font-size: 12px; color: var(--gray-700); font-style: italic;">
+          ✓ Đạt yêu cầu phi chức năng &lt; 200ms cho mọi endpoint
+        </div>
+      </div>
+      <div class="perf-card security">
+        <div class="perf-card-title">🔒 Kiểm thử bảo mật (OWASP)</div>
+        <div class="perf-row">
+          <span class="perf-row-label">SQL Injection</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">XSS (Cross-Site Scripting)</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">JWT Token Forgery</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">Brute Force Login</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">Unauthorized Admin Access</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">CORS Bypass</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div class="perf-row">
+          <span class="perf-row-label">CSRF Protection</span>
+          <span class="perf-badge" style="background: var(--blue);">SAFE</span>
+        </div>
+        <div style="margin-top: 14px; padding: 10px; background: var(--gray-50); border-radius: 8px; font-size: 12px; color: var(--gray-700); font-style: italic;">
+          ✓ Vượt qua 7/7 kiểm tra bảo mật OWASP Top 10
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">24 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 25: KẾT QUẢ - STATS ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Kết quả đạt được</div>
+    <div class="chapter-badge">CHƯƠNG 6 — KẾT LUẬN</div>
+  </div>
+  <div class="slide-body">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-icon">🔗</div>
+        <div class="stat-card-value">30+</div>
+        <div class="stat-card-label">API Endpoints</div>
+      </div>
+      <div class="stat-card alt-1">
+        <div class="stat-card-icon">📄</div>
+        <div class="stat-card-value">18</div>
+        <div class="stat-card-label">Trang giao diện</div>
+      </div>
+      <div class="stat-card alt-2">
+        <div class="stat-card-icon">🗄️</div>
+        <div class="stat-card-value">7</div>
+        <div class="stat-card-label">Bảng cơ sở dữ liệu</div>
+      </div>
+      <div class="stat-card alt-3">
+        <div class="stat-card-icon">✅</div>
+        <div class="stat-card-value">71</div>
+        <div class="stat-card-label">Test cases pass 100%</div>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top: 16px;">
+      <div class="col-card pink">
+        <div class="col-title">🎯 Về chức năng</div>
+        <ul class="bullet-list">
+          <li>Đầy đủ luồng TMĐT cốt lõi từ duyệt đến thanh toán</li>
+          <li>Admin Dashboard quản lý toàn diện</li>
+          <li>Tích hợp thanh toán PayOS + COD</li>
+          <li>Cloudinary CDN cho ảnh sản phẩm</li>
+          <li>Hệ thống đánh giá sản phẩm</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-title">💡 Về kỹ thuật</div>
+        <ul class="bullet-list">
+          <li>Clean Architecture 4 lớp rõ ràng</li>
+          <li>JWT + Role-based Authorization</li>
+          <li>Docker containerization toàn bộ</li>
+          <li>TypeScript + Pydantic type-safe</li>
+          <li>Hiệu năng API trung bình &lt; 150ms</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">25 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 26: HẠN CHẾ ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Hạn chế của đề tài</div>
+    <div class="chapter-badge">CHƯƠNG 6 — KẾT LUẬN</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1;">
+      <div style="background: white; padding: 22px; border-radius: 14px; border-left: 5px solid #EF4444; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="font-size: 28px;">🚚</div>
+          <div style="font-weight: 800; color: var(--dark); font-size: 17px;">Chưa có giao hàng thực tế</div>
+        </div>
+        <div style="color: var(--gray-700); font-size: 14px; line-height: 1.5;">
+          Chỉ lưu địa chỉ giao hàng, chưa tích hợp GHN, GHTK, Viettel Post để tự động tạo vận đơn và theo dõi
+        </div>
+      </div>
+      <div style="background: white; padding: 22px; border-radius: 14px; border-left: 5px solid #EF4444; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="font-size: 28px;">🎟️</div>
+          <div style="font-weight: 800; color: var(--dark); font-size: 17px;">Chưa có mã giảm giá</div>
+        </div>
+        <div style="color: var(--gray-700); font-size: 14px; line-height: 1.5;">
+          Thiếu module coupon / voucher, flash sale, chương trình tích điểm loyalty
+        </div>
+      </div>
+      <div style="background: white; padding: 22px; border-radius: 14px; border-left: 5px solid #EF4444; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="font-size: 28px;">🔍</div>
+          <div style="font-weight: 800; color: var(--dark); font-size: 17px;">Search còn cơ bản</div>
+        </div>
+        <div style="color: var(--gray-700); font-size: 14px; line-height: 1.5;">
+          Sử dụng ILIKE pattern matching, chưa có full-text search nâng cao hoặc Elasticsearch
+        </div>
+      </div>
+      <div style="background: white; padding: 22px; border-radius: 14px; border-left: 5px solid #EF4444; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="font-size: 28px;">💬</div>
+          <div style="font-weight: 800; color: var(--dark); font-size: 17px;">Chưa có real-time</div>
+        </div>
+        <div style="color: var(--gray-700); font-size: 14px; line-height: 1.5;">
+          Không có thông báo realtime, chat hỗ trợ khách hàng trực tuyến với WebSocket
+        </div>
+      </div>
+      <div style="background: white; padding: 22px; border-radius: 14px; border-left: 5px solid #EF4444; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="font-size: 28px;">🔎</div>
+          <div style="font-weight: 800; color: var(--dark); font-size: 17px;">SEO chưa tối ưu</div>
+        </div>
+        <div style="color: var(--gray-700); font-size: 14px; line-height: 1.5;">
+          SPA React không thân thiện crawlers, cần SSR với Next.js để cải thiện SEO
+        </div>
+      </div>
+      <div style="background: white; padding: 22px; border-radius: 14px; border-left: 5px solid #EF4444; box-shadow: 0 3px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <div style="font-size: 28px;">📱</div>
+          <div style="font-weight: 800; color: var(--dark); font-size: 17px;">Chưa có mobile app</div>
+        </div>
+        <div style="color: var(--gray-700); font-size: 14px; line-height: 1.5;">
+          Chỉ có website responsive, chưa có ứng dụng native iOS / Android
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">26 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 27: HƯỚNG PHÁT TRIỂN ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Hướng phát triển trong tương lai</div>
+    <div class="chapter-badge">CHƯƠNG 6 — KẾT LUẬN</div>
+  </div>
+  <div class="slide-body">
+    <div class="timeline">
+      <div class="timeline-col">
+        <div class="timeline-header">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-title">Ngắn hạn</div>
+            <div class="timeline-sub">3 — 6 tháng</div>
+          </div>
+        </div>
+        <ul class="timeline-list">
+          <li>🚚 Tích hợp GHN / GHTK API</li>
+          <li>🎟️ Module mã giảm giá &amp; flash sale</li>
+          <li>📧 Email notification (SendGrid)</li>
+          <li>🔍 Elasticsearch search engine</li>
+          <li>❤️ Tính năng Wishlist</li>
+        </ul>
+      </div>
+      <div class="timeline-col mid">
+        <div class="timeline-header">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-title">Trung hạn</div>
+            <div class="timeline-sub">6 — 12 tháng</div>
+          </div>
+        </div>
+        <ul class="timeline-list">
+          <li>⚡ Migrate Next.js (SSR cho SEO)</li>
+          <li>📱 App React Native iOS/Android</li>
+          <li>🤖 AI Recommendation System</li>
+          <li>💬 Live chat (WebSocket / Socket.io)</li>
+          <li>🏪 Multi-vendor marketplace</li>
+        </ul>
+      </div>
+      <div class="timeline-col long">
+        <div class="timeline-header">
+          <div class="timeline-dot"></div>
+          <div>
+            <div class="timeline-title">Dài hạn</div>
+            <div class="timeline-sub">12+ tháng</div>
+          </div>
+        </div>
+        <ul class="timeline-list">
+          <li>🧩 Microservices Architecture</li>
+          <li>☸️ Deploy Kubernetes (GKE/EKS)</li>
+          <li>📊 Data analytics platform (BI)</li>
+          <li>🌍 Internationalization (i18n)</li>
+          <li>👓 AR Try-On mỹ phẩm</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">27 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 28: TÓM TẮT ĐỀ TÀI ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Tổng kết đề tài</div>
+    <div class="chapter-badge">CHƯƠNG 6 — KẾT LUẬN</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1;">
+      <div class="col-card pink">
+        <div class="col-title">📚 Về mặt học thuật</div>
+        <ul class="bullet-list">
+          <li>Tổng hợp <strong>Lập trình web</strong> + <strong>Cơ sở dữ liệu</strong></li>
+          <li>Áp dụng <strong>Bảo mật thông tin</strong> (JWT, OWASP)</li>
+          <li>Thực hành <strong>Công nghệ phần mềm</strong> (Clean Arch)</li>
+          <li>Hiểu sâu kiến trúc REST API hiện đại</li>
+          <li>Quy trình phát triển Agile + Git</li>
+          <li>Tích hợp dịch vụ bên thứ ba thực tế</li>
+          <li>TypeScript &amp; typed programming</li>
+        </ul>
+      </div>
+      <div class="col-card dark">
+        <div class="col-title" style="color: white;">🎓 Kỹ năng tích lũy được</div>
+        <ul class="bullet-list dark">
+          <li><strong style="color: var(--pink);">Backend:</strong> Python, FastAPI, SQLAlchemy, Pydantic</li>
+          <li><strong style="color: var(--pink);">Frontend:</strong> React, TypeScript, Tailwind, Zustand</li>
+          <li><strong style="color: var(--pink);">Database:</strong> PostgreSQL, ORM, Migration, Index</li>
+          <li><strong style="color: var(--pink);">DevOps:</strong> Docker, Compose, Nginx, CI/CD</li>
+          <li><strong style="color: var(--pink);">Testing:</strong> Pytest, Test-Driven Development</li>
+          <li><strong style="color: var(--pink);">Tools:</strong> Git, VS Code, Postman, DBeaver</li>
+          <li><strong style="color: var(--pink);">Soft skills:</strong> Documentation, Planning</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top: 18px; padding: 18px; background: linear-gradient(135deg, var(--pink-light), white); border-radius: 12px; text-align: center; border: 1px solid rgba(219, 39, 119, 0.2);">
+      <div style="font-size: 18px; font-weight: 700; color: var(--dark);">
+        💝 Đề tài <strong style="color: var(--pink);">LuxeBeauty</strong> không chỉ là một sản phẩm phần mềm, mà là sự tổng hợp toàn diện kiến thức 4 năm đại học
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">28 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 29: Q&A ═══════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="slide-title">Q&amp;A — Câu hỏi từ Hội đồng</div>
+    <div class="chapter-badge">DISCUSSION</div>
+  </div>
+  <div class="slide-body">
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 30px;">
+      <div style="font-size: 120px; line-height: 1;">❓</div>
+      <div style="font-family: 'Playfair Display', serif; font-size: 56px; font-weight: 900; text-align: center; color: var(--dark);">
+        Em xin sẵn sàng
+      </div>
+      <div style="font-size: 24px; color: var(--gray-700); text-align: center; max-width: 700px; line-height: 1.5;">
+        tiếp nhận các <strong style="color: var(--pink);">câu hỏi</strong> và <strong style="color: var(--pink);">góp ý</strong> từ quý thầy cô trong Hội đồng để hoàn thiện đề tài
+      </div>
+      <div style="display: flex; gap: 16px; margin-top: 20px;">
+        <div style="background: var(--pink-light); padding: 12px 24px; border-radius: 30px; font-size: 14px; color: var(--pink-dark); font-weight: 600;">💡 Kỹ thuật</div>
+        <div style="background: var(--pink-light); padding: 12px 24px; border-radius: 30px; font-size: 14px; color: var(--pink-dark); font-weight: 600;">🏗️ Kiến trúc</div>
+        <div style="background: var(--pink-light); padding: 12px 24px; border-radius: 30px; font-size: 14px; color: var(--pink-dark); font-weight: 600;">🚀 Triển khai</div>
+        <div style="background: var(--pink-light); padding: 12px 24px; border-radius: 30px; font-size: 14px; color: var(--pink-dark); font-weight: 600;">🎯 Định hướng</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-number">29 / 30</div>
+</div>
+
+<!-- ═══════════════ SLIDE 30: THANK YOU ═══════════════ -->
+<div class="slide thanks-slide">
+  <div class="cover-decor top-left"></div>
+  <div class="cover-decor bottom-right"></div>
+  <div style="z-index: 2; text-align: center;">
+    <div style="font-size: 80px; margin-bottom: 20px;">🙏</div>
+    <div class="thanks-title">CẢM ƠN</div>
+    <div class="thanks-sub">quý thầy cô đã lắng nghe phần trình bày của em</div>
+    <div class="thanks-info">
+      <div class="thanks-info-item">
+        <span style="font-size: 24px;">👨‍🎓</span>
+        <span><strong>Nguyễn Văn Sơn</strong></span>
+      </div>
+      <div class="thanks-info-item">
+        <span style="font-size: 24px;">📧</span>
+        <span>nvson@example.com</span>
+      </div>
+      <div class="thanks-info-item">
+        <span style="font-size: 24px;">🔗</span>
+        <span>github.com/.../luxe-beauty</span>
+      </div>
+    </div>
+    <div style="margin-top: 50px; font-style: italic; color: var(--gray-500); font-size: 16px;">
+      ✨ LuxeBeauty — Khám phá vẻ đẹp của bạn ✨
+    </div>
+  </div>
+  <div class="slide-number" style="color: var(--gray-300);">30 / 30</div>
+</div>
+
+</div>
+
+<!-- ═══════════════ NAVIGATION ═══════════════ -->
+<div class="nav-controls">
+  <button class="nav-btn" onclick="prevSlide()" title="Slide trước (←)">◀</button>
+  <span class="slide-counter" id="counter">1 / 30</span>
+  <button class="nav-btn" onclick="nextSlide()" title="Slide tiếp (→)">▶</button>
+  <button class="nav-btn" onclick="toggleFullscreen()" title="Toàn màn hình (F)" style="background: var(--dark);">⛶</button>
+</div>
+
+<div class="keyboard-hint">
+  <kbd>←</kbd> <kbd>→</kbd> chuyển slide · <kbd>F</kbd> fullscreen · <kbd>Home</kbd> đầu · <kbd>End</kbd> cuối
+</div>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+
+function showSlide(index) {
+  if (index < 0) index = 0;
+  if (index >= totalSlides) index = totalSlides - 1;
+  slides.forEach(s => s.classList.remove('active'));
+  slides[index].classList.add('active');
+  currentSlide = index;
+  document.getElementById('counter').textContent = `${index + 1} / ${totalSlides}`;
+  document.getElementById('progressBar').style.width = `${((index + 1) / totalSlides) * 100}%`;
+}
+
+function nextSlide() { showSlide(currentSlide + 1); }
+function prevSlide() { showSlide(currentSlide - 1); }
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    nextSlide();
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    prevSlide();
+  } else if (e.key === 'Home') {
+    showSlide(0);
+  } else if (e.key === 'End') {
+    showSlide(totalSlides - 1);
+  } else if (e.key === 'f' || e.key === 'F') {
+    toggleFullscreen();
+  }
+});
+
+// Init progress bar
+showSlide(0);
+</script>
+
+</body>
+</html>
